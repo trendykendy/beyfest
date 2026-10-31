@@ -13,7 +13,7 @@ not everyone smiles.
   the Stancemancer, the Cheatseeker and the Buzzsaw.
 - **Kept as they are (user's call):** the Beyby. It was created recently and is
   fine; its plan below is not needed.
-- **Redesign started 2026-10-31:** the Fairy Dancer (the user isn't happy with the
+- **Redone 2026-10-31:** the Fairy Dancer (the user wasn't happy with the
   likeness, and the Beyblade should look more like a fairy).
 - **Likeness pass (2026-10-30):** the Pugilist (face, hair and build only).
 - **Redone 2026-10-28, merged 2026-10-30:** the Modsmith.
@@ -94,7 +94,7 @@ twelve versions of one shot.
 - **Beyblade (user's choice): fairy wings.** Translucent, iridescent dragonfly-style wing blades and a petal-shaped rim; a glittering pixie-dust trail and sparkles in place of the current crystal shards. The centre stays plain.
 - **Outfit (user's choice):** the cap goes; everything else stays as in the current image: the holographic pink, purple and white camo jacket, the black butterfly T-shirt, black strapped trousers, fingerless gloves and trainers. No extra cyberpunk lean.
 - **Likeness:** from Steve's photos (`likeness/fairydancer.md`), the beach selfie as master (the only one without a cap): fair, long oval face, round cheeks, high receding hairline, light stubble, blue eyes, slim. None were used for the current image.
-- **Status:** redesign started 2026-10-31. Versions A–C made (`prompts/fairydancer.md`); **version C** (close, high angle looking down) is the front-runner, awaiting the user's approval. ChatGPT chat: https://chatgpt.com/c/6ae549bf-6360-83eb-86c9-bbf1a27c3116. Still to do once approved: copy to `approved/`, new face point in the app, victory images.
+- **Status:** **approved 2026-10-31** as `approved/fairydancer.png` (version C: close, high angle looking down). History in `prompts/fairydancer.md`. In the app with a new face point; the victory images still need redoing.
 
 **7. The Joyzerker** (Vhar): green and purple; *redesign, in the target style*
 - **Bio:** "Joy on the outside. Zerker on the inside."

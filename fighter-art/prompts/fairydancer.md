@@ -5,6 +5,15 @@ the Beyblade to look more like a fairy. User's choices: a pirouette launch, a
 fairy-wing Beyblade, the cap removed, and the rest of the outfit kept as it is (no
 cyberpunk lean). Likeness from two photos: see `likeness/fairydancer.md`.
 
+**Approved: `approved/fairydancer.png`** (a copy of `candidates/fairydancer-C.png`,
+2026-10-31). 1536×1024, transparent, face found at 0.92. In the app with a new face
+point; no mirror flag.
+
+Driven from the built-in browser. It can't attach files (pasting and a localhost
+fetch were both blocked), so the user drags the attachments into the chat box; the
+results are saved with an `<a download>` on the image's blob URL, which lands in
+`~/Downloads`.
+
 ## Attachments (new chat)
 
 From `reference-photos/fairydancer/upload/`: `1-style-pugilist.png`,
