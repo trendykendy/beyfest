@@ -103,11 +103,12 @@
   // First match wins:
   //   1. a key pressed at the TV itself (holds for LOCAL_SECONDS)
   //   2. the organiser locked a scene from the admin page
-  //   3. a match started or its score changed → Match centre (REACT_SECONDS)
-  //   4. between stages, a held scene (tvHold: the final groups, then the
-  //      new bracket until its first match starts; Champion once the grand
-  //      final is done)
-  //   5. auto rotation, each scene for its DWELL
+  //   3. Champion, once the grand final is done (straight away: the final's
+  //      last round set off step 4, which would otherwise make it wait)
+  //   4. a match started or its score changed → Match centre (REACT_SECONDS)
+  //   5. between stages, a held scene (tvHold: the final groups, then the
+  //      new bracket until its first match starts)
+  //   6. auto rotation, each scene for its DWELL
   // A result doesn't cut to Match centre: the winner screen plays over
   // whatever is on (WINNER_SECONDS), then the rotation carries on.
   const DWELL: Record<Scene, number> = { standby: 60, groups: 25, rr: 20, bracket: 25, spotlight: 15, awards: 20, champion: 30, royale: 25, royaleChampion: 30 };
@@ -128,6 +129,7 @@
     if (localActive) return local!.scene;
     if (!data.tournament) return "standby";
     if (data.tv.mode === "locked" && scenes.includes(data.tv.scene)) return data.tv.scene;
+    if (hold === "champion") return hold;
     if (reacting) return "spotlight";
     if (hold) return hold;
     return scenes.includes(autoScene) ? autoScene : scenes[0];
