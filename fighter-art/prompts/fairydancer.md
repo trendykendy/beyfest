@@ -77,3 +77,22 @@ master), `3-photo-laughing.jpg` (laughing, in a cap), `4-outfit-current-action.p
 | A | New chat (driven from the built-in browser; the user dragged in the 5 attachments, which landed face close-up, full Pugilist, laughing photo, beach selfie, current art); prompt A with the style block, "Create an image." in front and the expression pointing at "the Pugilist's laugh" | Good likeness: receding hairline, long face, fair skin, a big crinkle-eyed laugh. The outfit carries over without the cap. The Beyblade has clear iridescent wing blades and sparkles: much more fairy. Transparent (1536×1024). But it's a leaping kick with both feet off the ground, not a pirouette on one toe; the face is smoother and less inked than the Pugilist's; there's a soft partly transparent glow haze around the swirl; the pixie-dust trail is light |
 | B | Edit of A (same chat): smaller head and longer torso (~7.5 heads tall, user's note), a real pirouette on one toe, more ink in the face, denser pixie dust, no haze | Proportions fixed: a tall, slim figure with a visible neck and a longer waist. Now a pirouette (passé): one leg straight, the other tucked at the knee, arms flung wide; the standing foot floats near the bottom rather than resting on a floor. Pixie dust much denser, crisp sparkles. Likeness, laugh, outfit and wing Beyblade kept; transparent. Composited on blue (`candidates/fairydancer-B-on-blue.png`) it is clean: its 25% partly transparent pixels (approved fighters: 4–8%) are the glitter trails themselves, not fog. The face is smaller now and still a touch smooth next to the Pugilist |
 | C | Edit of B: camera only (user's note: no full body needed, look down from above, much closer); full Pugilist inking now the face is bigger | High angle looking down, close: his laughing face turned up to the camera, large in the upper half, with clearly more ink detail (laugh lines, crinkled eyes, cheekbones, mouth folds). The body foreshortens down to one trainer at the bottom; arms flung wide, the launcher close to the camera on the right with the wing Beyblade big in the lower right, the ripcord looping at top left. Outfit, likeness, Beyblade and pixie dust kept; transparent, clean on blue (`candidates/fairydancer-C-on-blue.png`) |
+
+## Victory images (2026-10-31)
+
+Recipe as for the Underdogger: a new chat each, with the old victory image as the
+scene template, the approved cut-out for the outfit, a close-up of the approved head
+(`candidates/fairydancer-C-face.png`, on white) as the face and rendering
+reference, and the beach selfie for likeness only. Attachments in
+`reference-photos/fairydancer/victory-upload/` and `royale-upload/`. The prompt
+describes each image by content (the drag order isn't reliable), keeps the belt or
+trophy and banner lettering unchanged, removes the cap, and asks for the new face on
+the big screen too.
+
+- **Belt A** (`candidates/victory-fairydancer-A.png`): the new face, inked, a huge
+  crinkle-eyed laugh, no cap; the outfit matches; the big screen shows the new face.
+  The belt's "THE FAIRYDANCER" plate and all banners carried over unchanged.
+- **Royale A** (`candidates/royale-victory-fairydancer-A.png`): the new face roaring
+  with laughter, no cap, trophy raised in a gloved hand and a clenched gloved fist;
+  the big screen shows the new face. The trophy lettering ("BEYFEST BATTLE ROYALE
+  CHAMPION") and banners carried over unchanged.
