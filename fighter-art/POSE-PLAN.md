@@ -92,7 +92,7 @@ twelve versions of one shot.
 - **Camera:** front, slightly low.
 - **Mood:** graceful but deadly *(assumed)*.
 - **Beyblade (user's choice): fairy wings.** Translucent, iridescent dragonfly-style wing blades and a petal-shaped rim; a glittering pixie-dust trail and sparkles in place of the current crystal shards. The centre stays plain.
-- **Outfit:** the cap goes (user's call). The rest is still to confirm: the pink and purple camo jacket, possibly leaning cyberpunk like the others.
+- **Outfit (user's choice):** the cap goes; everything else stays as in the current image: the holographic pink, purple and white camo jacket, the black butterfly T-shirt, black strapped trousers, fingerless gloves and trainers. No extra cyberpunk lean.
 - **Likeness:** from Steve's photos (`likeness/fairydancer.md`, to come); none were used for the current image.
 - **Status:** redesign started 2026-10-31, waiting for photos.
 
