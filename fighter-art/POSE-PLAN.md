@@ -93,8 +93,8 @@ twelve versions of one shot.
 - **Mood:** graceful but deadly *(assumed)*.
 - **Beyblade (user's choice): fairy wings.** Translucent, iridescent dragonfly-style wing blades and a petal-shaped rim; a glittering pixie-dust trail and sparkles in place of the current crystal shards. The centre stays plain.
 - **Outfit (user's choice):** the cap goes; everything else stays as in the current image: the holographic pink, purple and white camo jacket, the black butterfly T-shirt, black strapped trousers, fingerless gloves and trainers. No extra cyberpunk lean.
-- **Likeness:** from Steve's photos (`likeness/fairydancer.md`, to come); none were used for the current image.
-- **Status:** redesign started 2026-10-31, waiting for photos.
+- **Likeness:** from Steve's photos (`likeness/fairydancer.md`), the beach selfie as master (the only one without a cap): fair, long oval face, round cheeks, high receding hairline, light stubble, blue eyes, slim. None were used for the current image.
+- **Status:** redesign started 2026-10-31; prompt A ready in `prompts/fairydancer.md`.
 
 **7. The Joyzerker** (Vhar): green and purple; *redesign, in the target style*
 - **Bio:** "Joy on the outside. Zerker on the inside."
