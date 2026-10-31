@@ -56,3 +56,68 @@ and asked for the big screens to show the split face too.
 
 The attachments were sent once without a prompt; that's harmless, since the prompt
 can follow as the next message ("the three images above, in order…").
+
+## Glitch animation (2026-10-31): in progress
+
+The split image is replaced by a small animated WebP for the web app. Two full-body
+frames, one all green ("good") and one all purple ("evil"), with a glitch switching
+between them: about 60% of the loop on green, 40% on purple. Changes from the
+approved image: a softer, kinder face on the green side; a sleeveless top; a little
+slimmer around the middle. The victory images get the same treatment once this is
+locked.
+
+The purple frame is an edit of the green result in the same chat, so the two line up
+for a clean switch. Any small drift gets aligned in code.
+
+### G: green frame (new chat)
+
+Attach, in order: `approved/joyzerker.png`, `reference-photos/joyzerker/upload/1b-style-pugilist-face.png`,
+`reference-photos/joyzerker/upload/2-photo-front-smile.jpg`.
+
+> Image 1 is my character, the Joyzerker. Image 2 shows the rendering style I want
+> for the face (confident ink lines, crisp cel shading). Image 3 is the real person
+> he is based on, smiling.
+>
+> Redraw image 1 as the same character with the same pose, the same camera angle, the
+> same framing and the same landscape canvas (1536×1024), with these changes:
+>
+> 1. No split. His whole body is the good side: both eyes blue, natural fair skin
+>    with ruddy pink cheeks across the whole face, and the whole outfit mainly bright
+>    green (several shades), with black only as trim, seams and shadow. The energy
+>    trails, sparks and Beyblade glow are all green, with white-hot highlights.
+> 2. A softer, kinder face: warm, gentle eyes with relaxed brows and a slight crinkle
+>    at the corners (like image 3), and a big, kind smile showing his upper teeth
+>    through the beard. Happy and friendly, not wild, not shouting, the mouth not wide
+>    open.
+> 3. Sleeveless: the green top becomes a sleeveless athletic top cut at the shoulders,
+>    so both arms are bare from the shoulder down. Thick, strong arms on a heavy-set
+>    man, not a bodybuilder, no visible veins.
+> 4. A little slimmer around the middle: still large and heavy-set with broad shoulders
+>    and chest, but a bit less bulk around the stomach and waist.
+>
+> Keep: his ginger-red beard and swept-back auburn hair, both arms flung wide, the
+> launcher and the ripcord in exactly the same hands and positions, the Beyblade spin
+> vortex in the same place, and the same ink line art and cel shading.
+>
+> Transparent background (real transparency, not a painted checkerboard).
+
+### P: purple frame (same chat, straight after G)
+
+> Now make the evil version of this exact image. Keep everything exactly where it is:
+> the pose, the outline, the hands, the launcher and ripcord, the hair and beard
+> shapes, the sleeveless top, the positions of the Beyblade and the energy, and the
+> canvas size. Change only these:
+>
+> 1. Face: a manic, snarling grin with bared, clenched teeth, deeply furrowed angry
+>    brows, and both eyes glowing red. Same face shape, beard and hair.
+> 2. Skin: shaded purple (cool violet shadows across the face and arms), like the
+>    purple half of the first image I sent. The hair and beard stay ginger-red, with
+>    darker, purple-tinted shadows.
+> 3. Outfit: mainly vivid purple (several shades), with black only as trim, seams and
+>    shadow.
+> 4. Energy trails, sparks and Beyblade glow: purple and magenta, with white-hot
+>    highlights.
+>
+> Transparent background (real transparency, not a painted checkerboard).
+
+Save the results as `candidates/joyzerker-G-green.png` and `candidates/joyzerker-P-purple.png`.
