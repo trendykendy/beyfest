@@ -78,7 +78,10 @@ master), `3-photo-laughing.jpg` (laughing, in a cap), `4-outfit-current-action.p
 | B | Edit of A (same chat): smaller head and longer torso (~7.5 heads tall, user's note), a real pirouette on one toe, more ink in the face, denser pixie dust, no haze | Proportions fixed: a tall, slim figure with a visible neck and a longer waist. Now a pirouette (passé): one leg straight, the other tucked at the knee, arms flung wide; the standing foot floats near the bottom rather than resting on a floor. Pixie dust much denser, crisp sparkles. Likeness, laugh, outfit and wing Beyblade kept; transparent. Composited on blue (`candidates/fairydancer-B-on-blue.png`) it is clean: its 25% partly transparent pixels (approved fighters: 4–8%) are the glitter trails themselves, not fog. The face is smaller now and still a touch smooth next to the Pugilist |
 | C | Edit of B: camera only (user's note: no full body needed, look down from above, much closer); full Pugilist inking now the face is bigger | High angle looking down, close: his laughing face turned up to the camera, large in the upper half, with clearly more ink detail (laugh lines, crinkled eyes, cheekbones, mouth folds). The body foreshortens down to one trainer at the bottom; arms flung wide, the launcher close to the camera on the right with the wing Beyblade big in the lower right, the ripcord looping at top left. Outfit, likeness, Beyblade and pixie dust kept; transparent, clean on blue (`candidates/fairydancer-C-on-blue.png`) |
 
-## Victory images (2026-10-31)
+## Victory images (2026-10-31): approved
+
+Approved first time: `approved/victory-fairydancer.png`,
+`approved/royale-victory-fairydancer.png`.
 
 Recipe as for the Underdogger: a new chat each, with the old victory image as the
 scene template, the approved cut-out for the outfit, a close-up of the approved head
