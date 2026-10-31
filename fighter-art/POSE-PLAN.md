@@ -11,8 +11,10 @@ not everyone smiles.
 
 - **Redone and on main (6e435de):** the Breycist, the Joyzerker, the Torque Warden,
   the Stancemancer, the Cheatseeker and the Buzzsaw.
-- **Kept as they are (user's call):** the Beyby and the Fairy Dancer. They were
-  created recently and are fine; their plans below are not needed.
+- **Kept as they are (user's call):** the Beyby. It was created recently and is
+  fine; its plan below is not needed.
+- **Redesign started 2026-10-31:** the Fairy Dancer (the user isn't happy with the
+  likeness, and the Beyblade should look more like a fairy).
 - **Likeness pass (2026-10-30):** the Pugilist (face, hair and build only).
 - **Redone 2026-10-28, merged 2026-10-30:** the Modsmith.
 - **Redone 2026-10-30:** the Beanblader and the Underdogger. Every fighter is now
@@ -86,9 +88,13 @@ twelve versions of one shot.
 - **Note:** the "RULE BOOK" lettering stays. It needs a hand-made mirror image (`scripts/unflip-text.py`), as before.
 
 **6. The Fairy Dancer** (Steve): cap, pink and purple camo jacket
-- **Pose:** mid-pirouette on one foot, the launch arm extended, the ripcord trailing in a spiral. The Beyblade's glow follows the spin like a ribbon.
+- **Pose (user's choice):** mid-pirouette on one foot, the launch arm extended, the ripcord trailing in a spiral. The Beyblade's glow follows the spin like a ribbon. This replaces the current fist-forward lunge, which was too close to the Pugilist's.
 - **Camera:** front, slightly low.
 - **Mood:** graceful but deadly *(assumed)*.
+- **Beyblade (user's choice): fairy wings.** Translucent, iridescent dragonfly-style wing blades and a petal-shaped rim; a glittering pixie-dust trail and sparkles in place of the current crystal shards. The centre stays plain.
+- **Outfit:** the cap goes (user's call). The rest is still to confirm: the pink and purple camo jacket, possibly leaning cyberpunk like the others.
+- **Likeness:** from Steve's photos (`likeness/fairydancer.md`, to come); none were used for the current image.
+- **Status:** redesign started 2026-10-31, waiting for photos.
 
 **7. The Joyzerker** (Vhar): green and purple; *redesign, in the target style*
 - **Bio:** "Joy on the outside. Zerker on the inside."
