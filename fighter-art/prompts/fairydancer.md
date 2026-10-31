@@ -65,3 +65,4 @@ master), `3-photo-laughing.jpg` (laughing, in a cap), `4-outfit-current-action.p
 
 | Version | How | Result |
 |---|---|---|
+| A | New chat (driven from the built-in browser; the user dragged in the 5 attachments, which landed face close-up, full Pugilist, laughing photo, beach selfie, current art); prompt A with the style block, "Create an image." in front and the expression pointing at "the Pugilist's laugh" | Good likeness: receding hairline, long face, fair skin, a big crinkle-eyed laugh. The outfit carries over without the cap. The Beyblade has clear iridescent wing blades and sparkles: much more fairy. Transparent (1536×1024). But it's a leaping kick with both feet off the ground, not a pirouette on one toe; the face is smoother and less inked than the Pugilist's; there's a soft partly transparent glow haze around the swirl; the pixie-dust trail is light |
