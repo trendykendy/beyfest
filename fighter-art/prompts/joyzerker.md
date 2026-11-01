@@ -57,7 +57,7 @@ and asked for the big screens to show the split face too.
 The attachments were sent once without a prompt; that's harmless, since the prompt
 can follow as the next message ("the three images above, in order…").
 
-## Glitch animation (2026-10-31): in progress
+## Glitch animation (2026-10-31 to 11-01): candidate built, awaiting approval
 
 The split image is replaced by a small animated WebP for the web app. Two full-body
 frames, one all green ("good") and one all purple ("evil"), with a glitch switching
@@ -121,3 +121,24 @@ Attach, in order: `approved/joyzerker.png`, `reference-photos/joyzerker/upload/1
 > Transparent background (real transparency, not a painted checkerboard).
 
 Save the results as `candidates/joyzerker-G-green.png` and `candidates/joyzerker-P-purple.png`.
+
+### What happened
+
+- **G and P** were run by the user in ChatGPT (with a "revert the head to the exact
+  position" fix and background-removal passes). Both have real alpha, and the
+  outlines overlap by 97% with no offset, so no alignment was needed.
+- **Hair too ginger.** The user wanted it darker brown with a hint of red, and the
+  beard deepened too. Done in code, not ChatGPT, so the frames stay aligned:
+  `tools/recolour_joyzerker_hair.py` gives `candidates/joyzerker-G2-green-hair.png`
+  and `candidates/joyzerker-P2-purple-hair.png`.
+- **Animation:** `tools/glitch_animation.py` gives `candidates/joyzerker-glitch-A.webp`:
+  1536x1024, 5 s loop, 3.0 s green (with a brief flicker of purple partway) and
+  2.0 s purple, 6-frame glitch switches (band jolts, RGB split, scanlines), ~10 MB.
+  The app runs locally only, so size isn't a concern.
+
+### Lessons
+
+- Ask for the purple frame as an edit of the green one: the frames came back aligned.
+- Colour fixes on aligned frames are safer in code than as another ChatGPT edit.
+- WebP size: keep glitch effects inside the jolted bands (the encoder stores only what
+  changed), and use method 4. Method 6 took nearly 6 minutes for the same frames.
