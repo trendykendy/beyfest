@@ -65,6 +65,10 @@ that doesn't matter.
 | R3 | The Breycist, menacing close-up | Full scene | New, from `breycist.png` |
 | L1 | The Beyfest 2026 Triple Threat logo | Logo (transparent) | New, matching the BEYFEST lettering in the victory images |
 
+**All nine were approved on 2026-11-01** and are in `approved/intro/` (notes
+per image in [`prompts/intro.md`](prompts/intro.md)). R2 and R3 are cropped to
+16:9 from the top, not the centre.
+
 Everything else is already approved: the 11 cut-outs, their face points (for
 the face montage) and the katakana names in `fighters.json`.
 

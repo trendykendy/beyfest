@@ -7,6 +7,31 @@ fighters: ChatGPT in the built-in browser, the user attaches, Claude types.
 **One chat per image**, except B2 and B3, which are edits of B1 in B1's chat
 so they stay aligned.
 
+## Results (2026-11-01): all nine approved
+
+All are in `approved/intro/`; earlier tries and the attachment folders
+(`attach-B1`, `attach-R`, `attach-L`) are in `candidates/intro/` (not committed).
+
+| ID | File | Notes |
+|---|---|---|
+| B1 | `B1-dawn.png` | First try. The sun came out just above the horizon; the sunrise is done in code. |
+| B2 | `B2-winter.png` | Edit of B1, same chat. Lines up with B1 exactly (0 px). |
+| B3 | `B3-night.png` | Edit of B1 ("the ORIGINAL dawn image"), same chat. Lines up to 1 px. Crowd hands poke into the bottom corners. |
+| C1 | `C1-clash.png` | First try. The blurred background shows stadium lights. |
+| C2 | `C2-ripcord.png` | First try. The Beyblade came out red and silver, so it reads as the Breycist's. |
+| R1 | `R1-stood-over-all.png` | Three fixes, see below. Transparent cut-out. |
+| R2 | `R2-crown.png` | First try, with the head and ear wording. **Crop 16:9 from the top**, or the crown is cut off. Little red energy; added in code. |
+| R3 | `R3-menace.png` | First try. **Crop 16:9 from the top.** The half-face shadow is milder than asked; deepen it in code. |
+| L1 | `L1-logo.png` | First try, transparent, spelled right. The three tiers touch (one connected shape), so code splits them along the thinnest seam. TRIPLE THREAT's tips touch the bottom edge; pad it. |
+
+**Lessons**
+- Edits in the same chat kept the plates aligned, as with the Joyzerker.
+- "Head in natural proportion, ears small and close to the head" and the full
+  hair description in the first prompt got R2 and R3 right first time.
+- ChatGPT stacks logo tiers tightly even when asked for gaps.
+- Saving: Downloads often leaves the file as a `.tmp` for a while; copy it by
+  its byte size if the named file isn't there yet.
+
 ## Shared blocks
 
 ### Scene style (paste into every prompt)
@@ -149,6 +174,18 @@ reference.
 > tracksuit jacket and hair stir in a wind. Red and white energy crackles
 > around his feet and rises behind him like flames. Exactly one launcher and one
 > ripcord, no Beyblade in this image.
+
+**Result (2026-11-01): approved after three fixes**, all in the same chat:
+1. The first try had the right pose and smirk, but the face was too lean, the
+   hair spiky, and the "transparent" background a painted checkerboard.
+2. Edit: face rounder, cheeks fuller, jaw softer; hair soft and flat, no spikes.
+3. **Remove BG** (in the image viewer) gave a clean cut-out.
+4. Edit in the viewer: head about 15% smaller, the over-large ear (right of the
+   image) smaller. The transparency survived this edit.
+
+`approved/intro/R1-stood-over-all.png`, with the figure's alpha set to fully
+solid (it came out at 252–253). **For R2 and R3:** say "head in natural
+proportion to the body, ears small and close to the head" up front.
 
 ## R2: the Winter League crown (scene)
 
