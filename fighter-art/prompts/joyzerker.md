@@ -147,7 +147,7 @@ Save the results as `candidates/joyzerker-G-green.png` and `candidates/joyzerker
 - WebP size: keep glitch effects inside the jolted bands (the encoder stores only what
   changed), and use method 4. Method 6 took nearly 6 minutes for the same frames.
 
-## Victory glitch animations (2026-11-01): in progress
+## Victory glitch animations (2026-11-01): candidates built, awaiting approval
 
 The belt and royale victory images get the same green/purple glitch treatment. They
 are full arena scenes (no transparency), so the background must stay the same in
@@ -214,3 +214,18 @@ VP with "the trophy and all its text" in place of "the belt and all its text".
 
 Save as `candidates/victory-joyzerker-G.png`, `candidates/victory-joyzerker-P.png`,
 `candidates/royale-victory-joyzerker-G.png` and `candidates/royale-victory-joyzerker-P.png`.
+
+### What happened
+
+- All four prompts were typed by Claude in the built-in browser, with the user
+  attaching the images. Each worked first time. The hair and beard came out right
+  from the green reference frame, so no recolour in code was needed.
+- Each purple frame lines up with its green one (no shift). The background layout
+  holds; the flames, light tint and confetti behind him turn purple, which suits
+  the switch.
+- `tools/glitch_animation.py` with the same settings gives
+  `candidates/victory-joyzerker-glitch-A.webp` (~10 MB) and
+  `candidates/royale-victory-joyzerker-glitch-A.webp` (~9 MB). On a full scene the
+  peak glitch frames are busier than on the cut-out, since the whole arena fringes.
+- Saving from ChatGPT: the canvas download lands in Downloads under the name it was
+  given (briefly as a .tmp while writing). Pick it by name, not by "newest .tmp".
