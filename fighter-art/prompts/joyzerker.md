@@ -57,7 +57,7 @@ and asked for the big screens to show the split face too.
 The attachments were sent once without a prompt; that's harmless, since the prompt
 can follow as the next message ("the three images above, in order…").
 
-## Glitch animation (2026-10-31 to 11-01): candidate built, awaiting approval
+## Glitch animation (2026-10-31 to 11-01): approved
 
 The split image is replaced by a small animated WebP for the web app. Two full-body
 frames, one all green ("good") and one all purple ("evil"), with a glitch switching
@@ -135,6 +135,10 @@ Save the results as `candidates/joyzerker-G-green.png` and `candidates/joyzerker
   1536x1024, 5 s loop, 3.0 s green (with a brief flicker of purple partway) and
   2.0 s purple, 6-frame glitch switches (band jolts, RGB split, scanlines), ~10 MB.
   The app runs locally only, so size isn't a concern.
+- **Approved 2026-11-01** as `approved/joyzerker.webp`, with its two source frames
+  kept as `approved/joyzerker-green.png` and `approved/joyzerker-purple.png` for
+  re-runs. The old split image `approved/joyzerker.png` stays until the app is
+  switched over. Not yet in the app; the victory images get the same treatment next.
 
 ### Lessons
 
