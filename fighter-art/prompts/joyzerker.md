@@ -147,7 +147,7 @@ Save the results as `candidates/joyzerker-G-green.png` and `candidates/joyzerker
 - WebP size: keep glitch effects inside the jolted bands (the encoder stores only what
   changed), and use method 4. Method 6 took nearly 6 minutes for the same frames.
 
-## Victory glitch animations (2026-11-01): candidates built, awaiting approval
+## Victory glitch animations (2026-11-01): approved
 
 The belt and royale victory images get the same green/purple glitch treatment. They
 are full arena scenes (no transparency), so the background must stay the same in
@@ -229,3 +229,7 @@ Save as `candidates/victory-joyzerker-G.png`, `candidates/victory-joyzerker-P.pn
   peak glitch frames are busier than on the cut-out, since the whole arena fringes.
 - Saving from ChatGPT: the canvas download lands in Downloads under the name it was
   given (briefly as a .tmp while writing). Pick it by name, not by "newest .tmp".
+- **Approved 2026-11-01** as `approved/victory-joyzerker.webp` and
+  `approved/royale-victory-joyzerker.webp`, with their source frames kept as
+  `approved/*victory-joyzerker-green.png` and `-purple.png`. The old split PNGs stay
+  until the app is switched over.

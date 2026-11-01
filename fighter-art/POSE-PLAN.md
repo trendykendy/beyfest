@@ -103,7 +103,7 @@ twelve versions of one shot.
 - **Mood:** joy and rage at once, as in the user's poster: a jagged split down the centre of his face and body. The joyful half laughs, with a blue eye and mainly green clothes; the manic half snarls, with a glowing red eye, purple-shaded skin and mainly purple clothes.
 - **Likeness:** see `likeness/joyzerker.md`. His real look (ginger beard, swept-back wavy hair, heavy-set build) replaces the Gemini design.
 - **Status:** **approved 2026-10-28** as `approved/joyzerker.png`. History in `prompts/joyzerker.md`. Not yet in the app; the victory images still need redoing.
-- **Glitch animation (approved 2026-11-01):** the split image is replaced by `approved/joyzerker.webp`, a loop that glitches between a full green "good" frame (softer, kinder face) and a full purple "evil" frame, 60/40. Sleeveless, a little slimmer round the middle, darker auburn hair. Built with `tools/glitch_animation.py`. Not yet in the app; the victory images get the same treatment next.
+- **Glitch animation (approved 2026-11-01):** the split image is replaced by `approved/joyzerker.webp`, a loop that glitches between a full green "good" frame (softer, kinder face) and a full purple "evil" frame, 60/40. Sleeveless, a little slimmer round the middle, darker auburn hair. Built with `tools/glitch_animation.py`. The victory images match (approved 2026-11-01): `approved/victory-joyzerker.webp` and `approved/royale-victory-joyzerker.webp`. None of the three are in the app yet.
 
 **8. The Modsmith** (Cuffe): white lab coat, blue shirt, orange and silver
 - **Character (user's choice):** the mad tinkerer who builds and mods his own gear.
