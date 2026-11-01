@@ -146,3 +146,71 @@ Save the results as `candidates/joyzerker-G-green.png` and `candidates/joyzerker
 - Colour fixes on aligned frames are safer in code than as another ChatGPT edit.
 - WebP size: keep glitch effects inside the jolted bands (the encoder stores only what
   changed), and use method 4. Method 6 took nearly 6 minutes for the same frames.
+
+## Victory glitch animations (2026-11-01): in progress
+
+The belt and royale victory images get the same green/purple glitch treatment. They
+are full arena scenes (no transparency), so the background must stay the same in
+both frames or it will jump at each switch. The character reference is the
+approved green frame, which already has the right hair (dark brown with a hint of
+red) and beard (deeper red-ginger), so no recolour in code should be needed.
+
+### VG: belt, green frame (new chat)
+
+Attach, in order: `approved/victory-joyzerker.png`, `approved/joyzerker-green.png`.
+
+> Image 1 is my character's victory image. Image 2 is the new design of the same
+> character. Redraw image 1 with exactly the same scene, arena, lights, crowd,
+> camera angle, pose and composition, on the same landscape canvas (1536×1024). Keep
+> the belt exactly as it is, with all of its text unchanged ("BEYFEST", "GRAND
+> CHAMPION", "ROLL OF HONOUR / BEYFEST 2025 / THE JOYZERKER").
+>
+> Change only the character, to match image 2:
+>
+> 1. No split anywhere. He is entirely the good side: both eyes blue, natural fair
+>    skin with ruddy cheeks, the whole outfit mainly bright green with black trim.
+> 2. A softer, kinder face: warm, gentle eyes, relaxed brows, and a big, kind,
+>    triumphant smile through the beard. Happy, not wild.
+> 3. A sleeveless green athletic top, arms bare from the shoulder. Heavy-set, thick
+>    arms, no visible veins, not a bodybuilder.
+> 4. A little slimmer around the middle, still large and heavy-set.
+> 5. Dark brown hair with a hint of red, swept back in loose waves, and a deeper
+>    red-ginger beard and moustache, redder than the hair (as in image 2).
+> 6. The big screens show his face the same way: the kind, smiling, green good side,
+>    with no split.
+> 7. The energy and flames around him are green.
+>
+> Everything else in the scene stays exactly as in image 1.
+
+### VP: belt, purple frame (same chat, straight after VG)
+
+> Now make the evil version of this exact image. Keep everything exactly where it is:
+> the arena, the background, the lights, the crowd, the belt and all its text, the
+> pose, the outline, the hands, the hair and beard shapes, the sleeveless top and the
+> canvas size. Change only these:
+>
+> 1. Face: a manic, snarling grin with bared, clenched teeth, deeply furrowed angry
+>    brows, and both eyes glowing red.
+> 2. Skin: shaded purple (cool violet shadows across the face and arms). The hair and
+>    beard keep their colours, with darker, purple-tinted shadows.
+> 3. Outfit: mainly vivid purple, with black trim.
+> 4. The big screens show the same snarling, purple evil face.
+> 5. The energy and flames around him are purple.
+>
+> Do not change anything in the background.
+
+### RG: royale, green frame (new chat)
+
+Attach, in order: `approved/royale-victory-joyzerker.png`, `approved/joyzerker-green.png`.
+
+Same as VG, with these swaps: "my character's battle royale victory image"; "Keep the
+trophy exactly as it is, with all of its text unchanged ("BEYFEST", "BEYFEST BATTLE
+ROYALE CHAMPION")"; and add "8. Green trousers with black trim, as in image 2" and
+"the raised fist stays where it is".
+
+### RP: royale, purple frame (same chat, straight after RG)
+
+VP with "the trophy and all its text" in place of "the belt and all its text".
+
+Save as `candidates/victory-joyzerker-G.png`, `candidates/victory-joyzerker-P.png`,
+`candidates/royale-victory-joyzerker-G.png` and `candidates/royale-victory-joyzerker-P.png`.
