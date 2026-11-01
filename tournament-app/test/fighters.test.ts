@@ -51,6 +51,11 @@ describe("fighterImageUrl", () => {
       "http://beyfest.local:8090/api/files/fighters/a1/breycist.png?thumb=0x900",
     );
   });
+  test("serves a WebP as it is, since its thumb would freeze an animation", () => {
+    expect(fighterImageUrl("http://x:8090", { ...library[0], image: "joyzerker_k3j9.webp" })).toBe(
+      "http://x:8090/api/files/fighters/a1/joyzerker_k3j9.webp",
+    );
+  });
   test("is empty without an image or a fighter", () => {
     expect(fighterImageUrl("http://x:8090", library[1])).toBe("");
     expect(fighterImageUrl("http://x:8090", null)).toBe("");

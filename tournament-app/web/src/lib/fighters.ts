@@ -83,19 +83,23 @@ export function fighterFor(name: string, fighters: PBFighter[]): PBFighter | nul
 const fileUrl = (pbUrl: string, f: PBFighter, file: string) =>
   `${pbUrl}/api/files/fighters/${f.id}/${encodeURIComponent(file)}`;
 
+// PocketBase's thumb of a WebP is a still image, which would freeze an
+// animated cut-out (the Joyzerker's glitch loop), so a WebP is served as it is.
+const thumbQuery = (file: string, thumb: string) =>
+  thumb && !file.toLowerCase().endsWith(".webp") ? `?thumb=${thumb}` : "";
+
 // The cut-out's URL, at the 0x900 thumb size the TV uses (the field's only
 // thumb), or "" if the fighter has no image. `pbUrl` is browserPbUrl().
 export function fighterImageUrl(pbUrl: string, f: PBFighter | null, thumb = "0x900"): string {
   if (!f?.image) return "";
-  const q = thumb ? `?thumb=${thumb}` : "";
-  return fileUrl(pbUrl, f, f.image) + q;
+  return fileUrl(pbUrl, f, f.image) + thumbQuery(f.image, thumb);
 }
 
 // The hand-made mirror image's URL, at the cut-out's size, or "" if the
 // fighter has none.
 export function fighterMirroredUrl(pbUrl: string, f: PBFighter | null, thumb = "0x900"): string {
   if (!f?.imageMirrored) return "";
-  return fileUrl(pbUrl, f, f.imageMirrored) + (thumb ? `?thumb=${thumb}` : "");
+  return fileUrl(pbUrl, f, f.imageMirrored) + thumbQuery(f.imageMirrored, thumb);
 }
 
 // What a screen shows for a cut-out it wants mirrored or not: the hand-made
