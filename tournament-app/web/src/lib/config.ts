@@ -14,8 +14,10 @@ export function browserPbUrl(): string {
 
 // The same, worked out on the server from the page's URL (so server-rendered
 // pages can link PocketBase files without waiting for the browser).
-export function pbUrlFor(page: { protocol: string; hostname: string }): string {
-  return env.PUBLIC_PB_URL || `${page.protocol}//${page.hostname}:8090`;
+// Always http: PocketBase serves plain http here, and the built server
+// (adapter-node) can't see the page's protocol, so its `url` says https.
+export function pbUrlFor(page: { hostname: string }): string {
+  return env.PUBLIC_PB_URL || `http://${page.hostname}:8090`;
 }
 
 // Shown on the TV standby screen before the groups are drawn.
