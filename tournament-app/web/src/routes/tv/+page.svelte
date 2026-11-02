@@ -4,6 +4,8 @@
   import { liveUpdates } from "$lib/pbBrowser";
   import { EVENT, browserPbUrl } from "$lib/config";
   import {
+    artFor,
+    faceCrop,
     fighterFor,
     fighterImageUrl,
     fighterMirroredUrl,
@@ -390,6 +392,21 @@
     const f = fighterFor(name, data.fighters);
     // The intro shows the combat name; players without a fighter keep their own.
     return { name: f?.name || name, kana: f?.kana ?? "", img: fighterImageUrl(browserPbUrl(), f), imgMirrored: fighterMirroredUrl(browserPbUrl(), f), mirror: !!f?.mirror, face: f?.face ?? null };
+  }
+  // Match centre's art panel beside each slab: the fighter's cut-out zoomed
+  // onto the face, turned to face the VS like the intro (cut-outs face left,
+  // so the left side is flipped; the mirror flag swaps that). null for a
+  // player without a fighter, who gets no panel.
+  function slabArt(name: string, side: "left" | "right"): { src: string; style: string } | null {
+    const f = fighterFor(name, data.fighters);
+    // data.pbUrl, not browserPbUrl(): this also runs on the server.
+    const img = fighterImageUrl(data.pbUrl, f);
+    if (!f || !img) return null;
+    const wantFlip = (side === "left") !== !!f.mirror;
+    const art = artFor({ img, imgMirrored: fighterMirroredUrl(data.pbUrl, f) }, wantFlip);
+    // A hand-made mirror image is already flipped, so its face sits mirrored too.
+    const face = f.face && wantFlip && !art.flip ? { ...f.face, x: 1 - f.face.x } : f.face;
+    return { src: art.src, style: faceCrop(face, 0.34, art.flip) };
   }
   function endIntro() {
     const next = introShow?.then ?? null;
@@ -1115,6 +1132,15 @@
           </div>
         {/if}
       {/snippet}
+      <!-- The fighter's art in its own slanted panel at the card's outer end. -->
+      {#snippet artPanel(art: { src: string; style: string })}
+        <div class="mc-art" aria-hidden="true">
+          <div class="mc-art-pic">
+            <div class="mc-art-bg"></div>
+            <img src={art.src} alt="" style={art.style} />
+          </div>
+        </div>
+      {/snippet}
       <div class="mc">
         {#if spotMatch}
           {@const t = pointsToWin(spotMatch.stage, spotMatch.roundLabel)}
@@ -1168,11 +1194,16 @@
             {/key}
           {/if}
 
-          <div class="mc-duel tier-{tierOf(spotMatch.stage)}">
+          {@const artA = slabArt(sideName(spotMatch, 1), "left")}
+          {@const artB = slabArt(sideName(spotMatch, 2), "right")}
+          <div class="mc-duel tier-{tierOf(spotMatch.stage)}" class:lite={fxLite}>
             <div class="mc-side left" class:won={wonA} class:lost={wonB}>
-              <div class="mc-slab">
-                <div class="mc-name">{sideName(spotMatch, 1)}</div>
-                <div class="mc-score">{showScore ? av : "–"}</div>
+              <div class="mc-card">
+                {#if artA}{@render artPanel(artA)}{/if}
+                <div class="mc-slab">
+                  <div class="mc-name">{sideName(spotMatch, 1)}</div>
+                  <div class="mc-score">{showScore ? av : "–"}</div>
+                </div>
               </div>
               {@render sideFoot(1, wonA, true)}
             </div>
@@ -1182,9 +1213,12 @@
               <div class="mc-ft">First to <b>{t}</b></div>
             </div>
             <div class="mc-side right" class:won={wonB} class:lost={wonA}>
-              <div class="mc-slab">
-                <div class="mc-score">{showScore ? bv : "–"}</div>
-                <div class="mc-name">{sideName(spotMatch, 2)}</div>
+              <div class="mc-card">
+                <div class="mc-slab">
+                  <div class="mc-score">{showScore ? bv : "–"}</div>
+                  <div class="mc-name">{sideName(spotMatch, 2)}</div>
+                </div>
+                {#if artB}{@render artPanel(artB)}{/if}
               </div>
               {@render sideFoot(2, wonB, true)}
             </div>
@@ -1943,6 +1977,141 @@
   .mc-side.lost .mc-slab {
     background: #dfe3f2;
     color: var(--ink-soft);
+  }
+  /* Slab + art panel side by side; the finish pills stay underneath both. */
+  .mc-card {
+    display: flex;
+    align-items: stretch;
+  }
+  .mc-card .mc-slab {
+    flex: 1;
+    /* Above the art panel, so the panel can slide out from behind it. */
+    position: relative;
+    z-index: 1;
+  }
+  /* Art panel: its own slanted slab (same border, tier band and shadow) at
+     the card's outer end, the cut-out zoomed onto the face by faceCrop(). */
+  .mc-art {
+    position: relative;
+    flex: none;
+    width: 190px;
+    transform: skewX(-10deg);
+    border: 4px solid var(--ink);
+    border-top: 16px solid var(--tier);
+    box-shadow: 12px 12px 0 var(--ink);
+    background: var(--field-deep);
+    overflow: hidden;
+  }
+  .left .mc-art {
+    margin-right: 18px;
+  }
+  .right .mc-art {
+    margin-left: 18px;
+  }
+  /* Start match: while the build-up has the page blank, each panel waits
+     tucked behind its slab (moved its own width + gap toward the VS). When
+     the page comes back, it slides out with a little overshoot, just after
+     the slabs have faded in. Nothing else blanks the page, so browsing or
+     switching scenes shows the panels already out. */
+  .mc-art {
+    transition:
+      transform 0.55s cubic-bezier(0.2, 1.35, 0.4, 1) 0.35s,
+      opacity 0.15s linear 0.35s;
+  }
+  .tv.blank .left .mc-art {
+    transform: translateX(208px) skewX(-10deg);
+  }
+  .tv.blank .right .mc-art {
+    transform: translateX(-208px) skewX(-10deg);
+  }
+  .tv.blank .mc-art {
+    opacity: 0;
+    transition: none;
+  }
+  /* Straightened back up and 50px wider each side, so the slanted panel's
+     corners stay filled. */
+  .mc-art-pic {
+    position: absolute;
+    inset: 0 -50px;
+    overflow: hidden;
+    transform: skewX(10deg);
+  }
+  .mc-art-pic img {
+    display: block;
+    position: absolute;
+    /* Without a face point; faceCrop() replaces this when there is one.
+       (left/top only, not inset: faceCrop's width:auto would stretch
+       between left and right.) */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 20%;
+  }
+  /* Behind the cut-out: slow sunburst rays plus a tier-colour glow that
+     breathes. Transforms and opacity only, so it's cheap to draw. */
+  .mc-art-bg,
+  .mc-art-bg::before,
+  .mc-art-bg::after {
+    position: absolute;
+  }
+  .mc-art-bg {
+    inset: 0;
+    overflow: hidden;
+  }
+  .mc-art-bg::before {
+    content: "";
+    width: 900px;
+    aspect-ratio: 1;
+    left: 50%;
+    top: 35%;
+    margin: -450px 0 0 -450px;
+    background: repeating-conic-gradient(rgb(255 255 255 / 0.1) 0 6deg, transparent 6deg 18deg);
+    mask: radial-gradient(circle, #000 0 15%, transparent 55%);
+    animation: mc-art-spin 40s linear infinite;
+  }
+  .mc-art-bg::after {
+    content: "";
+    inset: -10%;
+    background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--tier) 75%, transparent), transparent 70%);
+    animation: mc-art-glow 3.2s ease-in-out infinite;
+  }
+  /* The two panels breathe out of step, so they don't pulse as a pair. */
+  .right .mc-art-bg::after {
+    animation-delay: -1.6s;
+  }
+  @keyframes mc-art-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+  @keyframes mc-art-glow {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.06);
+    }
+  }
+  /* The loser's panel goes grey and still; lite mode keeps it still too. */
+  .mc-side.lost .mc-art-pic {
+    filter: grayscale(1) brightness(0.8);
+  }
+  .mc-side.lost .mc-art-bg::before,
+  .mc-side.lost .mc-art-bg::after,
+  .mc-duel.lite .mc-art-bg::before,
+  .mc-duel.lite .mc-art-bg::after {
+    animation: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mc-art-bg::before,
+    .mc-art-bg::after {
+      animation: none;
+    }
   }
   .mc-winner {
     font-family: var(--font-display);
