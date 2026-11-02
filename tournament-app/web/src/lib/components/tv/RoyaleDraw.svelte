@@ -87,10 +87,10 @@
   const n = $derived(fighters.length);
   const per = $derived(360 / n);
   // Pictures shrink as the wedges narrow; names follow the room left.
-  const pic = $derived(Math.min(112, Math.round(((2 * Math.PI * 330) / n) * 0.72)));
+  const pic = $derived(Math.min(100, Math.round(((2 * Math.PI * 330) / n) * 0.72)));
   const picR = $derived(OUTR - pic / 2 - 14);
-  const nameIn = IN + 14;
-  const nameOut = $derived(picR - pic / 2 - 12);
+  const nameIn = IN + 8;
+  const nameOut = $derived(picR - pic / 2 - 8);
   const nameSize = $derived(Math.min(34, Math.round(((2 * Math.PI * ((nameIn + nameOut) / 2)) / n) * 0.55)));
 
   type Wedge = { f: Fighter; i: number; a0: number; a1: number; mid: number };
@@ -113,11 +113,45 @@
   });
   // A name reads outward on the right half, inward on the left.
   const nameTurn = (mid: number) => (mid > 180 ? mid + 90 : mid - 90);
-  // Long names are squeezed to fit (a rough width for the display face).
-  const nameFit = (name: string) => {
+  // Names stack over up to three lines rather than being squashed: a leading
+  // "The" goes small on top, and the rest stays on one line or splits a word
+  // per line. Whichever stacking gives the biggest letters wins. Lines run
+  // from the hub to the picture (`room`); the stack's depth is limited by the
+  // wedge's width. 0.54 is roughly the display face's width per letter.
+  const CHAR = 0.54;
+  const KICKER = 0.6; // "The" line, as a share of the main size
+  const MAX_SQUEEZE = 0.9; // squash a line to at most 90% of its width
+  type NameLine = { text: string; size: number; y: number; fit?: number };
+  function nameLayout(name: string): { lines: NameLine[]; stroke: number } {
     const room = nameOut - nameIn;
-    return name.length * nameSize * 0.52 > room ? room : undefined;
-  };
+    const across = ((2 * Math.PI * ((nameIn + nameOut) / 2)) / n) * 0.8;
+    const m = /^(the)\s+(.+)$/i.exec(name.trim());
+    const kicker = m ? m[1] : "";
+    const rest = m ? m[2] : name.trim();
+    const words = rest.split(/\s+/);
+    // Candidate stackings: [line text, relative size][]
+    const options: [string, number][][] = [[[name.trim(), 1]]];
+    if (kicker) options.push([[kicker, KICKER], [rest, 1]]);
+    if (words.length > 1) options.push([...(kicker ? [[kicker, KICKER] as [string, number]] : []), ...words.map((w): [string, number] => [w, 1])]);
+    let best = { size: 0, opt: options[0] };
+    for (const opt of options) {
+      const widest = Math.max(...opt.map(([t, k]) => t.length * CHAR * k));
+      const depth = opt.reduce((sum, [, k]) => sum + k, 0);
+      const size = Math.min(nameSize, room / (widest * MAX_SQUEEZE), across / depth);
+      if (size > best.size) best = { size, opt };
+    }
+    const size = Math.floor(best.size);
+    const depth = best.opt.reduce((sum, [, k]) => sum + k, 0) * size;
+    let y = -depth / 2;
+    const lines = best.opt.map(([text, k]) => {
+      const s = Math.round(size * k);
+      const line = { text, size: s, y: y + s / 2, fit: text.length * CHAR * s > room ? room : undefined };
+      y += s;
+      return line;
+    });
+    // A thick outline fills in small letters, so it thins with them.
+    return { lines, stroke: Math.min(6, Math.max(3, size * 0.18)) };
+  }
   // Where a sector pops to: outward along its middle.
   const pop = (mid: number, d = 20) => {
     const t = (mid * Math.PI) / 180;
@@ -165,13 +199,16 @@
                 {#each g.wedges as wd (wd.i)}
                   <path class="wedge {wd.i % 2 ? 'odd' : ''}" d={slice(wd.a0, wd.a1, IN, OUTR)} />
                   <path class="tint" d={slice(wd.a0, wd.a1, IN, OUTR)} />
-                  <text
+                  {@const nl = nameLayout(wd.f.name)}
+                  <g
                     class="nm"
+                    style:stroke-width="{nl.stroke}px"
                     transform="translate({pt((nameIn + nameOut) / 2, wd.mid).replace(' ', ',')}) rotate({nameTurn(wd.mid)})"
-                    font-size={nameSize}
-                    textLength={nameFit(wd.f.name)}
-                    lengthAdjust="spacingAndGlyphs">{wd.f.name}</text
                   >
+                    {#each nl.lines as ln, li (li)}
+                      <text y={ln.y} font-size={ln.size} textLength={ln.fit} lengthAdjust="spacingAndGlyphs">{ln.text}</text>
+                    {/each}
+                  </g>
                 {/each}
                 <path class="band" d={groups.length > 1 ? slice(g.a0 + 0.6, g.a1 - 0.6, BAND - 28, BAND + 28) : ring(BAND - 28, BAND + 28)} />
                 <text class="band-label"><textPath href="#band-label-{gi}" startOffset="50%">{g.label}</textPath></text>
