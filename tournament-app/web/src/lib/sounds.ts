@@ -14,6 +14,7 @@ export const MUSIC = [
   "/sounds/music/championship-mode.mp3",
   "/sounds/music/championship-theme-3.mp3",
   "/sounds/music/championship-theme-4.mp3",
+  "/sounds/music/championship-theme-5.mp3",
 ];
 
 export const VERSUS = ["/sounds/versus-1.mp3", "/sounds/versus-2.mp3"];
