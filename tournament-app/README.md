@@ -121,24 +121,48 @@ you start it: the TV window opens behind it.
 
 ## Other setups
 
-### On a Mac (backup setup)
+### On a Mac
 
-`start.sh` is the Mac/Linux twin of `start.ps1`. **Do the first run at home, with
-internet**: it installs packages, builds the web app, downloads the right PocketBase
-for the Mac (Apple Silicon or Intel) into `pb/pocketbase`, and creates the database,
-asking you to choose the passwords. After that it runs offline. (It doesn't open the
-TV screen or check the firewall; those are Windows-only.)
+`start.sh` is the Mac/Linux twin of `start.ps1`, and on a Mac it does the same jobs:
 
-1. Install **Bun**: `curl -fsSL https://bun.sh/install | bash`. **Node** is optional;
-   it's used to run the server if present, otherwise Bun does.
-2. Double-click **`start.command`** in Finder, or run `./start.sh` in Terminal.
-   - If macOS says it can't check the file, right-click it → *Open* (only the first time).
-   - When macOS asks whether `pocketbase` and `node`/`bun` may **accept incoming
-     connections**, choose *Allow*. Otherwise the TV and phones can't reach the Mac.
-3. It prints the URLs, including the **TV screen** one. Close the window (or Ctrl+C)
-   to stop both servers.
-4. Stop the Mac sleeping during the event (System Settings → Battery/Energy →
-   *Prevent automatic sleeping*), and keep it plugged in.
+- It rebuilds when the code has changed.
+- It keeps the Mac and its screens awake while it runs.
+- It opens the TV screen full screen in **Chrome** (or Edge), with sound allowed. If a
+  landscape second screen is plugged in, that's treated as the TV. Use
+  `./start.sh --no-tv` if the TV is driven by something else.
+- It closes the TV window again when you stop it.
+
+It works on Apple Silicon and Intel Macs. There are two ways to get it onto the Mac.
+
+**A. The ready-made package (simplest: no git, no Bun, no internet on the Mac).**
+On the Windows PC, in Git Bash, run `scripts/mac-package.sh`. It runs the tests, builds
+the app, and makes **`dist/beyfest-mac.zip`**. The zip holds PocketBase for both kinds
+of Mac. Copy the zip to the Mac (USB stick, AirDrop…) and unzip it. Then:
+
+1. Install **Node** (the LTS version) from https://nodejs.org.
+2. Double-click **`beyfest/start.command`**. On a new database it asks you to choose
+   the passwords.
+
+The package starts with an empty database. To bring your data across, make a backup
+on the PC (PocketBase admin → *Settings → Backups*), copy it over, and restore it on
+the Mac. Re-make the package after any code change; the package can't rebuild itself.
+
+**B. A git checkout.** Install **Bun** (`curl -fsSL https://bun.sh/install | bash`;
+Node is optional), clone the repo, then double-click **`start.command`**. **Do the
+first run at home, with internet**: it installs packages, builds the app and downloads
+PocketBase. After that it runs offline, and a `git pull` is picked up (rebuilt) on the
+next start.
+
+Either way:
+
+- If macOS says it can't check `start.command`, right-click it → *Open* (only the
+  first time).
+- When macOS asks whether `pocketbase` and `node`/`bun` may **accept incoming
+  connections**, choose *Allow*. Otherwise the TV and phones can't reach the Mac. (It
+  reminds you if the Mac's firewall is on.)
+- It prints the URLs, including the **TV screen** one. Close the window (or Ctrl+C) to
+  stop everything.
+- Keep the Mac plugged in.
 
 If it prints the wrong address (e.g. the Mac is on both wifi and a cable), force it:
 `BEYFEST_IP=192.168.1.20 ./start.sh`.
@@ -273,12 +297,13 @@ or on the Pi re-run the installer with `--passwords`.
 ```
 tournament-app/
   start.ps1              the event launcher (Windows): rebuild, firewall check, servers, TV screen
-  start.sh               the same for macOS / Linux / Raspberry Pi (servers only)
+  start.sh               the same for macOS / Linux / Raspberry Pi (on a Mac it also opens the TV)
   start.command          double-click wrapper for start.sh on a Mac
   install-pi.sh          Raspberry Pi: install or update everything (see above)
   scripts/pi-kiosk.sh    Raspberry Pi: TV screen full-screen in Chromium
   scripts/beyfest-wifi.sh  Raspberry Pi: wifi networks + fallback hotspot (the `beyfest-wifi` command)
   scripts/pi-package.sh  builds the ready-to-run Pi package (GitHub runs it)
+  scripts/mac-package.sh builds the ready-to-run Mac package (dist/beyfest-mac.zip)
   engine/                pure-TS tournament logic + tests
   pb/                    PocketBase migrations; the binary and pb_data appear at runtime
   web/                   SvelteKit app (TV screen, phone page + admin)

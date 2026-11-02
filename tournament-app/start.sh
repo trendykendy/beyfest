@@ -8,13 +8,29 @@
 # them. Detects this machine's LAN IP so it can print the addresses to open.
 #
 #   ./start.sh                     (on a Mac you can double-click start.command)
+#   ./start.sh --no-tv             on a Mac: don't open the TV screen
 #   BEYFEST_IP=192.168.1.20 ./start.sh   to force the address it prints
 #
-# First run needs the internet: it installs packages, builds the web app and
-# downloads the PocketBase build for this machine. Do it at home, not at the
-# venue. After that it runs offline.
+# From a git checkout, the first run needs the internet: it installs
+# packages, builds the web app and downloads the PocketBase build for this
+# machine. Do it at home, not at the venue. After that it runs offline, and
+# rebuilds by itself whenever the code has changed (after a git pull).
+# The Mac package (scripts/mac-package.sh) comes ready-built with PocketBase
+# for both kinds of Mac, so there it only needs Node and never goes online.
+#
+# On a Mac it also keeps the Mac and its screens awake while it runs, and
+# opens the TV screen full screen in Chrome (or Edge), on the TV if one is
+# plugged in as a second screen.
 # ─────────────────────────────────────────────────────────────────────
 set -euo pipefail
+
+open_tv=1
+for arg in "$@"; do
+  case "$arg" in
+    --no-tv) open_tv=0 ;;
+    *) echo "  Unknown option: $arg (the only one is --no-tv)" >&2; exit 1 ;;
+  esac
+done
 
 root="$(cd "$(dirname "$0")" && pwd)"
 pb_version="0.40.4" # start.ps1 and the Pi package read this too
@@ -45,8 +61,20 @@ if command -v node >/dev/null 2>&1; then
   runner="node"
 elif command -v bun >/dev/null 2>&1; then
   runner="bun"
-else
+elif [[ -d "$root/web/src" ]]; then
   fail "Neither Node nor Bun is installed. Install Bun:  curl -fsSL https://bun.sh/install | bash"
+else
+  fail "Node is not installed. Install the LTS version from https://nodejs.org and run this again."
+fi
+
+is_mac=0
+[[ "$(uname -s)" == "Darwin" ]] && is_mac=1
+
+# Files copied or downloaded onto a Mac can be marked "from the internet",
+# and macOS then refuses to run PocketBase (it isn't signed). Clear the mark
+# from this folder. It does nothing if there's no mark.
+if ((is_mac)); then
+  xattr -dr com.apple.quarantine "$root" 2>/dev/null || true
 fi
 
 # ── Detect the LAN IP (the interface that owns the default route) ────
@@ -79,6 +107,14 @@ if [[ ! -x "$pb_bin" ]]; then
     armv7l) arch="armv7" ;; # 32-bit Raspberry Pi OS
     *) fail "Unsupported CPU $(uname -m)." ;;
   esac
+  # The Mac package brings PocketBase for both kinds of Mac: use the right one.
+  bundled="$root/pb/pocketbase-${os}-${arch}"
+  if [[ -f "$bundled" ]]; then
+    cp "$bundled" "$pb_bin"
+    chmod +x "$pb_bin"
+  fi
+fi
+if [[ ! -x "$pb_bin" ]]; then
   command -v unzip >/dev/null 2>&1 || fail "unzip is not installed (sudo apt install unzip)."
 
   zip_url="https://github.com/pocketbase/pocketbase/releases/download/v${pb_version}/pocketbase_${pb_version}_${os}_${arch}.zip"
@@ -91,15 +127,72 @@ if [[ ! -x "$pb_bin" ]]; then
   chmod +x "$pb_bin"
 fi
 
-# ── Install packages and build the web app if needed ────────────────
-if [[ ! -f "$web_build" ]]; then
-  need_bun
-  if [[ ! -d "$root/node_modules" ]]; then
-    echo "  First run: installing packages…"
-    (cd "$root" && bun install)
+# ── Build the web app if needed ─────────────────────────────────────
+# Same as start.ps1: rebuilt whenever any of its code has changed since the
+# last build, so new code (from git pull or a copied folder) never runs as an
+# old build. Each build leaves a fingerprint of the files it was built from
+# (name, size and time of every file); timestamps alone would miss a copied
+# folder that kept older times. The Mac and Pi packages have no source code
+# (web/src), only the finished build, so they skip all this.
+
+# One line per file ("path|size|mtime"), sorted, then hashed. BSD (Mac) and
+# GNU (Linux) stat and sha256 tools take different options.
+fingerprint() {
+  local p
+  for p in "$@"; do
+    [[ -e "$p" ]] || continue
+    if ((is_mac)); then
+      find "$p" -type f -exec stat -f '%N|%z|%m' {} +
+    else
+      find "$p" -type f -exec stat -c '%n|%s|%Y' {} +
+    fi
+  done | sed "s|^$root||" | LC_ALL=C sort |
+    if command -v shasum >/dev/null 2>&1; then shasum -a 256; else sha256sum; fi |
+    cut -d' ' -f1
+}
+
+if [[ -d "$web_dir/src" ]]; then
+  sources=("$web_dir/src" "$web_dir/static" "$root/engine/src" "$web_dir/svelte.config.js" "$web_dir/vite.config.ts")
+  packages=("$root/bun.lock" "$root/package.json" "$web_dir/package.json" "$root/engine/package.json")
+  # Kept inside build/ (gitignored): a fresh checkout has no build and no
+  # fingerprint, so it always builds.
+  source_stamp="$web_dir/build/.sources"
+  package_stamp="$web_dir/build/.packages"
+  source_print="$(fingerprint "${sources[@]}" "${packages[@]}")"
+  package_print="$(fingerprint "${packages[@]}")"
+  last_sources="$(cat "$source_stamp" 2>/dev/null || true)"
+  last_packages="$(cat "$package_stamp" 2>/dev/null || true)"
+
+  if [[ ! -f "$web_build" || "$last_sources" != "$source_print" ]]; then
+    need_bun
+    if [[ -f "$web_build" ]]; then
+      echo "  The code has changed since the last build: rebuilding…"
+    else
+      echo "  First run: building the web app…"
+    fi
+
+    # A new or changed package comes in with the lock file: install it first.
+    if [[ ! -d "$root/node_modules" || "$last_packages" != "$package_print" ]]; then
+      (cd "$root" && bun install --frozen-lockfile) ||
+        echo "  bun install failed (offline?). Trying the build anyway."
+    fi
+
+    if (cd "$web_dir" && bun run build); then
+      printf '%s' "$source_print" >"$source_stamp"
+      printf '%s' "$package_print" >"$package_stamp"
+    elif [[ -f "$web_build" ]]; then
+      # Don't strand the event: keep going on the last good build. No new
+      # fingerprint, so the next start tries the build again.
+      echo ""
+      echo "  THE BUILD FAILED (see above). Running the PREVIOUS build instead:"
+      echo "  it won't have the newest changes."
+      echo ""
+    else
+      fail "The build failed (see above), and there's no earlier build to fall back on."
+    fi
   fi
-  echo "  First run: building the web app…"
-  (cd "$web_dir" && bun run build)
+elif [[ ! -f "$web_build" ]]; then
+  fail "There's no built web app (web/build) and no source code to build it from."
 fi
 
 # ── Fresh database: create it, and choose the passwords ───────────────
@@ -179,15 +272,85 @@ if [[ -n "$organiser_pw" ]]; then
 fi
 
 web_pid=""
+tv_pid=""
+tv_profile="$HOME/Library/Application Support/Beyfest2026/tv-browser"
 
 # Stop both servers when the web server exits, on Ctrl+C, or when the window closes.
 cleanup() {
   echo ""
   echo "  Shutting down…"
-  kill "$pb_pid" $web_pid 2>/dev/null || true
+  kill "$pb_pid" $web_pid $tv_pid 2>/dev/null || true
+  # Close the TV screen too, rather than leave it showing an error. Found by
+  # its own profile folder, so any other Chrome windows are left alone.
+  if ((is_mac)); then pkill -f -- "--user-data-dir=$tv_profile" 2>/dev/null || true; fi
 }
 trap cleanup EXIT
 trap 'exit 130' INT TERM HUP
+
+if ((is_mac)); then
+  # ── Keep the Mac and its screens awake while this runs ─────────────
+  # No sleep and no screen going dark mid-match. caffeinate stops by itself
+  # when this script ends (-w).
+  caffeinate -dims -w $$ &
+
+  # ── Can phones get through the Mac's firewall? ─────────────────────
+  # If it's on, macOS asks the first time whether node and pocketbase may
+  # accept incoming connections. The answer must be Allow.
+  if /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate 2>/dev/null | grep -q "enabled"; then
+    echo "  The Mac's firewall is on. If macOS asks whether pocketbase or node may"
+    echo "  accept incoming connections, choose Allow, or phones and the TV can't connect."
+    echo ""
+  fi
+
+  # ── Open the TV screen once the web server answers ─────────────────
+  # Chrome (or Edge) in kiosk mode, with its own profile so it doesn't join a
+  # browser that's already open, and sound allowed to start by itself
+  # (otherwise the announcer and music wait for a click on the TV).
+  if ((open_tv)); then
+    browser=""
+    for app in "Google Chrome" "Microsoft Edge"; do
+      for dir in "/Applications" "$HOME/Applications"; do
+        exe="$dir/$app.app/Contents/MacOS/$app"
+        if [[ -z "$browser" && -x "$exe" ]]; then browser="$exe"; fi
+      done
+    done
+    if [[ -n "$browser" ]]; then
+      # The TV is a second screen, if there's one that's landscape;
+      # otherwise the main screen. macOS counts screen positions up from the
+      # main screen's bottom edge, Chrome down from its top: hence the flip.
+      tv_pos="$(osascript -l JavaScript -e '
+        ObjC.import("AppKit");
+        const screens = $.NSScreen.screens;
+        const main = screens.objectAtIndex(0).frame;
+        let best = null, area = 0;
+        for (let i = 1; i < screens.count; i++) {
+          const f = screens.objectAtIndex(i).frame;
+          const w = f.size.width, h = f.size.height;
+          if (w >= h && w * h > area) { area = w * h; best = f; }
+        }
+        const f = best || main;
+        `${Math.round(f.origin.x)},${Math.round(main.size.height - f.origin.y - f.size.height)}`;
+      ' 2>/dev/null || echo "0,0")"
+      mkdir -p "$tv_profile"
+      (
+        # Wait (up to 2 minutes) for the web server, then open the TV.
+        for _ in $(seq 60); do
+          curl -fs -m 3 "http://127.0.0.1:$web_port/ping" >/dev/null 2>&1 && break
+          sleep 2
+        done
+        exec "$browser" --kiosk "http://${ip}:${web_port}/tv" \
+          --user-data-dir="$tv_profile" --no-first-run --no-default-browser-check \
+          --noerrdialogs --disable-session-crashed-bubble \
+          --autoplay-policy=no-user-gesture-required \
+          --window-position="$tv_pos" >/dev/null 2>&1
+      ) &
+      tv_pid=$!
+    else
+      echo "  Chrome isn't installed: open http://${ip}:${web_port}/tv full screen on the TV yourself."
+      echo ""
+    fi
+  fi
+fi
 
 # ── Start the web server ─────────────────────────────────────────────
 # It runs in the background and we wait on it, so a signal to this script is
