@@ -11,6 +11,7 @@ const fighter = (over: Partial<PBFighter>): PBFighter => ({
   imageMirrored: "",
   victory: "",
   royaleVictory: "",
+  profile: "",
   voice: "",
   mirror: false,
   face: null,
@@ -83,6 +84,13 @@ describe("planStarters", () => {
       { kind: "fill", id: "a", starter: posed, fields: {}, files: ["royaleVictory"] },
     ]);
     expect(planStarters([posed], [{ ...loaded, royaleVictory: "mine.png" }])).toEqual([]);
+  });
+
+  test("gives a fighter already loaded the profile sheet, keeping one uploaded by hand", () => {
+    const sheeted: Starter = { ...breycist, profile: "profile-breycist.webp" };
+    const loaded = fighter({ id: "a", name: "The Breycist", player: "Conor", kana: "k", image: "i.png", voice: "v.mp3" });
+    expect(planStarters([sheeted], [loaded])).toEqual([{ kind: "fill", id: "a", starter: sheeted, fields: {}, files: ["profile"] }]);
+    expect(planStarters([sheeted], [{ ...loaded, profile: "mine.png" }])).toEqual([]);
   });
 
   test("gives the mirror image only to the starter's own picture", () => {

@@ -10,6 +10,7 @@ const f = (id: string, name: string, player: string, image = "", voice = ""): PB
   imageMirrored: "",
   victory: "",
   royaleVictory: "",
+  profile: "",
   voice,
   mirror: false,
   face: null,

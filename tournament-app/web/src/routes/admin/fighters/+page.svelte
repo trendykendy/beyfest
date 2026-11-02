@@ -6,6 +6,7 @@
     fighterImageUrl,
     fighterMirroredUrl,
     fighterRoyaleVictoryUrl,
+    fighterProfileUrl,
     fighterVictoryUrl,
     fighterVoiceUrl,
     artFor,
@@ -22,6 +23,7 @@
     artFor({ img: img(f), imgMirrored: fighterMirroredUrl(data.pbUrl, f) }, (side === "left") !== f.mirror);
   const victoryImg = (f: PBFighter) => fighterVictoryUrl(data.pbUrl, f, "300x200");
   const royaleVictoryImg = (f: PBFighter) => fighterRoyaleVictoryUrl(data.pbUrl, f, "300x200");
+  const profileImg = (f: PBFighter) => fighterProfileUrl(data.pbUrl, f, "300x200");
 
   // One clip at a time: a new Play stops the last one.
   let playing: HTMLAudioElement | null = null;
@@ -106,6 +108,7 @@
       <label>Image <input type="file" name="image" accept="image/png,image/webp,image/jpeg" /></label>
       <label>Victory pose <input type="file" name="victory" accept="image/png,image/webp,image/jpeg" /></label>
       <label>Royale pose <input type="file" name="royaleVictory" accept="image/png,image/webp,image/jpeg" /></label>
+      <label>Profile sheet <input type="file" name="profile" accept="image/png,image/webp,image/jpeg" /></label>
       <label>Mirrored image <input type="file" name="imageMirrored" accept="image/png,image/webp,image/jpeg" /></label>
       <label>Voice <input type="file" name="voice" accept="audio/*" /></label>
       <label class="check"><input type="checkbox" name="mirror" /> Mirror</label>
@@ -138,6 +141,9 @@
           {#if f.royaleVictory}
             <div class="preview victory" title="Battle royale victory pose"><img src={royaleVictoryImg(f)} alt="" /></div>
           {/if}
+          {#if f.profile}
+            <div class="preview victory" title="Profile sheet"><img src={profileImg(f)} alt="" /></div>
+          {/if}
         </div>
 
         <form method="POST" action="?/update" enctype="multipart/form-data" use:enhance class="fields">
@@ -151,6 +157,7 @@
             <label>{f.imageMirrored ? "Replace mirrored image" : "Mirrored image"} <input type="file" name="imageMirrored" accept="image/png,image/webp,image/jpeg" /></label>
           {/if}
           <label>{f.royaleVictory ? "Replace royale pose" : "Royale pose"} <input type="file" name="royaleVictory" accept="image/png,image/webp,image/jpeg" /></label>
+          <label>{f.profile ? "Replace profile sheet" : "Profile sheet"} <input type="file" name="profile" accept="image/png,image/webp,image/jpeg" /></label>
           <label>{f.voice ? "Replace voice" : "Voice"} <input type="file" name="voice" accept="audio/*" /></label>
           {#if f.image}
             <!-- Keyed on the saved point, so it resets once a save comes back. -->
@@ -171,6 +178,9 @@
             {/if}
             {#if f.royaleVictory}
               <label class="check"><input type="checkbox" name="removeRoyaleVictory" /> Remove royale pose</label>
+            {/if}
+            {#if f.profile}
+              <label class="check"><input type="checkbox" name="removeProfile" /> Remove profile sheet</label>
             {/if}
             {#if f.imageMirrored}
               <label class="check"><input type="checkbox" name="removeImageMirrored" /> Remove mirrored image</label>

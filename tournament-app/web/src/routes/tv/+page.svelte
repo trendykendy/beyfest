@@ -10,6 +10,7 @@
     fighterImageUrl,
     fighterMirroredUrl,
     fighterRoyaleVictoryUrl,
+    fighterProfileUrl,
     fighterVictoryUrl,
     fighterVoiceUrl,
     type Face,
@@ -137,14 +138,45 @@
     return scenes.includes(autoScene) ? autoScene : scenes[0];
   });
 
+  // Whether the rotation (step 6, or Standby before the event) is what's on.
+  const rotating = $derived(
+    !localActive && (!data.tournament || (!(data.tv.mode === "locked" && scenes.includes(data.tv.scene)) && !hold && !reacting)),
+  );
+
+  // Blader profiles: every PROFILE_EVERY scenes of the rotation (every time
+  // round on Standby, which is the only one), one fighter's profile sheet for
+  // PROFILE_SECONDS, each fighter's in turn. Only while the rotation is on:
+  // a match starting, a hold or a locked scene takes over at once.
+  const PROFILE_EVERY = 4;
+  const PROFILE_SECONDS = 20;
+  const profiles = $derived(data.fighters.filter((f) => f.profile));
+  let profileAt = $state(-1);
+  let profileUntil = $state(0);
+  let sinceProfile = 0;
+  let justProfiled = false; // the next change is back to the scenes, uncounted
+  const profileOn = $derived(rotating && now < profileUntil && profiles.length > 0);
+  const profileSrc = $derived(profileOn ? fighterProfileUrl(browserPbUrl(), profiles[profileAt % profiles.length]) : "");
+
   // Advance the rotation. Runs every second; cheap.
   function tick() {
     now = Date.now();
-    if (now >= autoUntil || !scenes.includes(autoScene)) {
-      const i = scenes.indexOf(autoScene); // -1 → starts again at scenes[0]
-      autoScene = scenes[(i + 1) % scenes.length];
-      autoUntil = now + DWELL[autoScene] * 1000;
+    if (now < profileUntil) return; // the scene after it waits its turn
+    if (!scenes.includes(autoScene)) {
+      // The scene list changed under it: on to the next, not a profile.
+    } else if (now < autoUntil) {
+      return;
+    } else if (justProfiled) {
+      justProfiled = false;
+    } else if (rotating && profiles.length && ++sinceProfile >= (scenes.length === 1 ? 1 : PROFILE_EVERY)) {
+      sinceProfile = 0;
+      justProfiled = true;
+      profileAt = (profileAt + 1) % profiles.length;
+      profileUntil = autoUntil = now + PROFILE_SECONDS * 1000;
+      return;
     }
+    const i = scenes.indexOf(autoScene); // -1 → starts again at scenes[0]
+    autoScene = scenes[(i + 1) % scenes.length];
+    autoUntil = now + DWELL[autoScene] * 1000;
   }
 
   // Watch for a match starting or its running score changing, and cut to
@@ -507,7 +539,8 @@
   // half-loaded image. (Browsers cache them; the list is at most a few dozen.)
   $effect(() => {
     for (const f of data.fighters) {
-      for (const url of [fighterImageUrl(browserPbUrl(), f), fighterMirroredUrl(browserPbUrl(), f)]) {
+      // The profile sheets too: full size, and shown with no warning.
+      for (const url of [fighterImageUrl(browserPbUrl(), f), fighterMirroredUrl(browserPbUrl(), f), fighterProfileUrl(browserPbUrl(), f)]) {
         if (url) new Image().src = url;
       }
     }
@@ -938,7 +971,10 @@
     </div>
     <div class="scene-name">
       <!-- Standby and Champion carry their own giant title; don't repeat it. -->
-      {#if scene !== "standby" && scene !== "champion"}
+      {#if profileOn}
+        <span class="scene-kana" lang="ja">ブレーダープロフィール</span>
+        <span class="scene-en">Blader profile</span>
+      {:else if scene !== "standby" && scene !== "champion"}
         <span class="scene-kana" lang="ja">{SCENE_KANA[scene]}</span>
         <span class="scene-en">{SCENE_TITLE[scene]}</span>
       {/if}
@@ -947,7 +983,14 @@
   </header>
 
   <main class="stage">
-    {#if scene === "standby"}
+    {#if profileOn}
+      <!-- A fighter's profile sheet, now and then in the rotation. -->
+      {#key profileSrc}
+        <div class="profile" class:lite={fxLite}>
+          <img src={profileSrc} alt="" />
+        </div>
+      {/key}
+    {:else if scene === "standby"}
       <div class="standby">
       <div class="finale">
         <div class="finale-kana" lang="ja">ベイフェスト</div>
@@ -1512,6 +1555,48 @@
     font-size: 1.3rem;
     color: var(--on-field-soft);
     text-align: right;
+  }
+
+  /* ── Blader profile sheet ───────────────────────────────────────── */
+  /* The sheet as big as fits the stage, centred (inset 0 + margin auto). */
+  .profile {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    margin: 8px 0 14px;
+  }
+  .profile img {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    max-width: 100%;
+    max-height: 100%;
+    border: var(--outline) solid var(--ink);
+    box-shadow: 14px 14px 0 var(--ink);
+    animation:
+      profile-in 0.6s cubic-bezier(0.2, 1.2, 0.4, 1) both,
+      profile-drift 20s linear both;
+  }
+  .profile.lite img {
+    animation: profile-in 0.6s ease-out both;
+  }
+  @keyframes profile-in {
+    from {
+      opacity: 0;
+      transform: translateY(40px) scale(0.96);
+    }
+  }
+  /* A slow push in, so a 20-second still doesn't look frozen. */
+  @keyframes profile-drift {
+    to {
+      scale: 1.03;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .profile img {
+      animation: none;
+    }
   }
 
   .intro-layer {

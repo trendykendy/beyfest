@@ -13,6 +13,7 @@ export interface PBFighter {
   imageMirrored: string; // a hand-made mirror image of `image` (fixed lettering), "" if none
   victory: string; // victory pose for the Champion scene, "" if none
   royaleVictory: string; // the battle royale champion's pose, "" if none
+  profile: string; // "Blader profile" sheet the TV's rotation shows, "" if none
   voice: string; // file name in PocketBase storage, "" if none
   mirror: boolean;
   face: Face | null; // where the face is in the image, null if not set
@@ -121,6 +122,13 @@ export function fighterVictoryUrl(pbUrl: string, f: PBFighter | null, thumb = ""
 export function fighterRoyaleVictoryUrl(pbUrl: string, f: PBFighter | null, thumb = ""): string {
   if (!f?.royaleVictory) return "";
   return fileUrl(pbUrl, f, f.royaleVictory) + (thumb ? `?thumb=${thumb}` : "");
+}
+
+// The profile sheet's URL, or "" if the fighter has none. Full size by
+// default (the TV); the admin page asks for the 300x200 thumb.
+export function fighterProfileUrl(pbUrl: string, f: PBFighter | null, thumb = ""): string {
+  if (!f?.profile) return "";
+  return fileUrl(pbUrl, f, f.profile) + (thumb ? `?thumb=${thumb}` : "");
 }
 
 // The announcer clip's URL, or "" if the fighter has no voice.
