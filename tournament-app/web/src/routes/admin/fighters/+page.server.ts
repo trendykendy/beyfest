@@ -104,6 +104,7 @@ export const actions: Actions = {
     const imageMirrored = fileFrom(data, "imageMirrored");
     const victory = fileFrom(data, "victory");
     const royaleVictory = fileFrom(data, "royaleVictory");
+    const profile = fileFrom(data, "profile");
     const voice = fileFrom(data, "voice");
     try {
       await locals.pb.collection("fighters").create({
@@ -112,6 +113,7 @@ export const actions: Actions = {
         ...(imageMirrored ? { imageMirrored } : {}),
         ...(victory ? { victory } : {}),
         ...(royaleVictory ? { royaleVictory } : {}),
+        ...(profile ? { profile } : {}),
         ...(voice ? { voice } : {}),
       });
     } catch (e) {
@@ -132,6 +134,7 @@ export const actions: Actions = {
     const imageMirrored = fileFrom(data, "imageMirrored");
     const victory = fileFrom(data, "victory");
     const royaleVictory = fileFrom(data, "royaleVictory");
+    const profile = fileFrom(data, "profile");
     const voice = fileFrom(data, "voice");
     // A new picture's face is somewhere else, so the old point goes with it.
     const face = image || data.get("removeImage") === "on" ? null : faceFrom(data);
@@ -153,6 +156,7 @@ export const actions: Actions = {
           : data.get("removeRoyaleVictory") === "on"
             ? { royaleVictory: null }
             : {}),
+        ...(profile ? { profile } : data.get("removeProfile") === "on" ? { profile: null } : {}),
         ...(voice ? { voice } : data.get("removeVoice") === "on" ? { voice: null } : {}),
       });
     } catch (e) {
@@ -190,6 +194,7 @@ export const actions: Actions = {
             ...(s.imageMirrored ? { imageMirrored: await file(s.imageMirrored) } : {}),
             ...(s.victory ? { victory: await file(s.victory) } : {}),
             ...(s.royaleVictory ? { royaleVictory: await file(s.royaleVictory) } : {}),
+            ...(s.profile ? { profile: await file(s.profile) } : {}),
             ...(s.voice ? { voice: await file(s.voice) } : {}),
           });
           added++;
