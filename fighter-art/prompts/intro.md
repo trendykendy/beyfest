@@ -258,3 +258,97 @@ everything else".
 > Exactly that text and nothing else, spelled exactly as written. Crisp edges,
 > no background, no scenery, no glow spilling across the whole canvas. Landscape
 > 3:2, the logo filling most of the width.
+
+---
+
+# Version 2: scenes with the fighters in them (2026-11-01)
+
+The cut-outs didn't work laid over the arena, so version 2 puts the fighters
+into generated scenes (see "Version 2" in `INTRO-STORYBOARD.md`). Nine new
+images: E1, P1, S1, W1, P2, G1, G2, G3 and N1.
+
+## Rules for scenes with several fighters
+
+- **Attach each fighter's approved cut-out** as their character reference, and
+  name them in the prompt by what they wear ("the man in the white tracksuit"),
+  since ChatGPT can't see file names. E1 and S1 have eight fighters, so they get
+  one **reference sheet** (`candidates/intro/attach-v2/sheet-first-eight.png`,
+  the eight cut-outs in a labelled grid) in place of eight attachments.
+- **Three fighters at most with clear faces.** In E1 and S1 the faces are small
+  or turned away, and outfits carry the likeness.
+- Each fighter keeps their own palette on their clothes and energy; colour stays
+  off skin and hair. Launchers in hand; no Beyblade tethered to a launcher.
+- One chat per image. Edits (E1 from B1, W1 from B2) go in a new chat with the
+  plate attached, plus "keep the arena exactly as it is".
+- Same scene style block as version 1, with "head in natural proportion, ears
+  small" for every face.
+
+## The fighters, in a line each
+
+Paste the lines for the fighters in the image, after the style block.
+
+- **The Breycist:** [version 1's Breycist block]
+- **The Underdogger:** tall; long, swept-back light blond hair to the jaw, a short brown beard and moustache, a rugged grin; a studded dark leather waistcoat with glowing bronze and orange trim over a cream tech shirt with torn sleeves, spiked wristbands, a belt chain, dark trousers and boots; a drinking horn. Bronze and orange energy.
+- **The Buzzsaw:** bald; browline glasses with a glowing blue rim and blue-tinted lenses; a short beard greying at the chin; slim; a fitted white tech T-shirt with glowing blue and orange trim, jeans with reinforced panels, a smartwatch. Blue and orange energy.
+- **The Torque Warden:** a black fedora; a big, squared-off full beard; heavy-set; a long black coat with silver trim; a steely stare from under the brim. Silver energy and sparks.
+- **The Stancemancer:** blond, clean-shaven, black rectangular glasses; a dark blue tech jumper with glowing purple and blue seams and a high collar; a smartwatch. Purple and blue energy that ripples like water.
+- **The Cheatseeker:** short, neat dark hair, ginger stubble, a round face, stocky; a navy tech jacket with glowing red and blue trim over a red top; a thick blue rule book with metal corners (no lettering). Red and blue energy.
+- **The Joyzerker:** heavy-set; a full ginger-auburn beard, swept-back wavy dark auburn hair; a sleeveless bright green top with black trim; a big, warm laugh. Green energy with a faint purple glitch at its edges.
+- **The Fairy Dancer:** fair; a long oval face, round cheeks, a high receding hairline, light stubble, blue eyes; slim; a holographic pink, purple and white camo jacket over a black butterfly T-shirt, black strapped trousers, fingerless gloves. Pink sparkles and iridescent fairy-wing energy.
+- **The Beanblader:** a long narrow face, short dark brown hair, a short ginger-auburn beard, slim; a crimson tech-monk robe with glowing bronze trim over a cream undershirt, big wooden prayer beads; floating beans; serene. Bronze and crimson energy.
+- **The Pugilist:** short dark hair and a beard; purple wraparound shades; black and red tech gear; padded fingerless boxing gloves with the launcher strapped to one. A joyful brawler's grin. Red and orange energy.
+- **The Beyby:** small and quick; a brown bowl cut; a tech face mask with a glowing pink and blue ring; a black and pink hooded tech jacket with white sleeves. Pink and purple energy.
+
+## Prompts
+
+Each one starts: "Please generate a new image. [Attachments, numbered, each
+with what it's for.]" then the scene style block, then the fighters' lines,
+then the scene below.
+
+**E1, the eight at dawn** (attach B1, the sheet). Edit of B1: keep the arena
+exactly. The eight walk up the steps onto the stage from the camera side,
+seen from behind and low, in a loose line, backlit by the sunrise so they're
+mostly dark shapes with bright rim light; each turned enough to show a
+three-quarter profile. Their outfits and colours must match the sheet. Long
+shadows towards the camera. Leave the sky and sun clear.
+
+**P1, the first final** (attach B1, breycist, underdogger, Pugilist face).
+The two face each other across the stadium bowl at dawn, mid-launch, seen
+side-on from low at the stadium's edge: the Underdogger on the left, horn
+raised in a toast, launching; the Breycist on the right, his no-look launch,
+smirking. Their Beyblades streak towards each other, red-and-white and
+bronze-and-orange. B1's arena behind, golden morning light. Both faces clearly
+visible.
+
+**S1, one stood over all** (attach B1, the sheet, breycist, Pugilist face).
+The Breycist stands tall on the stadium rim in B1's arena, low angle, a
+cocky smirk, launcher at his side, red energy rising round him. Around the
+stadium below, the other seven are beaten: kneeling, slumped against the rim,
+one on his back, faces down or turned away, their energy fading to grey
+wisps. Morning light, the sun behind him like a halo.
+
+**W1, new challengers** (attach B2, fairydancer, beanblader). Edit of B2: keep
+the arena exactly. The Fairy Dancer and the Beanblader walk in through the
+blizzard towards the camera, side by side, mid-stride, coats and robe blown
+by the wind, their energy glowing warm against the snow (pink sparkles; bronze
+beans). Determined, confident faces, clearly visible, in the middle third.
+
+**P2, the Winter League final** (attach R2, breycist, buzzsaw, Pugilist face).
+In R2's frozen arena, snow falling, the two clash: the Breycist on the left,
+launching with a fierce grin, his red-and-white energy surging across the
+frame; the Buzzsaw on the right, mid-backflip, his blue-and-orange energy
+being forced back and breaking apart. Both faces visible. The red is
+winning.
+
+**G1, G2, G3: the 2026 field** (attach B3, the three or two fighters, Pugilist
+face). On B3's night stage, crowd and spotlights behind, the fighters stand
+side by side, waist up, slightly low angle, launchers raised and ready, each
+with their own energy flaring. Confident, each in character. Faces clearly
+visible, in the middle third. G1: Buzzsaw, Underdogger, Torque Warden. G2:
+Stancemancer, Cheatseeker, Joyzerker. G3: Fairy Dancer, Beanblader.
+
+**N1, the new blood** (attach B3, pugilist, beyby, breycist). On B3's night
+stage, a face-off across the stadium: the Pugilist and the Beyby on the left,
+close to the camera, seen over the shoulder and three-quarter, launchers
+raised at the Breycist; the Breycist on the right, further back, arms
+crossed, an amused smirk, red light round him. All three faces visible.

@@ -72,6 +72,92 @@ per image in [`prompts/intro.md`](prompts/intro.md)). R2 and R3 are cropped to
 Everything else is already approved: the 11 cut-outs, their face points (for
 the face montage) and the katakana names in `fighters.json`.
 
+## Version 2: scenes, not cut-outs (2026-11-01)
+
+Reviewing the first build, the user decided the fighters' cut-outs don't
+work: they're character cards (one angle, one vortex each), so laid over the
+arena they read as pasted on. Version 2 replaces every cut-out shot with a
+generated scene that has the fighters *in* it: battles between two, and the
+2026 field in **closer groups of three** (the user's choice over wide shots).
+Animation stays minimal: slow pans and zooms, a gentle 3D tilt, particles,
+cuts on the beats; the countdown and logo keep their slams.
+
+Kept from version 1: B1–B3, C1, C2, R2, R3 and the logo. R1 is dropped.
+
+### New images (9)
+
+| ID | Line | Scene | Fighters | Made from |
+|---|---|---|---|---|
+| E1 | "there came eight warriors" | The eight arrive at the dawn arena, backlit by the sunrise | the first eight | Edit of B1 |
+| P1 | "they battled till…" | The first final: launching at each other across the stadium | Breycist vs Underdogger | B1 as the setting |
+| S1 | "one stood over all" | The Breycist on the stadium, the other seven beaten round him | the first eight | B1 as the setting |
+| W1 | "new challengers joined the fray" | Walking in through the blizzard | Fairy Dancer, Beanblader | Edit of B2 |
+| P2 | "could not be denied" | The Winter League final: his red overpowers the Buzzsaw's blue | Breycist vs Buzzsaw | R2's frozen arena as the setting |
+| G1 | "ten brave souls" | Ready, launchers raised | Buzzsaw, Underdogger, Torque Warden | B3 as the setting |
+| G2 | (continues) | Ready, launchers raised | Stancemancer, Cheatseeker, Joyzerker | B3 as the setting |
+| G3 | (music) | Ready, launchers raised | Fairy Dancer, Beanblader | B3 as the setting |
+| N1 | (music, before "Can the Breycist…") | The new blood squares up to the champion | Pugilist and Beyby vs Breycist | B3 as the setting |
+
+The ten challengers of 2026 are everyone but the Breycist, so "ten brave
+souls" is right after all: G1–G3 and the two newcomers in N1.
+
+### Shot list (version 2)
+
+| Time (s) | Shot | Motion |
+|---|---|---|
+| 0–3.3 | Cold open: black, a red glint | as version 1 |
+| 3.3–10.9 | **E1**, the eight at dawn | slow push-in; the light lifts on "champion" |
+| 10.9–12.9 | **P1**, the first final | slow pan from the Underdogger to the Breycist |
+| 12.9–15.3 | C1, the clash | shake on "cracked", sparks on "sparked" |
+| 15.3–20.7 | **S1**, one stood over all | slow tilt up to him; name card on "the Breycist" |
+| 20.7–26.4 | B2, then **W1** | snow; W1 fades in on "new challengers" |
+| 26.4–32.2 | **P2**, the Winter League final | slow push toward the Breycist; red embers |
+| 32.2–36.3 | R2, the crown | as version 1 |
+| 36.3–37.9 | R2 into B3: a year passes | as version 1, shorter |
+| 37.9–39.9 | **G1** | slow pan |
+| 39.9–41.7 | **G2** | slow pan the other way |
+| 41.7–43.1 | C2, cord and Bey | as version 1 |
+| 43.1–44.7 | **G3** | slow push-in |
+| 44.7–46.3 | **N1** | slow push toward the Breycist |
+| 46.3–51.4 | R3, can he be stopped | as version 1 |
+| 51.4–end | Countdown, logo, hold | as version 1 |
+
+### Version 2 built (2026-11-02)
+
+All nine scenes approved and in `approved/intro/` (G1 with the Underdogger's
+arm lengthened; N1 redone as the Breycist from behind, looking back over his
+shoulder in villain lighting). The scene now shows every picture at its full
+3:2 size and frames it with a slow camera (a framing at each end of the shot,
+eased between them), so nothing is pre-cropped. E1 and W1 cross-fade in over
+B1 and B2. Name cards: the Breycist on S1, the newcomers on W1, everyone in
+G1–G3 and the challengers in N1.
+
+**Softer pass (2026-11-02, the user's call):** the 3-2-1 countdown is gone (R3
+holds until the title fades in). Every cut is a soft cross-fade (0.7–1 s; the
+clash and the ripcord are quicker, to land on "cracked" and "cord"). Camera
+moves are slow, small Ken Burns drifts across each shot's whole time on screen.
+Only the clash and the logo shake the screen.
+
+**More Ken Burns (2026-11-02, the user's call):** every move now runs at a
+steady speed until the next shot has finished fading in over it, so nothing
+stops moving mid-fade. The camera table (`CAMERA` in `src/lib/intro.ts`)
+keeps every framing clear of the picture's edges, which a test checks: the
+first pass had pans that hit an edge and stopped dead. The name cards are gone.
+
+## Built (2026-11-01)
+
+The scene is `tournament-app/web/src/lib/components/tv/IntroScene.svelte`,
+timed by `src/lib/intro.ts` (word cues from Whisper on the audio file), with
+the lab page at `/tv/lab/intro`. The images are made from `approved/intro/` by
+`tools/prepare_intro_images.py`. Where it differs from the shot list below:
+
+- Lineups are two staggered rows (back row smaller), not one line; the full
+  cut-outs' energy vortexes crowded each other otherwise.
+- Shot 12 has no row of challengers behind the Breycist: R3 is one flat
+  scene. A dark half-shadow lifts and a red glint flashes in his eye instead.
+- The face montage is slanted panels, filling in left to right, with each
+  fighter's katakana running down their panel.
+
 ## Shot list
 
 ### Act 1: the first Beyfest (0–20.5 s)
