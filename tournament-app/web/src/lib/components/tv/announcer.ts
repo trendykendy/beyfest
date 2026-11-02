@@ -9,7 +9,8 @@
 //   simple, and light enough for a Raspberry Pi.
 // - A browser that blocks sound until someone clicks (anything but the Pi's
 //   kiosk, which allows autoplay) reports it through `onblocked`; unlock()
-//   after a click picks the music back up.
+//   after a click picks the music back up. soundAllowed() asks up front, so
+//   the TV can ask for that click before anything needs sound.
 
 import {
   CALLS_GAP,
@@ -52,6 +53,43 @@ function fade(a: HTMLAudioElement, to: number, ms: number, done?: () => void) {
     }
   }, STEP);
   return timer;
+}
+
+// Whether the browser will play sound before anyone has clicked the page.
+// Chrome and Firefox can say outright; anywhere else (Safari) a tenth of a
+// second of silence is played to find out.
+export async function soundAllowed(): Promise<boolean> {
+  const nav = navigator as Navigator & { getAutoplayPolicy?: (type: "mediaelement") => string };
+  if (nav.getAutoplayPolicy) return nav.getAutoplayPolicy("mediaelement") === "allowed";
+  const silence = new Audio(URL.createObjectURL(silentWav(800)));
+  try {
+    await silence.play();
+    silence.pause();
+    return true;
+  } catch (e) {
+    return !(e instanceof DOMException && e.name === "NotAllowedError");
+  } finally {
+    URL.revokeObjectURL(silence.src);
+  }
+}
+
+// `samples` of silence as a WAV: 8 kHz, 8-bit mono (where 128 is silent).
+function silentWav(samples: number): Blob {
+  const header = new DataView(new ArrayBuffer(44));
+  const text = (at: number, s: string) => [...s].forEach((c, i) => header.setUint8(at + i, c.charCodeAt(0)));
+  text(0, "RIFF");
+  header.setUint32(4, 36 + samples, true);
+  text(8, "WAVEfmt ");
+  header.setUint32(16, 16, true); // format chunk size
+  header.setUint16(20, 1, true); // PCM
+  header.setUint16(22, 1, true); // mono
+  header.setUint32(24, 8000, true); // sample rate
+  header.setUint32(28, 8000, true); // bytes per second
+  header.setUint16(32, 1, true); // bytes per sample
+  header.setUint16(34, 8, true); // bits per sample
+  text(36, "data");
+  header.setUint32(40, samples, true);
+  return new Blob([header, new Uint8Array(samples).fill(128)], { type: "audio/wav" });
 }
 
 export class Announcer {

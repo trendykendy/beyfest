@@ -34,7 +34,7 @@
     winsCall,
   } from "$lib/sounds";
   import { qualifiers, royaleView, type Battle } from "$lib/royale";
-  import { Announcer } from "$lib/components/tv/announcer";
+  import { Announcer, soundAllowed } from "$lib/components/tv/announcer";
   import { FINISHES } from "$lib/finishes";
   import { pickStructure, miniRRAdvancers, pointsToWin } from "@beyfest/engine";
   import {
@@ -976,6 +976,11 @@
     // Any click or key press at the TV counts as allowing sound.
     window.addEventListener("pointerdown", unlockSound);
     window.addEventListener("keydown", unlockSound);
+    // Ask for that click now, while the TV is being set up, rather than when
+    // the intro or the first match needs sound.
+    soundAllowed().then((ok) => {
+      if (!ok) soundBlocked = true;
+    });
     return () => {
       stopLive();
       clearInterval(clock);
