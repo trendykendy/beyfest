@@ -219,6 +219,17 @@ export const actions: Actions = {
     return { sound: true };
   },
 
+  // "Play the intro": the TV plays the Beyfest intro over everything as soon
+  // as it sees introAt change.
+  intro: async ({ locals }) => {
+    const tv = await loadTvState(locals.pb);
+    if (!tv.id) {
+      return fail(500, { error: "TV settings are missing. Restart PocketBase so its migrations run." });
+    }
+    await locals.pb.collection("tv_state").update(tv.id, { introAt: Date.now() });
+    return { intro: true };
+  },
+
   // "Score this": remember the organiser's pick, so the TV's "Up next" shows
   // that match and a reload of this page keeps it.
   pick: async ({ request, locals }) => {

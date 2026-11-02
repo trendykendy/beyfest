@@ -116,6 +116,11 @@
       <span class="head-name">No tournament yet</span>
     {/if}
     <a class="btn fighters-link" href="/admin/fighters">Fighters</a>
+    <!-- The Beyfest intro on the TV: about a minute, over everything, with
+         sound. Up here so it's there before a tournament exists, too. -->
+    <form method="POST" action="?/intro" use:enhance>
+      <button class="btn" type="submit">Play the intro</button>
+    </form>
     <form method="POST" action="?/logout" use:enhance>
       <button class="btn" type="submit">Log out</button>
     </form>
@@ -253,6 +258,7 @@
               >
             {/each}
           </form>
+
         </section>
 
         {#if !champion}

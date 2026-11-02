@@ -72,6 +72,8 @@
   import QualifiedScreen from "$lib/components/tv/QualifiedScreen.svelte";
   import Trophy from "$lib/components/Trophy.svelte";
   import LiveQr from "$lib/components/tv/LiveQr.svelte";
+  import IntroPlayer from "$lib/components/tv/IntroPlayer.svelte";
+  import { introImages } from "$lib/intro";
 
   let { data } = $props();
 
@@ -809,7 +811,27 @@
     const fx = new URLSearchParams(location.search).get("fx");
     fxLite = fx ? fx === "lite" : /aarch64|armv7|armv8/i.test(navigator.userAgent);
     mounted = true;
+    // The Beyfest intro's pictures, loaded now so none pops in when it plays.
+    for (const src of introImages()) new Image().src = src;
   });
+
+  // ── Beyfest intro ───────────────────────────────────────────────────
+  // The minute-long intro (IntroPlayer), over everything, when the organiser
+  // presses "Play the intro" (tv_state.introAt changes) or I is pressed at the
+  // TV. It reacts to a change, not to the time, so a reload never replays it
+  // and the Pi's clock doesn't matter. Escape at the TV stops it.
+  let beyfestIntro = $state(0); // a new number plays it again; 0 is off
+  let introSeen = untrack(() => data.tv.introAt);
+  $effect(() => {
+    const at = data.tv.introAt;
+    if (at === introSeen) return;
+    introSeen = at;
+    if (at) playBeyfestIntro();
+  });
+  function playBeyfestIntro() {
+    announcer.stopMusic();
+    beyfestIntro = Date.now();
+  }
 
   function endDraw() {
     clearTimeout(drawTimer);
@@ -915,6 +937,10 @@
       else cycleScene(-1);
     } else if (e.key.toLowerCase() === "f") {
       toggleFull();
+    } else if (e.key.toLowerCase() === "i") {
+      playBeyfestIntro();
+    } else if (e.key === "Escape" && beyfestIntro) {
+      beyfestIntro = 0;
     } else {
       poke();
     }
@@ -1422,6 +1448,20 @@
             royaleIntro = null;
             qualifiedShow = null; // it held under the intro until now
           }}
+        />
+      </div>
+    {/key}
+  {/if}
+
+  <!-- The Beyfest intro, over everything, from the admin page or I. -->
+  {#if beyfestIntro && mounted}
+    {#key beyfestIntro}
+      <div class="intro-layer">
+        <IntroPlayer
+          lite={fxLite}
+          muted={data.tv.soundOff}
+          onblocked={() => (soundBlocked = true)}
+          ondone={() => (beyfestIntro = 0)}
         />
       </div>
     {/key}
