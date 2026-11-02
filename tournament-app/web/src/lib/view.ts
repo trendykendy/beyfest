@@ -250,6 +250,7 @@ export interface TvState {
   next: string; // code of the match picked with "Score this" ("" if none)
   soundOff: boolean; // no music or announcer on the TV
   musicLevel: number; // match music volume, 0–100
+  introAt: number; // when "Play the intro" was last pressed (ms), 0 if never
 }
 
 // The TV panel's music levels (tv_state.musicLevel).
