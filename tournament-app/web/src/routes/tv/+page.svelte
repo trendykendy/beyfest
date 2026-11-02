@@ -1574,9 +1574,8 @@
     max-height: 100%;
     border: var(--outline) solid var(--ink);
     box-shadow: 14px 14px 0 var(--ink);
-    animation:
-      profile-in 0.6s cubic-bezier(0.2, 1.2, 0.4, 1) both,
-      profile-drift 20s linear both;
+    /* Pops in, then holds still. */
+    animation: profile-in 0.6s cubic-bezier(0.2, 1.2, 0.4, 1) both;
   }
   .profile.lite img {
     animation: profile-in 0.6s ease-out both;
@@ -1585,12 +1584,6 @@
     from {
       opacity: 0;
       transform: translateY(40px) scale(0.96);
-    }
-  }
-  /* A slow push in, so a 20-second still doesn't look frozen. */
-  @keyframes profile-drift {
-    to {
-      scale: 1.03;
     }
   }
   @media (prefers-reduced-motion: reduce) {
