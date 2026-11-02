@@ -997,7 +997,7 @@
 <div class="tv" class:cursor-hide={!barVisible} class:bar-open={barVisible} class:blank class:qr-corner={cornerQr}>
   <header class="strip">
     <div class="brand">
-      <span class="bmain">Beyfest</span>
+      <img class="blogo" src="/logo-beyfest.webp" alt="Beyfest" />
       <span class="bkana" lang="ja">トリプルスレット</span>
     </div>
     <div class="scene-name">
@@ -1024,9 +1024,7 @@
     {:else if scene === "standby"}
       <div class="standby">
       <div class="finale">
-        <div class="finale-kana" lang="ja">ベイフェスト</div>
-        <div class="big-slab"><span>Beyfest 2026</span></div>
-        <div class="finale-title">Triple Threat</div>
+        <img class="standby-logo" src="/logo.webp" alt="Beyfest 2026: Triple Threat" />
         <div class="finale-sub">{EVENT.date}, {EVENT.place}</div>
         <div class="finale-note">The groups are drawn once everyone has checked in.</div>
         {#if data.network}
@@ -1559,15 +1557,12 @@
     align-items: center;
     gap: 16px;
   }
-  .bmain {
-    text-transform: uppercase;
-    font-family: var(--disp);
-    font-size: 1.9rem;
-    line-height: 1;
-    color: var(--ink);
-    background: var(--gold);
-    padding: 8px 30px 10px 18px;
-    clip-path: polygon(0 0, 100% 0, calc(100% - var(--cut)) 100%, 0 100%);
+  /* The chrome BEYFEST logo (the BEYFEST part of static/logo.webp). */
+  .blogo {
+    display: block;
+    height: 58px;
+    width: auto;
+    margin: -6px 0;
   }
   .bkana {
     text-transform: uppercase;
@@ -2404,7 +2399,7 @@
     font-size: 1.8rem;
   }
 
-  /* ── Champion + standby: one big gold slab, the loudest thing in the app ── */
+  /* ── Standby: the event logo with the date and place ─────────────── */
   .finale {
     display: flex;
     flex-direction: column;
@@ -2412,43 +2407,13 @@
     text-align: center;
     gap: 22px;
   }
-  .finale-kana {
-    font-family: var(--font-display);
-    font-size: 3rem;
-    line-height: 1;
-    color: var(--gold);
-  }
-  .big-slab {
-    transform: skewX(-10deg);
-    background: var(--gold);
-    color: var(--ink);
-    border: 5px solid var(--ink);
-    box-shadow: 16px 16px 0 var(--ink);
-    padding: 10px 70px 18px;
-    max-width: 1500px;
-  }
-  .big-slab > span {
+  /* Standby's title: the full event logo. */
+  .standby-logo {
     display: block;
-    transform: skewX(10deg);
-    font-family: var(--font-display);
-    font-stretch: 62%;
-    text-transform: uppercase;
-    font-size: 12rem;
-    line-height: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    /* The italic last letter leans past its box; pad both sides so it isn't
-       clipped and the name stays centred. */
-    padding-inline: 0.1em;
-  }
-  .finale-title {
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 4rem;
-    line-height: 1;
-    color: var(--paper);
-    margin-top: 18px;
+    width: 860px;
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(10px 12px 0 rgb(0 0 0 / 0.35));
   }
   .finale-sub {
     font-family: var(--font-text);

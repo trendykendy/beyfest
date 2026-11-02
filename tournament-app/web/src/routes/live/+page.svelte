@@ -102,7 +102,7 @@
 <div class="live">
   <header class="top">
     <div class="top-in">
-      <span class="brand">Beyfest</span>
+      <img class="brand" src="/logo-beyfest.webp" alt="Beyfest" />
       <span class="brand-sub"><span>2026 Live</span><span class="kana">ライブ</span></span>
       {#if !online}<span class="offline" role="status">Reconnecting</span>{/if}
     </div>
@@ -237,17 +237,11 @@
     padding-left: max(var(--gutter), env(safe-area-inset-left));
     padding-right: max(var(--gutter), env(safe-area-inset-right));
   }
+  /* The chrome BEYFEST logo (the BEYFEST part of static/logo.webp). */
   .brand {
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 1.35rem;
-    line-height: 1;
-    color: var(--ink);
-    background: var(--gold);
-    padding: 6px 20px 8px 10px;
-    margin-left: calc(-1 * var(--gutter));
-    padding-left: var(--gutter);
-    clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+    display: block;
+    height: 42px;
+    width: auto;
   }
   .brand-sub {
     display: flex;
