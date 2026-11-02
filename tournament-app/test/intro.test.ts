@@ -28,8 +28,8 @@ describe("shotAt", () => {
     expect(shotAt(DURATION).end).toBe(DURATION);
   });
   test("switches exactly on a shot's start", () => {
-    expect(shotAt(10_699).shot).toBe("eight");
-    expect(shotAt(10_700)).toEqual({ shot: "final", start: 10_700, end: 12_750 });
+    expect(shotAt(10_449).shot).toBe("eight");
+    expect(shotAt(10_450)).toEqual({ shot: "final", start: 10_450, end: 12_400 });
   });
   test("the shots run in order, and each fades in before the next starts", () => {
     for (let i = 1; i < SHOTS.length; i++) {
@@ -47,17 +47,17 @@ describe("visibleShots", () => {
     expect(visibleShots(14_000)).toEqual([{ shot: "clash", opacity: 1 }]);
   });
   test("cross-fades: the old shot stays full underneath while the new one fades in", () => {
-    const mid = visibleShots(10_700 + 450);
+    const mid = visibleShots(10_450 + 450);
     expect(mid.map((v) => v.shot)).toEqual(["eight", "final"]);
     expect(mid[0].opacity).toBe(1);
     expect(mid[1].opacity).toBeCloseTo(0.5);
   });
   test("drops the old shot once the new one is fully in", () => {
-    expect(visibleShots(10_700 + 900).map((v) => v.shot)).toEqual(["final"]);
+    expect(visibleShots(10_450 + 900).map((v) => v.shot)).toEqual(["final"]);
   });
   test("a shot's span runs until the next has faded in", () => {
-    expect(shotSpan("final")).toEqual({ start: 10_700, until: 13_000 });
-    expect(shotSpan("title")).toEqual({ start: 53_300, until: DURATION });
+    expect(shotSpan("final")).toEqual({ start: 10_450, until: 12_650 });
+    expect(shotSpan("title")).toEqual({ start: 52_650, until: DURATION });
   });
 });
 
@@ -116,9 +116,9 @@ describe("camera", () => {
     }
   });
   test("keeps moving right through the next shot's fade", () => {
-    // "final" fades out under "clash", 12 750–13 000: still moving there
-    const a = cameraAt("final", 12_800);
-    const b = cameraAt("final", 12_950);
+    // "final" fades out under "clash", 12 400–12 650: still moving there
+    const a = cameraAt("final", 12_450);
+    const b = cameraAt("final", 12_600);
     expect(b.x).toBeGreaterThan(a.x);
   });
   test("frameFree knows an edge when it sees one", () => {

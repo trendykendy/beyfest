@@ -1,5 +1,5 @@
-// The Beyfest 2026 intro: a 67-second anime-style prelude for the TV, set to
-// the narrated monologue (static/intro/narration.m4a). The storyboard is in
+// The Beyfest 2026 intro: a 66-second anime-style prelude for the TV, set to
+// the narrated monologue with reverb and music (static/intro/narration.m4a). The storyboard is in
 // fighter-art/INTRO-STORYBOARD.md.
 //
 // Everything on screen is a pure function of the audio's clock, `t` in ms, so
@@ -7,36 +7,36 @@
 // moment. This module holds the timing and the camera; IntroScene draws it.
 
 export const AUDIO = "/intro/narration.m4a";
-export const DURATION = 66_840;
+export const DURATION = 66_310;
 
 // When each word lands (ms), from Whisper's word timings on the audio file.
 export const CUE = {
-  dawn: 3_820,
-  eight: 6_520,
-  champion: 9_860,
-  battled: 11_920,
-  cracked: 12_980,
-  sparked: 13_980,
-  stood: 15_900,
-  overAll: 16_600,
-  theBreycist: 18_440,
-  coldWinds: 21_560,
-  newChallengers: 23_720,
-  butOnce: 26_640,
-  vanquished: 30_920,
-  crown: 34_380,
-  nighOn: 36_380,
-  onceAgain: 39_120,
+  dawn: 3_540,
+  eight: 6_240,
+  champion: 9_620,
+  battled: 11_600,
+  cracked: 12_620,
+  sparked: 13_620,
+  stood: 15_700,
+  overAll: 16_280,
+  theBreycist: 17_720,
+  coldWinds: 21_080,
+  newChallengers: 22_860,
+  butOnce: 25_840,
+  vanquished: 30_140,
+  crown: 33_180,
+  nighOn: 35_900,
+  onceAgain: 38_860,
   ten: 40_120,
-  cord: 41_720,
-  bey: 42_240,
-  canThe: 46_420,
-  stopped: 47_520,
-  victory: 50_160,
-  beyfest: 53_880,
-  year: 54_480,
-  triple: 56_420,
-  threat: 57_220,
+  cord: 42_200,
+  bey: 42_840,
+  canThe: 45_980,
+  stopped: 46_920,
+  victory: 50_100,
+  beyfest: 53_100,
+  year: 55_300,
+  triple: 58_500,
+  threat: 59_250,
 } as const;
 
 // The shots, in order (version 2 of the storyboard: generated scenes, not
@@ -44,21 +44,21 @@ export const CUE = {
 // before. The one before stays underneath until the fade is done.
 export const SHOTS = [
   ["cold", 0, 0],
-  ["eight", 2_400, 900], // B1 from black, then E1: the first eight arrive
-  ["final", 10_700, 900], // P1: Breycist vs Underdogger
-  ["clash", 12_750, 250], // C1, quick, in time for "cracked"
-  ["overAll", 15_000, 900], // S1: one stood over all
-  ["winter", 20_500, 1_000], // B2, then W1: the new challengers
-  ["denied", 26_200, 900], // P2: Breycist vs Buzzsaw
-  ["crown", 32_000, 900], // R2
-  ["year", 36_800, 800], // B3: a year passes
-  ["g1", 37_700, 800],
-  ["g2", 39_700, 800],
-  ["cord", 41_500, 300], // C2, quick, in time for "cord"
-  ["g3", 42_900, 700],
-  ["newBlood", 44_500, 700], // N1, held through "Can the Breycist be stopped"
-  ["stopped", 48_100, 800], // R3
-  ["title", 53_300, 1_000],
+  ["eight", 2_200, 900], // B1 from black, then E1: the first eight arrive
+  ["final", 10_450, 900], // P1: Breycist vs Underdogger
+  ["clash", 12_400, 250], // C1, quick, in time for "cracked"
+  ["overAll", 14_700, 900], // S1: one stood over all
+  ["winter", 19_950, 1_000], // B2, then W1: the new challengers
+  ["denied", 25_400, 900], // P2: Breycist vs Buzzsaw
+  ["crown", 31_100, 900], // R2
+  ["year", 36_350, 800], // B3: a year passes
+  ["g1", 37_350, 800],
+  ["g2", 39_600, 800],
+  ["cord", 41_900, 300], // C2, quick, in time for "cord"
+  ["g3", 43_350, 700],
+  ["newBlood", 45_500, 700], // N1, fully in as "can the Breycist" is said
+  ["stopped", 48_550, 800], // R3, as "Or will he" starts
+  ["title", 52_650, 1_000],
 ] as const;
 export type Shot = (typeof SHOTS)[number][0];
 
@@ -167,7 +167,7 @@ export const CAMERA: Partial<Record<Shot, [Frame, Frame]>> = {
   g2: [{ x: 0.55, y: 0.45, zoom: 1.16 }, { x: 0.45, y: 0.45, zoom: 1.18 }],
   cord: [{ x: 0.5, y: 0.52, zoom: 1.04 }, { x: 0.5, y: 0.56, zoom: 1.18 }],
   g3: [{ x: 0.5, y: 0.44, zoom: 1.04 }, { x: 0.5, y: 0.42, zoom: 1.14 }],
-  newBlood: [{ x: 0.5, y: 0.44, zoom: 1.04 }, { x: 0.55, y: 0.38, zoom: 1.16 }], // in towards his grin
+  newBlood: [{ x: 0.515, y: 0.41, zoom: 1.04 }, { x: 0.515, y: 0.41, zoom: 1.18 }], // a straight zoom, no pan
   stopped: [{ x: 0.5, y: 0.46, zoom: 1.02 }, { x: 0.5, y: 0.42, zoom: 1.16 }],
   title: [{ x: 0.5, y: 0.5, zoom: 1 }, { x: 0.5, y: 0.5, zoom: 1.06 }],
 };
