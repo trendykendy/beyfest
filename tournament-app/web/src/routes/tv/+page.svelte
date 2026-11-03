@@ -376,9 +376,13 @@
   // away (there's no call-out to wait for). A side without an art panel (no
   // fighter) never speaks; a fighter with no lines (custom) stays quiet.
   // Lines don't repeat within a match. A newer round, undo, another match or
-  // leaving Match centre clears them.
+  // leaving Match centre clears them (a line still waiting too).
+  // A round that cues the "next stadium" shuffle holds the line back until
+  // the shuffle has gone (drawHold clears in endDraw), so the portraits are
+  // back in view; it reads the draw's own state, not its timings.
   const SPEECH_AFTER_MS = CALLOUT_MS + 300; // after the call-out lands
   const SPEECH_AFTER_CALM_MS = 300; // reduced motion: no call-out to wait for
+  const SPEECH_AFTER_DRAW_MS = 300; // after the stadium shuffle has cleared
   const SPEECH_REPLY_MS = 1500; // the reply pops this long after the lead
   const SPEECH_HOLD_MS = 3000; // each bubble stays up this long
   type SpeechBubble = { id: number; text: string; show: boolean };
@@ -389,6 +393,7 @@
   let speechSeq = 0;
   let spoken = "";
   let speechUsed = { code: "", ids: new Set<string>() }; // this match's lines so far
+  let speechWait = $state<(() => void) | null>(null); // a line held back for the draw
 
   function clearSpeech() {
     speechTimers.forEach(clearTimeout);
@@ -396,6 +401,7 @@
     if (speechL.show) speechL = { ...speechL, show: false };
     if (speechR.show) speechR = { ...speechR, show: false };
     speechFor = null;
+    speechWait = null;
   }
   function sayAt(side: "left" | "right", text: string, at: number) {
     const id = ++speechSeq;
@@ -434,8 +440,22 @@
       speechUsed.ids.add(said.lead.id);
       speechFor = { code: m.code, n: ev.n };
       const at = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? SPEECH_AFTER_CALM_MS : SPEECH_AFTER_MS;
-      sayAt(sideOf(who), said.lead.text, at);
-      if (said.reply) sayAt(sideOf(other), said.reply.text, at + SPEECH_REPLY_MS);
+      const say = () => {
+        sayAt(sideOf(who), said.lead.text, 0);
+        if (said.reply) sayAt(sideOf(other), said.reply.text, SPEECH_REPLY_MS);
+      };
+      // By now the draw effect has seen the same update, so drawHold says
+      // whether this round's shuffle is on (or about to be).
+      speechTimers.push(setTimeout(() => (drawHold === m.code ? (speechWait = say) : say()), at));
+    });
+  });
+  // A line held back for the stadium shuffle: say it once the shuffle is gone.
+  $effect(() => {
+    const say = speechWait;
+    if (!say || drawHold) return;
+    untrack(() => {
+      speechWait = null;
+      speechTimers.push(setTimeout(say, SPEECH_AFTER_DRAW_MS));
     });
   });
   // Undo, another match, or off Match centre: drop what's being said.
