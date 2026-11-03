@@ -58,6 +58,26 @@ describe("pickSpeech", () => {
     expect(s?.lead.id).toBe("solo:alpha:01");
   });
 
+  test("preferRival skips the coin flip, but still falls back to solo", () => {
+    // a roll that would normally pick solo
+    const s = pickSpeech("The Alpha", "The Bravo", new Set(), seq(0.9, 0), BOOK, true);
+    expect(s?.lead.id).toBe("rival:ab:01");
+    // no pairing: solo even when preferred
+    expect(pickSpeech("The Alpha", "The Charlie", new Set(), seq(0), BOOK, true)?.reply).toBeUndefined();
+    // the exchange already used: solo
+    const t = pickSpeech("The Alpha", "The Bravo", new Set(["rival:ab:01"]), seq(0), BOOK, true);
+    expect(t?.reply).toBeUndefined();
+  });
+
+  test("every real pairing opens with an exchange on the first point", () => {
+    for (const key of Object.keys(lines.rivals)) {
+      const [a, b] = key.split("|");
+      for (let k = 0; k < 20; k++) {
+        expect(pickSpeech(a, b, new Set(), Math.random, undefined, true)?.reply?.fighter).toBe(b);
+      }
+    }
+  });
+
   test("uses the rival exchange when the solo lines are used up", () => {
     const s = pickSpeech("The Alpha", "The Bravo", new Set(["solo:alpha:01", "solo:alpha:02"]), seq(0.9), BOOK);
     expect(s?.lead.id).toBe("rival:ab:01");

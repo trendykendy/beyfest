@@ -41,6 +41,9 @@ const pickOne = <T>(list: T[], rand: () => number): T =>
  * pairing has one left; otherwise a solo line. Nothing in `used` is picked
  * again until the scorer has run out, then repeats are allowed rather than
  * going quiet.
+ *
+ * `preferRival` skips the coin flip and always uses an exchange when there is
+ * one (the TV sets it on a match's first point, so the rivalry shows at once).
  */
 export function pickSpeech(
   scorer: string | null,
@@ -48,6 +51,7 @@ export function pickSpeech(
   used: Set<string>,
   rand: () => number = Math.random,
   book: SpeechLines = LINES,
+  preferRival = false,
 ): Speech | null {
   const s = canonical(scorer, book);
   if (!s) return null;
@@ -65,7 +69,7 @@ export function pickSpeech(
     rival = rivalAll;
   }
 
-  const useRival = rival.length > 0 && (solo.length === 0 || rand() < RIVAL_CHANCE);
+  const useRival = rival.length > 0 && (preferRival || solo.length === 0 || rand() < RIVAL_CHANCE);
   if (useRival) {
     const r = pickOne(rival, rand);
     return { lead: { fighter: s, text: r.line, id: r.id }, reply: { fighter: o!, text: r.reply } };

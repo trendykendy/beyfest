@@ -435,7 +435,9 @@
       const scorer = speaker(who);
       if (!scorer) return;
       if (speechUsed.code !== m.code) speechUsed = { code: m.code, ids: new Set() };
-      const said = pickSpeech(scorer, speaker(other), speechUsed.ids);
+      // The match's first point always opens with rival banter when the pair has some.
+      const firstPoint = ev.n === 1;
+      const said = pickSpeech(scorer, speaker(other), speechUsed.ids, Math.random, undefined, firstPoint);
       if (!said) return;
       speechUsed.ids.add(said.lead.id);
       speechFor = { code: m.code, n: ev.n };
