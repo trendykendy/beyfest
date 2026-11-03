@@ -1425,9 +1425,9 @@
     "textAtReview": "Who you calling tiny now?"
   },
   "solo:beyby:10": {
-    "status": "denied",
-    "at": "2026-11-03T21:42:39.662Z",
-    "textAtReview": "Hood up, bey down, point in!"
+    "status": "approved",
+    "at": "2026-11-03T22:22:04.073Z",
+    "textAtReview": "Nap time's over! Point time!"
   },
   "solo:beyby:11": {
     "status": "approved",
@@ -1460,24 +1460,24 @@
     "textAtReview": "Cool launch. Cooler finish."
   },
   "solo:breycist:05": {
-    "status": "denied",
-    "at": "2026-11-03T21:42:59.042Z",
-    "textAtReview": "No-look rip. Full-look result."
+    "status": "approved",
+    "at": "2026-11-03T22:22:09.227Z",
+    "textAtReview": "Sorry, were you still playing?"
   },
   "solo:breycist:06": {
-    "status": "denied",
-    "at": "2026-11-03T21:43:02.579Z",
-    "textAtReview": "Grazie. I'll be here all day."
+    "status": "approved",
+    "at": "2026-11-03T22:22:11.137Z",
+    "textAtReview": "I'd high-five you, but... nah."
   },
   "solo:breycist:07": {
-    "status": "denied",
-    "at": "2026-11-03T21:43:04.480Z",
-    "textAtReview": "Style points? I take all of them."
+    "status": "approved",
+    "at": "2026-11-03T22:22:12.868Z",
+    "textAtReview": "Wake me up when it gets close."
   },
   "solo:breycist:08": {
-    "status": "denied",
-    "at": "2026-11-03T21:43:07.240Z",
-    "textAtReview": "Too easy. Back to looking good."
+    "status": "approved",
+    "at": "2026-11-03T22:22:14.012Z",
+    "textAtReview": "Not even a crease in the jacket."
   },
   "solo:breycist:09": {
     "status": "approved",
@@ -1485,9 +1485,9 @@
     "textAtReview": "Don't clap. Okay, you can clap."
   },
   "solo:breycist:10": {
-    "status": "denied",
-    "at": "2026-11-03T21:43:11.405Z",
-    "textAtReview": "Zipped up, spun out, done."
+    "status": "approved",
+    "at": "2026-11-03T22:22:16.284Z",
+    "textAtReview": "Same time next round? Same result."
   },
   "solo:breycist:11": {
     "status": "approved",
@@ -1510,10 +1510,10 @@
     "textAtReview": "Upside down and still scoring!"
   },
   "solo:buzzsaw:03": {
-    "status": "denied",
+    "status": "approved",
     "note": "I want this to be \"If its stupid and it works, it's not stupid.\"",
-    "at": "2026-11-03T21:44:28.570Z",
-    "textAtReview": "Physics said no. I said rip!"
+    "at": "2026-11-03T22:22:19.772Z",
+    "textAtReview": "If it's stupid and it works, it's not stupid."
   },
   "solo:buzzsaw:04": {
     "status": "approved",
@@ -1531,9 +1531,9 @@
     "textAtReview": "Spinning bey, spinning me, point!"
   },
   "solo:buzzsaw:07": {
-    "status": "denied",
-    "at": "2026-11-03T21:43:39.584Z",
-    "textAtReview": "I wrote the schedule AND that point!"
+    "status": "approved",
+    "at": "2026-11-03T22:22:22.109Z",
+    "textAtReview": "Did I land it? Who cares! POINT!"
   },
   "solo:buzzsaw:08": {
     "status": "approved",
@@ -1691,14 +1691,14 @@
     "textAtReview": "So happy! SO ANGRY! Point!"
   },
   "solo:joyzerker:03": {
-    "status": "denied",
-    "at": "2026-11-03T22:06:32.036Z",
-    "textAtReview": "Smile on the outside... ZERK!"
+    "status": "approved",
+    "at": "2026-11-03T22:22:29.507Z",
+    "textAtReview": "Oops! Did I do that? YES I DID!"
   },
   "solo:joyzerker:04": {
-    "status": "denied",
-    "at": "2026-11-03T22:06:34.552Z",
-    "textAtReview": "That was fun! DESTROY AGAIN!"
+    "status": "approved",
+    "at": "2026-11-03T22:22:32.485Z",
+    "textAtReview": "Best day ever! WORST DAY FOR YOU!"
   },
   "solo:joyzerker:05": {
     "status": "approved",
@@ -1781,9 +1781,9 @@
     "textAtReview": "Data says I win. Data's right."
   },
   "solo:modsmith:09": {
-    "status": "denied",
-    "at": "2026-11-03T22:12:00.074Z",
-    "textAtReview": "Upgrade installed: your defeat."
+    "status": "approved",
+    "at": "2026-11-03T22:22:38.850Z",
+    "textAtReview": "Note to self: that worked."
   },
   "solo:modsmith:10": {
     "status": "approved",
@@ -1821,10 +1821,10 @@
     "textAtReview": "Ding ding! That's my round!"
   },
   "solo:pugilist:05": {
-    "status": "denied",
+    "status": "approved",
     "note": "Float like a buterfly, sting like a bey!",
-    "at": "2026-11-03T22:15:52.165Z",
-    "textAtReview": "Float like a bey, sting like a bey!"
+    "at": "2026-11-03T22:22:43.334Z",
+    "textAtReview": "Float like a butterfly, sting like a bey!"
   },
   "solo:pugilist:06": {
     "status": "approved",
@@ -1867,9 +1867,9 @@
     "textAtReview": "Stance first. Points follow."
   },
   "solo:stancemancer:02": {
-    "status": "denied",
-    "at": "2026-11-03T22:16:02.393Z",
-    "textAtReview": "Flowing water. Freight train."
+    "status": "approved",
+    "at": "2026-11-03T22:22:49.366Z",
+    "textAtReview": "Knees bent. Opponent spent."
   },
   "solo:stancemancer:03": {
     "status": "approved",
@@ -1937,14 +1937,14 @@
     "textAtReview": "Hm. As expected."
   },
   "solo:torquewarden:04": {
-    "status": "denied",
-    "at": "2026-11-03T22:16:24.477Z",
-    "textAtReview": "The floor cracked. You didn't win."
+    "status": "approved",
+    "at": "2026-11-03T22:22:56.604Z",
+    "textAtReview": "I've seen tougher spins in a teacup."
   },
   "solo:torquewarden:05": {
-    "status": "denied",
-    "at": "2026-11-03T22:16:27.328Z",
-    "textAtReview": "None shall pass this stadium."
+    "status": "approved",
+    "at": "2026-11-03T22:22:57.765Z",
+    "textAtReview": "Was that your best? Hm. Okay."
   },
   "solo:torquewarden:06": {
     "status": "approved",
@@ -1952,9 +1952,9 @@
     "textAtReview": "Torque is law here."
   },
   "solo:torquewarden:07": {
-    "status": "denied",
-    "at": "2026-11-03T22:16:40.183Z",
-    "textAtReview": "I have not moved. You have."
+    "status": "approved",
+    "at": "2026-11-03T22:23:00.859Z",
+    "textAtReview": "Bounce off me all you like."
   },
   "solo:torquewarden:08": {
     "status": "approved",
@@ -1962,19 +1962,19 @@
     "textAtReview": "Your spin ends where I begin."
   },
   "solo:torquewarden:09": {
-    "status": "denied",
-    "at": "2026-11-03T22:16:43.563Z",
-    "textAtReview": "Final boss. Final word."
+    "status": "approved",
+    "at": "2026-11-03T22:23:02.460Z",
+    "textAtReview": "Next. Form an orderly queue."
   },
   "solo:torquewarden:10": {
-    "status": "denied",
-    "at": "2026-11-03T22:16:44.831Z",
-    "textAtReview": "Tip of the hat. Point to me."
+    "status": "approved",
+    "at": "2026-11-03T22:23:03.962Z",
+    "textAtReview": "I've had harder Tuesdays."
   },
   "solo:torquewarden:11": {
-    "status": "denied",
-    "at": "2026-11-03T22:16:46.334Z",
-    "textAtReview": "Heavy hat. Heavier launch."
+    "status": "approved",
+    "at": "2026-11-03T22:23:06.139Z",
+    "textAtReview": "Don't take it personally. Do learn."
   },
   "solo:torquewarden:12": {
     "status": "approved",
@@ -1987,9 +1987,9 @@
     "textAtReview": "Never count me out! Cheers!"
   },
   "solo:underdogger:02": {
-    "status": "denied",
-    "at": "2026-11-03T22:16:55.345Z",
-    "textAtReview": "Horns up! Point down!"
+    "status": "approved",
+    "at": "2026-11-03T22:23:11.498Z",
+    "textAtReview": "Nobody bet on me. Big mistake!"
   },
   "solo:underdogger:03": {
     "status": "approved",
@@ -2037,8 +2037,8 @@
     "textAtReview": "Long live the underdog!"
   },
   "solo:underdogger:12": {
-    "status": "denied",
-    "at": "2026-11-03T22:17:12.724Z",
-    "textAtReview": "Bring the thunder! Skol!"
+    "status": "approved",
+    "at": "2026-11-03T22:23:13.941Z",
+    "textAtReview": "Written off? Write THIS down!"
   }
 }
