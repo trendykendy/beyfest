@@ -1,0 +1,2044 @@
+{
+  "rival:beanblader|beyby:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Slow down, little one. Breathe. / Can't breathe! Too busy zooming!"
+  },
+  "rival:beanblader|beyby:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "The bean waits. The baby rushes. / Rushing's how I'm gonna win!"
+  },
+  "rival:beanblader|beyby:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Too fast for your floaty beans! / The beans were not upset. Nor am I."
+  },
+  "rival:beanblader|beyby:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Bet you can't meditate THAT away! / Already did. I feel lovely."
+  },
+  "rival:beanblader|breycist:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "You do not watch. I do not worry. / I watched that one. Kinda."
+  },
+  "rival:beanblader|breycist:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Calm beats cool, my friend. / Cool is a type of calm, actually."
+  },
+  "rival:beanblader|breycist:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Didn't look. Still beat the monk. / Your eyes were closed. So were mine."
+  },
+  "rival:beanblader|breycist:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Nice robe. Mine has a zip. / My robe has inner peace. And pockets."
+  },
+  "rival:beanblader|buzzsaw:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Stillness defeats the backflip. / Stillness can't do a double flip!"
+  },
+  "rival:beanblader|buzzsaw:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Feet on the ground... well, nearly. / You're FLOATING! That's cheating-ish!"
+  },
+  "rival:beanblader|buzzsaw:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Flip, rip, WIN! Hah! / A fine flip. Breathe after it."
+  },
+  "rival:beanblader|buzzsaw:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Upside down beats cross-legged! / Every way up is fine with me."
+  },
+  "rival:beanblader|cheatseeker:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Peace needs no rule book. / Page 9 says peace needs a referee."
+  },
+  "rival:beanblader|cheatseeker:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "The beans abide by every rule. / Beans aren't in the rules. Yet."
+  },
+  "rival:beanblader|cheatseeker:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Levitating? Let me check the rules. / The rules do not mention floating."
+  },
+  "rival:beanblader|cheatseeker:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Point mine. Fully rule compliant. / Your compliance brings me peace."
+  },
+  "rival:beanblader|fairydancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Float meets flutter. Float wins. / Next time I'm bringing extra wings."
+  },
+  "rival:beanblader|fairydancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your pixie dust is in my beans. / Bean dust is in my wings too!"
+  },
+  "rival:beanblader|fairydancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "A pirouette for the peaceful one! / I accept it with deep gratitude."
+  },
+  "rival:beanblader|fairydancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Fairies spin faster than beans! / Beans do not spin. They wait."
+  },
+  "rival:beanblader|joyzerker:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Calm your inner zerker, friend. / My inner zerker says NO! Haha!"
+  },
+  "rival:beanblader|joyzerker:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Find balance. Like me. / I have balance! Half joy, half RAGE!"
+  },
+  "rival:beanblader|joyzerker:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Yay! Beans everywhere! RAAAH! / Please do not shout at the beans."
+  },
+  "rival:beanblader|joyzerker:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Inner peace? INNER PIECES! / I remain whole. And peaceful."
+  },
+  "rival:beanblader|modsmith:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "No mods. Only mindfulness. / Mindfulness doesn't have a gyro."
+  },
+  "rival:beanblader|modsmith:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your gadgets cannot measure calm. / Hold on, I'm building one now."
+  },
+  "rival:beanblader|modsmith:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "My sensors read your calm: 98%. / The other 2% is beans."
+  },
+  "rival:beanblader|modsmith:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Engineered beats enlightened. / Then why are you sweating, friend?"
+  },
+  "rival:beanblader|pugilist:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Peace in the face of punches. / I'll punch the peace right back!"
+  },
+  "rival:beanblader|pugilist:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Unclench your gloves, friend. / Never! They're comfy!"
+  },
+  "rival:beanblader|pugilist:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pow! Right in the serenity! / My serenity is unharmed."
+  },
+  "rival:beanblader|pugilist:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Float that, monk man! / I shall. Gently. Upward."
+  },
+  "rival:beanblader|stancemancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "A good stance. Floating is better. / You can't have stance without ground."
+  },
+  "rival:beanblader|stancemancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Water flows. Beans float. / Freight trains do not float."
+  },
+  "rival:beanblader|stancemancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Grounded beats floating. / Grounded is merely a mood."
+  },
+  "rival:beanblader|stancemancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Precision over prayer beads. / The beads are precise too."
+  },
+  "rival:beanblader|torquewarden:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Even mountains drift, Warden. / Not this mountain. Not ever."
+  },
+  "rival:beanblader|torquewarden:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "The calm moved the immovable. / Moved? I simply... relocated."
+  },
+  "rival:beanblader|torquewarden:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your beans are no match for torque. / The beans hold no grudges."
+  },
+  "rival:beanblader|torquewarden:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "The wall stands. The beans scatter. / Scattered beans grow back stronger."
+  },
+  "rival:beanblader|underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Peace to the underdog. / I'll take peace AND the next point!"
+  },
+  "rival:beanblader|underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Lower the horn. Find your calm. / This horn IS my calm!"
+  },
+  "rival:beanblader|underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Horns up for the underdog! / May your horn be ever full of juice."
+  },
+  "rival:beanblader|underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Never count me out, bean man! / I never count. I just breathe."
+  },
+  "rival:beyby|breycist:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Looked away? I zoomed past you! / I meant to let you past. Obviously."
+  },
+  "rival:beyby|breycist:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Zippy beats drippy! / Excuse me, this tracksuit is ironed."
+  },
+  "rival:beyby|breycist:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Too cool for small fry. / Small fry, BIG bite! Next round!"
+  },
+  "rival:beyby|breycist:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Didn't look. Didn't have to, kid. / Look next time! I'm right here!"
+  },
+  "rival:beyby|buzzsaw:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "I can flip too! Kind of! / Kid, you're a natural! Do it again!"
+  },
+  "rival:beyby|buzzsaw:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Faster than your backflip! / Nothing's faster than my backflip!"
+  },
+  "rival:beyby|buzzsaw:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Did you see how high I got?! / I saw your shoes! Way up there!"
+  },
+  "rival:beyby|buzzsaw:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Backflip beats baby leap! / Baby leap beats you next time!"
+  },
+  "rival:beyby|cheatseeker:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Was that legal? Who cares! Point! / I care. I checked. It was legal."
+  },
+  "rival:beyby|cheatseeker:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your rule book is bigger than me! / And it says you must stand still!"
+  },
+  "rival:beyby|cheatseeker:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Rule 4: no tiny zoomies. / That's not a real rule!"
+  },
+  "rival:beyby|cheatseeker:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "By the book. Literally. / I'll jump OVER your book!"
+  },
+  "rival:beyby|fairydancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Faster than a fairy! / Faster isn't fancier, little one."
+  },
+  "rival:beyby|fairydancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Bye bye, sparkles! / The sparkles will return. Always."
+  },
+  "rival:beyby|fairydancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "A twirl too quick for the tot! / Not a tot! A TORNADO!"
+  },
+  "rival:beyby|fairydancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pixie dust in your hood! / Hey! Now I'm glittery! ...Cool."
+  },
+  "rival:beyby|joyzerker:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Yay! I'm the zoomiest! / YAY! WAIT. GRRR. Yay?"
+  },
+  "rival:beyby|joyzerker:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Small and mighty! / Small and mighty? TINY AND RAGEY!"
+  },
+  "rival:beyby|joyzerker:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Aww, tiny bey! BURST TINY BEY! / Can't burst what you can't catch!"
+  },
+  "rival:beyby|joyzerker:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "So cute! SO DEFEATED! / Not defeated! Just reloading!"
+  },
+  "rival:beyby|modsmith:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "No mods! Just speed! / Speed is a mod you can't buy."
+  },
+  "rival:beyby|modsmith:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your gadgets can't track me! / Recalibrating... still can't."
+  },
+  "rival:beyby|modsmith:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Calculated your speed. And beat it. / I'll get faster than your maths!"
+  },
+  "rival:beyby|modsmith:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "My tracker clocked you. Too slow. / Your tracker needs new batteries!"
+  },
+  "rival:beyby|pugilist:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Ducked right under your gloves! / Haha! Kid's got moves!"
+  },
+  "rival:beyby|pugilist:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Can't punch what's flying! / Watch me try! Again!"
+  },
+  "rival:beyby|pugilist:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pow! Mini knockout! / Mini? I'm the main event!"
+  },
+  "rival:beyby|pugilist:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "That's how a big kid does it! / Wait till I grow! Next week!"
+  },
+  "rival:beyby|stancemancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Stance this! Zoom! / Speed fades. Stance stays."
+  },
+  "rival:beyby|stancemancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Too quick to see you crouch! / My crouch saw you. Clearly."
+  },
+  "rival:beyby|stancemancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Plant your feet, little one. / My feet are for jumping!"
+  },
+  "rival:beyby|stancemancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Speed meets precision. Precision wins. / Rematch! At MAXIMUM SPEED!"
+  },
+  "rival:beyby|torquewarden:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Made the wall wobble! / That wasn't a wobble. Was it?"
+  },
+  "rival:beyby|torquewarden:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Fedora? More like Fe-DONE-a! / ...I will allow that one."
+  },
+  "rival:beyby|torquewarden:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Small spin. Big wall. / I'll climb your wall! Zoom zoom!"
+  },
+  "rival:beyby|torquewarden:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "The wall does not move for babies. / Not a baby! A BEYBY!"
+  },
+  "rival:beyby|underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Two underdogs! I win this one! / Fair play, little legend!"
+  },
+  "rival:beyby|underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Raise your horn to me! / Cheers to the tiny titan!"
+  },
+  "rival:beyby|underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Never count out the big dog! / I can count to ten! Rematch!"
+  },
+  "rival:beyby|underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Horns up! Small fries down! / Fries? I'm the whole meal!"
+  },
+  "rival:breycist|buzzsaw:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "No flip needed. Just class. / Class is FINE. Flips are FUN!"
+  },
+  "rival:breycist|buzzsaw:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Did you flip? I wasn't looking. / You missed the best flip ever!"
+  },
+  "rival:breycist|buzzsaw:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Look at THIS one! Upside down! / Fine. I looked. It was alright."
+  },
+  "rival:breycist|buzzsaw:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Even Mr Cool turned to watch! / I was checking my reflection."
+  },
+  "rival:breycist|cheatseeker:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Rule book? I wrote the style guide. / Style guides aren't in the rules."
+  },
+  "rival:breycist|cheatseeker:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Looking for a foul? Keep looking. / Oh, I'm always looking."
+  },
+  "rival:breycist|cheatseeker:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "No-look launch? Rule 7 says look. / Rule 7 never saw me coming."
+  },
+  "rival:breycist|cheatseeker:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Clean point. Unlike your sneer. / That's a smirk, my friend."
+  },
+  "rival:breycist|fairydancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Cool beats cute, every time. / Cute IS cool, darling."
+  },
+  "rival:breycist|fairydancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Even pixies stop to watch me. / We stopped to laugh, actually!"
+  },
+  "rival:breycist|fairydancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "A twirl you HAD to watch! / Fine. One look. It was lovely."
+  },
+  "rival:breycist|fairydancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Even the cool guy looked up! / I'd rather look good. And I do."
+  },
+  "rival:breycist|joyzerker:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Calm down. Watch how it's done. / I WATCHED! NOW I'M HAPPY-ANGRY!"
+  },
+  "rival:breycist|joyzerker:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Too chill for your chaos. / Nobody is too chill for the ZERK!"
+  },
+  "rival:breycist|joyzerker:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Yay! Wipe off that smirk! RAAH! / Smirk's still here. Waterproof."
+  },
+  "rival:breycist|joyzerker:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Cool guy? COOLED GUY! / Still cool. Slightly sweaty."
+  },
+  "rival:breycist|modsmith:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Raw style beats a rewired bey. / You won't say that at version 48."
+  },
+  "rival:breycist|modsmith:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "No upgrades. Just me. / That's what worries me."
+  },
+  "rival:breycist|modsmith:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your smirk isn't in my data. / You can't measure cool, mate."
+  },
+  "rival:breycist|modsmith:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Engineered a no-look counter. / Clever. I still didn't look."
+  },
+  "rival:breycist|pugilist:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Didn't even need to punch. / Then I'll punch twice as hard!"
+  },
+  "rival:breycist|pugilist:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Careful, you'll crease the jacket. / That's the plan, fancy pants!"
+  },
+  "rival:breycist|pugilist:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pow! NOW I've got your attention! / Okay, I turned around. Briefly."
+  },
+  "rival:breycist|pugilist:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Knocked the cool right off you! / Cool grows back. Like my hair."
+  },
+  "rival:breycist|stancemancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "No stance. Just swagger. / Swagger is a stance. A poor one."
+  },
+  "rival:breycist|stancemancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Glasses or not, too slow. / These see everything. Even smirks."
+  },
+  "rival:breycist|stancemancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your back was turned. Mistake. / I'll face you... next time."
+  },
+  "rival:breycist|stancemancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Form beats fashion. / Fashion IS form, my friend."
+  },
+  "rival:breycist|torquewarden:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Even walls admire this jacket. / This wall admires nothing."
+  },
+  "rival:breycist|torquewarden:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Nice hat. My hair's nicer. / Your hair moved. I did not."
+  },
+  "rival:breycist|torquewarden:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "You looked away. I did not. / I looked back. It was worse."
+  },
+  "rival:breycist|torquewarden:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Unmoved by your style. / Everyone's moved by my style."
+  },
+  "rival:breycist|underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Underdog? I'm the overdog. / Never count me out, fancy!"
+  },
+  "rival:breycist|underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Raise a toast to the smooth one. / I'll toast your NEXT loss!"
+  },
+  "rival:breycist|underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Horns up! Tracksuit down! / It's still zipped. Perfectly."
+  },
+  "rival:breycist|underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Look at this one, cool guy! / Nah. ...Okay, that was good."
+  },
+  "rival:buzzsaw|cheatseeker:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Find THAT in your rule book! / Page 40: backflips are... allowed."
+  },
+  "rival:buzzsaw|cheatseeker:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Triple-flip launch! Legal? / Checking... it's not NOT legal."
+  },
+  "rival:buzzsaw|cheatseeker:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Rule 12: one flip per launch. / You just made that rule up!"
+  },
+  "rival:buzzsaw|cheatseeker:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Fully legal. Unlike that flip. / That flip was art! Art is legal!"
+  },
+  "rival:buzzsaw|fairydancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "A backflip beats a pirouette! / A pirouette is a flip, sideways."
+  },
+  "rival:buzzsaw|fairydancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pixie dust? I flipped through it! / Now you're sparkly. You're welcome."
+  },
+  "rival:buzzsaw|fairydancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Grace defeats chaos! / Chaos is just grace with more noise!"
+  },
+  "rival:buzzsaw|fairydancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Twirl beats twist! / Next time I'll twirl AND twist!"
+  },
+  "rival:buzzsaw|joyzerker:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Wheee! Upside down and happy! / HAPPY! UPSIDE DOWN! RAAAH!"
+  },
+  "rival:buzzsaw|joyzerker:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Absurd launch! Absurd point! / Absurd! I LOVE IT! I HATE IT!"
+  },
+  "rival:buzzsaw|joyzerker:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Fun flip! NOW FLIP OVER! / Way ahead of you! Wheee!"
+  },
+  "rival:buzzsaw|joyzerker:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Joy beats flips! RAGE BEATS ALL! / Hah! Best match of the day!"
+  },
+  "rival:buzzsaw|modsmith:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "No mods needed. Just flips! / Your flips need a gyroscope."
+  },
+  "rival:buzzsaw|modsmith:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Engineer THAT launch! / Already drawing the blueprints."
+  },
+  "rival:buzzsaw|modsmith:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Calculated your flip. Then beat it. / You can't calculate fun!"
+  },
+  "rival:buzzsaw|modsmith:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "My bey has a flip detector. / Did it detect THAT one coming?"
+  },
+  "rival:buzzsaw|pugilist:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Backflip beats boxing! / Wait till I box a backflip!"
+  },
+  "rival:buzzsaw|pugilist:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Ding ding! Upside down! / That's not how boxing works!"
+  },
+  "rival:buzzsaw|pugilist:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pow! Right in the backflip! / Haha! Rematch, champ!"
+  },
+  "rival:buzzsaw|pugilist:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Gloves beat gravity! / Gravity's on MY team, though!"
+  },
+  "rival:buzzsaw|stancemancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Who needs a stance? Wheee! / Everyone. Especially you."
+  },
+  "rival:buzzsaw|stancemancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Balance? I'm upside down! / Somehow that is worse."
+  },
+  "rival:buzzsaw|stancemancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Feet on the floor. Point in the bag. / Feet on the floor? How boring!"
+  },
+  "rival:buzzsaw|stancemancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Precision beats absurdity. / Absurdity will rise again!"
+  },
+  "rival:buzzsaw|torquewarden:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "I flipped OVER the wall! / Hmph. Walls can be climbed. Once."
+  },
+  "rival:buzzsaw|torquewarden:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Spin the hat! Spin the bey! / Nobody touches the hat."
+  },
+  "rival:buzzsaw|torquewarden:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Land on your feet. Then lose. / I landed on my HEAD. Still smiling!"
+  },
+  "rival:buzzsaw|torquewarden:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "The wall does not flip. / That's why walls are boring!"
+  },
+  "rival:buzzsaw|underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Raise a horn to that flip! / Cheers! Do another one!"
+  },
+  "rival:buzzsaw|underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Absurd beats underdog! / Never count the dog out!"
+  },
+  "rival:buzzsaw|underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Underdog bites the backflipper! / Ouch! Good bite! Good game!"
+  },
+  "rival:buzzsaw|underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Horns up! Backflips down! / I'll backflip back up!"
+  },
+  "rival:cheatseeker|fairydancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Rule 3: no glitter in the stadium. / That rule is not in any book!"
+  },
+  "rival:cheatseeker|fairydancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Wings checked. Barely legal. / Barely legal is still legal, love."
+  },
+  "rival:cheatseeker|fairydancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Is graceful against the rules? / Checking. ...Sadly, no."
+  },
+  "rival:cheatseeker|fairydancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Read THIS: a pirouette! / Duly noted. Page 22. Grudgingly."
+  },
+  "rival:cheatseeker|joyzerker:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Is rage in the rules? Hm. / RAGE IS IN MY HEART! Hehe."
+  },
+  "rival:cheatseeker|joyzerker:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Two moods. One rule book. / Then get TWO RULE BOOKS!"
+  },
+  "rival:cheatseeker|joyzerker:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Point! FIND A RULE FOR THAT! / Searching... page 50... nothing."
+  },
+  "rival:cheatseeker|joyzerker:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Happy! ANGRY! LEGAL! / I'm still checking 'angry'."
+  },
+  "rival:cheatseeker|modsmith:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Those mods... are they legal? / Legal-ish. Strongly ish."
+  },
+  "rival:cheatseeker|modsmith:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Rule 9 bans glowing parts. / There's no rule 9. I checked."
+  },
+  "rival:cheatseeker|modsmith:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "My bey passed every inspection. / I'll inspect it again. Slowly."
+  },
+  "rival:cheatseeker|modsmith:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Modded within the rules. Barely. / Barely is my favourite word."
+  },
+  "rival:cheatseeker|pugilist:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Punching the stadium? Rule 2. / I punched the AIR! Totally legal!"
+  },
+  "rival:cheatseeker|pugilist:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "By the book. Ow, gloves! / Haha! Sorry! Great point though!"
+  },
+  "rival:cheatseeker|pugilist:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Did the book see THAT punch? / It saw. It wrote it down."
+  },
+  "rival:cheatseeker|pugilist:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Rules can't stop a knockout! / The rules note it. Reluctantly."
+  },
+  "rival:cheatseeker|stancemancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Stance checked. Legal. Mine wins. / You checked my stance? Flattered."
+  },
+  "rival:cheatseeker|stancemancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Rule 6: glasses must be clean. / Polished this morning. Try again."
+  },
+  "rival:cheatseeker|stancemancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "No rule against good posture. / I'll write one. Footnote 4."
+  },
+  "rival:cheatseeker|stancemancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Precise. Legal. Point. / Annoyingly, all three are true."
+  },
+  "rival:cheatseeker|torquewarden:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Even walls follow the rules. / This wall WROTE the rules."
+  },
+  "rival:cheatseeker|torquewarden:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "The hat. Is it regulation? / The hat is beyond regulation."
+  },
+  "rival:cheatseeker|torquewarden:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Find a rule against me. / Searching. Still searching."
+  },
+  "rival:cheatseeker|torquewarden:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "The book bends. I do not. / The book has excellent binding!"
+  },
+  "rival:cheatseeker|underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Rule 8: no horns in the stadium. / This horn's a fan, not a player!"
+  },
+  "rival:cheatseeker|underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Underdog? Rules don't care. / And I don't care about rules!"
+  },
+  "rival:cheatseeker|underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Never count me out! Not even you! / Counted. You're out. Kidding."
+  },
+  "rival:cheatseeker|underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Find a rule against this toast! / Toasting is allowed. Sadly."
+  },
+  "rival:fairydancer|joyzerker:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "A pirouette for both your faces! / Happy face loved it! ANGRY FACE NO!"
+  },
+  "rival:fairydancer|joyzerker:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Glitter calms the zerker. / IT DOESN'T! ...It's quite nice."
+  },
+  "rival:fairydancer|joyzerker:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pretty wings! NOW BURST WINGS! / Wings grow back, sweetie."
+  },
+  "rival:fairydancer|joyzerker:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Twirl! TWIRL INTO THE WALL! / Rude! Graceful, but rude!"
+  },
+  "rival:fairydancer|modsmith:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Magic beats mechanics. / Magic is just tech I haven't built."
+  },
+  "rival:fairydancer|modsmith:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Can your mods do a twirl? / They can now. Updating."
+  },
+  "rival:fairydancer|modsmith:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Wing drag calculated. Point. / You measured my wings? Romantic."
+  },
+  "rival:fairydancer|modsmith:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pixie dust? Filtered. Point. / My dust gets past every filter."
+  },
+  "rival:fairydancer|pugilist:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "A dance beats a punch. / Dance AND punch! That's boxing!"
+  },
+  "rival:fairydancer|pugilist:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Float like a fairy, darling. / Sting like a glove, mate!"
+  },
+  "rival:fairydancer|pugilist:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pow! Right in the pixie dust! / Oops, now your gloves sparkle."
+  },
+  "rival:fairydancer|pugilist:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Knocked the twirl outta you! / The twirl is eternal, sweetie."
+  },
+  "rival:fairydancer|stancemancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Flowing like water? I flow better. / Water doesn't wear wings."
+  },
+  "rival:fairydancer|stancemancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Grace over grind. / Grace is just posture with glitter."
+  },
+  "rival:fairydancer|stancemancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Steady beats sparkly. / Sparkly will strike back, sweetie."
+  },
+  "rival:fairydancer|stancemancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your spin wobbles. Mine never does. / Wobbling is a dance move!"
+  },
+  "rival:fairydancer|torquewarden:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Even walls love ballet. / This wall... tolerates it."
+  },
+  "rival:fairydancer|torquewarden:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Twirled right past the Warden! / I let you. For the art."
+  },
+  "rival:fairydancer|torquewarden:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Sparkles bounce off stone. / Sparkles stick to fedoras, though."
+  },
+  "rival:fairydancer|torquewarden:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your wings will not move me. / Wait till you see them flap."
+  },
+  "rival:fairydancer|underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "A twirl for the underdog! / And a toast for the fairy!"
+  },
+  "rival:fairydancer|underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Glitter in your horn, sorry! / Sparkly juice! Even better!"
+  },
+  "rival:fairydancer|underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Heavy metal beats ballet! / Ballet IS heavy metal, love."
+  },
+  "rival:fairydancer|underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Never count me out, sparkles! / I never count. I dance."
+  },
+  "rival:joyzerker|modsmith:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Cool mods! NOW BROKEN MODS! / That's a feature, I promise."
+  },
+  "rival:joyzerker|modsmith:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Calculate THIS! RAAAH! Haha! / Calculating... error... too much joy."
+  },
+  "rival:joyzerker|modsmith:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "I predicted both of your moods. / YOU DID? THAT'S CREEPY! Hehe!"
+  },
+  "rival:joyzerker|modsmith:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Rage data collected. Thank you. / YOU'RE WELCOME! GRRR! Thanks!"
+  },
+  "rival:joyzerker|pugilist:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Haha! Hug? NO! KNOCKOUT! / Haha! Same energy, buddy!"
+  },
+  "rival:joyzerker|pugilist:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Happy punches! ANGRY PUNCHES! / I only have happy ones! Pow!"
+  },
+  "rival:joyzerker|pugilist:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pow! Joyful knockout! / Joyful? YES! FURIOUS? ALSO YES!"
+  },
+  "rival:joyzerker|pugilist:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Two brawlers, one winner. Me! / One rematch! RIGHT NOW!"
+  },
+  "rival:joyzerker|stancemancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Stance THIS! RAAAH! / Rage makes your feet wobble."
+  },
+  "rival:joyzerker|stancemancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Calm is boring! YAY CHAOS! / Chaos is just stance, unpractised."
+  },
+  "rival:joyzerker|stancemancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Calm water beats wild fire. / FIRE IS HAPPY! FIRE IS ANGRY!"
+  },
+  "rival:joyzerker|stancemancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Breathe. You'll zerk less. / I'LL ZERK MORE! Hehe."
+  },
+  "rival:joyzerker|torquewarden:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Moved the wall! YAY! RAAAH! / The wall shifted. Slightly."
+  },
+  "rival:joyzerker|torquewarden:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Smile, Warden! NO? ATTACK! / I am smiling. Inside."
+  },
+  "rival:joyzerker|torquewarden:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Rage breaks on stone. / Joy goes AROUND stone! Hehe!"
+  },
+  "rival:joyzerker|torquewarden:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Neither joy nor rage moves me. / BOTH WILL! NEXT ROUND!"
+  },
+  "rival:joyzerker|underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Cheers! YAY! CHEERS OF RAGE! / That's the spirit! Horns up!"
+  },
+  "rival:joyzerker|underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Joy and zerk beat the underdog! / Never count me out, double guy!"
+  },
+  "rival:joyzerker|underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Underdog wins! Horns up! / YAY FOR YOU! GRRR FOR ME!"
+  },
+  "rival:joyzerker|underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Rock on! Metal beats moods! / METAL IS A MOOD! MY MOOD!"
+  },
+  "rival:modsmith|pugilist:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Glove-proof shielding. Works. / Then I'll punch harder!"
+  },
+  "rival:modsmith|pugilist:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Predicted your punch. Dodged. / Predict this one, egghead!"
+  },
+  "rival:modsmith|pugilist:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pow! Calculate that! / Calculated. Ow."
+  },
+  "rival:modsmith|pugilist:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "No mods. Just muscles! / Muscles don't get firmware updates."
+  },
+  "rival:modsmith|stancemancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Engineering beats posture. / Posture is engineering, for people."
+  },
+  "rival:modsmith|stancemancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your stance: 97% perfect. / I'll fix the other 3% tonight."
+  },
+  "rival:modsmith|stancemancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Precision beats gadgets. / My gadgets ARE precision."
+  },
+  "rival:modsmith|stancemancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your screws rattled. I didn't. / That rattle is intentional."
+  },
+  "rival:modsmith|torquewarden:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Torque calculated. Exceeded. / Your calculator lies."
+  },
+  "rival:modsmith|torquewarden:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Found the weak point in the wall. / There are none. Check again."
+  },
+  "rival:modsmith|torquewarden:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your mods mean nothing here. / Taking notes for version 49."
+  },
+  "rival:modsmith|torquewarden:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Gadgets break. Walls do not. / Then I'll build a wall-breaker."
+  },
+  "rival:modsmith|underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Odds calculated. Underdog lost. / Your maths forgot heart!"
+  },
+  "rival:modsmith|underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Upgraded your horn. It's a launcher. / Brilliant! Can it still hold juice?"
+  },
+  "rival:modsmith|underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Never count me out. Even you! / My count says... a rematch."
+  },
+  "rival:modsmith|underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Heavy metal beats metal parts! / My parts are also metal!"
+  },
+  "rival:pugilist|stancemancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Stance this! Pow! / Hm. That was a fine punch."
+  },
+  "rival:pugilist|stancemancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Glasses off, gloves on! / The glasses stay. Always."
+  },
+  "rival:pugilist|stancemancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Water beats fists. / Wet fists still punch!"
+  },
+  "rival:pugilist|stancemancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your swing was wide. Mine was not. / Wide is where the fun is!"
+  },
+  "rival:pugilist|torquewarden:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pow! Even walls feel that! / ...A little. Do not tell anyone."
+  },
+  "rival:pugilist|torquewarden:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Knocked the hat sideways! / The hat is fine. Barely."
+  },
+  "rival:pugilist|torquewarden:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "You punched a wall. Wall wins. / Ow! Worth it, though!"
+  },
+  "rival:pugilist|torquewarden:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Gloves cannot dent torque. / Then I'll get bigger gloves!"
+  },
+  "rival:pugilist|underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Haha! Brawler beats the dog! / Never count me out, champ!"
+  },
+  "rival:pugilist|underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Pow! Toast THAT! / Cheers! Ow! Cheers!"
+  },
+  "rival:pugilist|underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Horns beat gloves! / Gloves beat horns NEXT round!"
+  },
+  "rival:pugilist|underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Underdog uppercut! Haha! / Haha! Great punch, mate!"
+  },
+  "rival:stancemancer|torquewarden:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Water flows round walls. / Walls do not mind. Much."
+  },
+  "rival:stancemancer|torquewarden:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "A precise stance moved you. / I moved. Do not get used to it."
+  },
+  "rival:stancemancer|torquewarden:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Stance is good. Torque is better. / Freight trains carry torque too."
+  },
+  "rival:stancemancer|torquewarden:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Your form is steady. Mine is stone. / Water wears down stone. Slowly."
+  },
+  "rival:stancemancer|underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Precision beats passion. / Passion comes back louder!"
+  },
+  "rival:stancemancer|underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Balanced. Unlike that horn. / This horn has perfect balance!"
+  },
+  "rival:stancemancer|underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Never count me out, glasses! / I never miscount. Rematch."
+  },
+  "rival:stancemancer|underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Heavy metal hits like a train! / That's my line. Well played."
+  },
+  "rival:torquewarden|underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "The underdog stays under. / Never count me out, big hat!"
+  },
+  "rival:torquewarden|underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Immovable. Even by toasts. / Then I'll toast twice as loud!"
+  },
+  "rival:torquewarden|underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "Moved the immovable! Horns up! / Hmph. One step. That's all."
+  },
+  "rival:torquewarden|underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:19:01.604Z",
+    "textAtReview": "A toast to the wall-breaker: me! / The wall will remember this."
+  },
+  "solo:beanblader:01": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "Be still. The bean has spoken."
+  },
+  "solo:beanblader:02": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "Inner peace. Outer ring-out."
+  },
+  "solo:beanblader:03": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "I did not launch. I simply let go."
+  },
+  "solo:beanblader:04": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "The stadium is calm. Like me."
+  },
+  "solo:beanblader:05": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "Spin is a breath. I breathe deeply."
+  },
+  "solo:beanblader:06": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "Patience wins. Also, beans."
+  },
+  "solo:beanblader:07": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "Namaste. Also, burst finish."
+  },
+  "solo:beanblader:08": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "The beans foresaw this point."
+  },
+  "solo:beanblader:09": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "Effort is noise. Victory is silence."
+  },
+  "solo:beanblader:10": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "One breath. One rip. One point."
+  },
+  "solo:beanblader:11": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "I float. My opponent does not."
+  },
+  "solo:beanblader:12": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:20.046Z",
+    "textAtReview": "Stamina of the soul, friend."
+  },
+  "solo:beyby:01": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:46.108Z",
+    "textAtReview": "Small bey, BIG trouble!"
+  },
+  "solo:beyby:02": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:46.108Z",
+    "textAtReview": "Too fast! You blinked!"
+  },
+  "solo:beyby:03": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:46.108Z",
+    "textAtReview": "Down from the sky! Point!"
+  },
+  "solo:beyby:04": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:46.108Z",
+    "textAtReview": "Bet you didn't see me coming!"
+  },
+  "solo:beyby:05": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:46.108Z",
+    "textAtReview": "Little legs, huge launch!"
+  },
+  "solo:beyby:06": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:46.108Z",
+    "textAtReview": "Again! Again! Let's go again!"
+  },
+  "solo:beyby:07": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:46.108Z",
+    "textAtReview": "Fear? Never heard of it!"
+  },
+  "solo:beyby:08": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:46.108Z",
+    "textAtReview": "Zoom! That's a point!"
+  },
+  "solo:beyby:09": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:46.108Z",
+    "textAtReview": "Who you calling tiny now?"
+  },
+  "solo:beyby:10": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:04.073Z",
+    "textAtReview": "Nap time's over! Point time!"
+  },
+  "solo:beyby:11": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:46.108Z",
+    "textAtReview": "Speed is my bedtime story!"
+  },
+  "solo:beyby:12": {
+    "status": "approved",
+    "at": "2026-11-03T21:42:46.108Z",
+    "textAtReview": "Catch me if you can! You can't!"
+  },
+  "solo:breycist:01": {
+    "status": "approved",
+    "at": "2026-11-03T21:43:16.849Z",
+    "textAtReview": "Didn't even look. Didn't need to."
+  },
+  "solo:breycist:02": {
+    "status": "approved",
+    "at": "2026-11-03T21:43:16.849Z",
+    "textAtReview": "Smooth. Like my tracksuit."
+  },
+  "solo:breycist:03": {
+    "status": "approved",
+    "at": "2026-11-03T21:43:16.849Z",
+    "textAtReview": "Was that a point? I wasn't watching."
+  },
+  "solo:breycist:04": {
+    "status": "approved",
+    "at": "2026-11-03T21:43:16.849Z",
+    "textAtReview": "Cool launch. Cooler finish."
+  },
+  "solo:breycist:05": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:09.227Z",
+    "textAtReview": "Sorry, were you still playing?"
+  },
+  "solo:breycist:06": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:11.137Z",
+    "textAtReview": "I'd high-five you, but... nah."
+  },
+  "solo:breycist:07": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:12.868Z",
+    "textAtReview": "Wake me up when it gets close."
+  },
+  "solo:breycist:08": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:14.012Z",
+    "textAtReview": "Not even a crease in the jacket."
+  },
+  "solo:breycist:09": {
+    "status": "approved",
+    "at": "2026-11-03T21:43:09.919Z",
+    "textAtReview": "Don't clap. Okay, you can clap."
+  },
+  "solo:breycist:10": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:16.284Z",
+    "textAtReview": "Same time next round? Same result."
+  },
+  "solo:breycist:11": {
+    "status": "approved",
+    "at": "2026-11-03T21:43:12.872Z",
+    "textAtReview": "The stadium knows my name."
+  },
+  "solo:breycist:12": {
+    "status": "approved",
+    "at": "2026-11-03T21:43:14.331Z",
+    "textAtReview": "Effortless. As always, really."
+  },
+  "solo:buzzsaw:01": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:28.701Z",
+    "textAtReview": "BACKFLIP LAUNCH! Did you see that?!"
+  },
+  "solo:buzzsaw:02": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:28.701Z",
+    "textAtReview": "Upside down and still scoring!"
+  },
+  "solo:buzzsaw:03": {
+    "status": "approved",
+    "note": "I want this to be \"If its stupid and it works, it's not stupid.\"",
+    "at": "2026-11-03T22:22:19.772Z",
+    "textAtReview": "If it's stupid and it works, it's not stupid."
+  },
+  "solo:buzzsaw:04": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:28.701Z",
+    "textAtReview": "Next one's a double backflip!"
+  },
+  "solo:buzzsaw:05": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:28.701Z",
+    "textAtReview": "That launch had a triple twist!"
+  },
+  "solo:buzzsaw:06": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:28.701Z",
+    "textAtReview": "Spinning bey, spinning me, point!"
+  },
+  "solo:buzzsaw:07": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:22.109Z",
+    "textAtReview": "Did I land it? Who cares! POINT!"
+  },
+  "solo:buzzsaw:08": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:28.701Z",
+    "textAtReview": "Somebody film that next time!"
+  },
+  "solo:buzzsaw:09": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:28.701Z",
+    "textAtReview": "Totally planned. Mostly planned."
+  },
+  "solo:buzzsaw:10": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:28.701Z",
+    "textAtReview": "Bzzzzzzz! Cut right through!"
+  },
+  "solo:buzzsaw:11": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:28.701Z",
+    "textAtReview": "Gravity is just a suggestion!"
+  },
+  "solo:buzzsaw:12": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:28.701Z",
+    "textAtReview": "Stylish? Absurd? Why not both!"
+  },
+  "solo:cheatseeker:01": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "Clean point. I checked page 12."
+  },
+  "solo:cheatseeker:02": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "Legal launch, legal win. Noted."
+  },
+  "solo:cheatseeker:03": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "The rule book approves of me."
+  },
+  "solo:cheatseeker:04": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "Points awarded, by the book."
+  },
+  "solo:cheatseeker:05": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "Rule one: I find the gaps."
+  },
+  "solo:cheatseeker:06": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "Hmm. No rules broken. By me."
+  },
+  "solo:cheatseeker:07": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "Footnote: that was a ring-out."
+  },
+  "solo:cheatseeker:08": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "Verified. Stamped. Scored."
+  },
+  "solo:cheatseeker:09": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "I read the rules. You should too."
+  },
+  "solo:cheatseeker:10": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "Appendix B: I win this one."
+  },
+  "solo:cheatseeker:11": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "Every point by the letter."
+  },
+  "solo:cheatseeker:12": {
+    "status": "approved",
+    "at": "2026-11-03T21:44:50.446Z",
+    "textAtReview": "Inspection complete. Point mine."
+  },
+  "solo:fairydancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "A pirouette, a pixie, a point!"
+  },
+  "solo:fairydancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "Float like a fairy, burst like one!"
+  },
+  "solo:fairydancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "Grace first. Ring-out second."
+  },
+  "solo:fairydancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "Sprinkle, spin, and score!"
+  },
+  "solo:fairydancer:05": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "Pretty wings, sharp edges."
+  },
+  "solo:fairydancer:06": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "Dance with me? You'll lose."
+  },
+  "solo:fairydancer:07": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "Pixie dust gets everywhere. Sorry!"
+  },
+  "solo:fairydancer:08": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "That was ballet. With damage."
+  },
+  "solo:fairydancer:09": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "One twirl, one point. Easy."
+  },
+  "solo:fairydancer:10": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "Encore? Oh, if you insist."
+  },
+  "solo:fairydancer:11": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "Delicate? Ask the stadium wall."
+  },
+  "solo:fairydancer:12": {
+    "status": "approved",
+    "at": "2026-11-03T22:06:23.254Z",
+    "textAtReview": "Every spin a little curtsy."
+  },
+  "solo:joyzerker:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:11:41.958Z",
+    "textAtReview": "Yay! A point! RAAAGH! A POINT!"
+  },
+  "solo:joyzerker:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:11:41.958Z",
+    "textAtReview": "So happy! SO ANGRY! Point!"
+  },
+  "solo:joyzerker:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:29.507Z",
+    "textAtReview": "Oops! Did I do that? YES I DID!"
+  },
+  "solo:joyzerker:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:32.485Z",
+    "textAtReview": "Best day ever! WORST DAY FOR YOU!"
+  },
+  "solo:joyzerker:05": {
+    "status": "approved",
+    "at": "2026-11-03T22:11:41.958Z",
+    "textAtReview": "Hugs for all! BURSTS FOR ALL!"
+  },
+  "solo:joyzerker:06": {
+    "status": "approved",
+    "at": "2026-11-03T22:11:41.958Z",
+    "textAtReview": "Joy level: max! Zerk level: MAX!"
+  },
+  "solo:joyzerker:07": {
+    "status": "approved",
+    "at": "2026-11-03T22:11:41.958Z",
+    "textAtReview": "Hehe! Hahaha! RAAAH! Hehe."
+  },
+  "solo:joyzerker:08": {
+    "status": "approved",
+    "at": "2026-11-03T22:11:41.958Z",
+    "textAtReview": "Lovely spin! NOW CRUMBLE!"
+  },
+  "solo:joyzerker:09": {
+    "status": "approved",
+    "at": "2026-11-03T22:11:41.958Z",
+    "textAtReview": "Happy dance! ANGRY DANCE!"
+  },
+  "solo:joyzerker:10": {
+    "status": "approved",
+    "at": "2026-11-03T22:11:41.958Z",
+    "textAtReview": "Good vibes only! AND RAGE!"
+  },
+  "solo:joyzerker:11": {
+    "status": "approved",
+    "at": "2026-11-03T22:11:41.958Z",
+    "textAtReview": "Aww, a point! GRRR, A POINT!"
+  },
+  "solo:joyzerker:12": {
+    "status": "approved",
+    "at": "2026-11-03T22:11:41.958Z",
+    "textAtReview": "Sunshine! Rainbows! RING-OUT!"
+  },
+  "solo:modsmith:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:12:06.569Z",
+    "textAtReview": "Modded. Tested. Victorious."
+  },
+  "solo:modsmith:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:12:06.569Z",
+    "textAtReview": "Exactly as my sums predicted."
+  },
+  "solo:modsmith:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:12:06.569Z",
+    "textAtReview": "Version 47 works! Mostly."
+  },
+  "solo:modsmith:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:12:06.569Z",
+    "textAtReview": "Calibration complete. Point."
+  },
+  "solo:modsmith:05": {
+    "status": "approved",
+    "at": "2026-11-03T22:12:06.569Z",
+    "textAtReview": "A few screws loose? On purpose."
+  },
+  "solo:modsmith:06": {
+    "status": "approved",
+    "at": "2026-11-03T22:12:06.569Z",
+    "textAtReview": "My bey has more mods than parts."
+  },
+  "solo:modsmith:07": {
+    "status": "approved",
+    "at": "2026-11-03T22:12:06.569Z",
+    "textAtReview": "Science! With a ripcord!"
+  },
+  "solo:modsmith:08": {
+    "status": "approved",
+    "at": "2026-11-03T22:12:06.569Z",
+    "textAtReview": "Data says I win. Data's right."
+  },
+  "solo:modsmith:09": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:38.850Z",
+    "textAtReview": "Note to self: that worked."
+  },
+  "solo:modsmith:10": {
+    "status": "approved",
+    "at": "2026-11-03T22:12:06.569Z",
+    "textAtReview": "Ah, the new bearing works. *wink*"
+  },
+  "solo:modsmith:11": {
+    "status": "approved",
+    "at": "2026-11-03T22:12:06.569Z",
+    "textAtReview": "Measure twice, rip once."
+  },
+  "solo:modsmith:12": {
+    "status": "approved",
+    "at": "2026-11-03T22:12:06.569Z",
+    "textAtReview": "It's not cheating, it's research."
+  },
+  "solo:pugilist:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:15:52.290Z",
+    "textAtReview": "POW! Right in the stadium!"
+  },
+  "solo:pugilist:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:15:52.290Z",
+    "textAtReview": "One-two combo! Point!"
+  },
+  "solo:pugilist:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:15:52.290Z",
+    "textAtReview": "Gloves on, bey out, point in!"
+  },
+  "solo:pugilist:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:15:52.290Z",
+    "textAtReview": "Ding ding! That's my round!"
+  },
+  "solo:pugilist:05": {
+    "status": "approved",
+    "note": "Float like a buterfly, sting like a bey!",
+    "at": "2026-11-03T22:22:43.334Z",
+    "textAtReview": "Float like a butterfly, sting like a bey!"
+  },
+  "solo:pugilist:06": {
+    "status": "approved",
+    "at": "2026-11-03T22:15:52.290Z",
+    "textAtReview": "Haha! Knockout punch!"
+  },
+  "solo:pugilist:07": {
+    "status": "approved",
+    "at": "2026-11-03T22:15:52.290Z",
+    "textAtReview": "Jab, rip, uppercut, point!"
+  },
+  "solo:pugilist:08": {
+    "status": "approved",
+    "at": "2026-11-03T22:15:52.290Z",
+    "textAtReview": "Who's next? I'm just warming up!"
+  },
+  "solo:pugilist:09": {
+    "status": "approved",
+    "at": "2026-11-03T22:15:52.290Z",
+    "textAtReview": "Did you feel that? I felt that!"
+  },
+  "solo:pugilist:10": {
+    "status": "approved",
+    "at": "2026-11-03T22:15:52.290Z",
+    "textAtReview": "That's a heavyweight finish!"
+  },
+  "solo:pugilist:11": {
+    "status": "approved",
+    "at": "2026-11-03T22:15:52.290Z",
+    "textAtReview": "Bob, weave, and burst!"
+  },
+  "solo:pugilist:12": {
+    "status": "approved",
+    "at": "2026-11-03T22:15:52.290Z",
+    "textAtReview": "Put 'em up! Again! Again!"
+  },
+  "solo:stancemancer:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:16.748Z",
+    "textAtReview": "Stance first. Points follow."
+  },
+  "solo:stancemancer:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:49.366Z",
+    "textAtReview": "Knees bent. Opponent spent."
+  },
+  "solo:stancemancer:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:16.748Z",
+    "textAtReview": "Balanced. Precise. Scored."
+  },
+  "solo:stancemancer:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:16.748Z",
+    "textAtReview": "Feet planted. Bey launched."
+  },
+  "solo:stancemancer:05": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:16.748Z",
+    "textAtReview": "Don't let the glasses fool you."
+  },
+  "solo:stancemancer:06": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:16.748Z",
+    "textAtReview": "Posture is power."
+  },
+  "solo:stancemancer:07": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:16.748Z",
+    "textAtReview": "Low stance, high score."
+  },
+  "solo:stancemancer:08": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:16.748Z",
+    "textAtReview": "Perfect angle. Perfect point."
+  },
+  "solo:stancemancer:09": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:16.748Z",
+    "textAtReview": "The water was calm. Then it hit."
+  },
+  "solo:stancemancer:10": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:16.748Z",
+    "textAtReview": "Breathe. Bend. Burst."
+  },
+  "solo:stancemancer:11": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:16.748Z",
+    "textAtReview": "Precision, not luck."
+  },
+  "solo:stancemancer:12": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:16.748Z",
+    "textAtReview": "My form never wobbles."
+  },
+  "solo:torquewarden:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:48.854Z",
+    "textAtReview": "Immovable. Unbeatable."
+  },
+  "solo:torquewarden:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:48.854Z",
+    "textAtReview": "You hit a wall. The wall was me."
+  },
+  "solo:torquewarden:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:48.854Z",
+    "textAtReview": "Hm. As expected."
+  },
+  "solo:torquewarden:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:56.604Z",
+    "textAtReview": "I've seen tougher spins in a teacup."
+  },
+  "solo:torquewarden:05": {
+    "status": "approved",
+    "at": "2026-11-03T22:22:57.765Z",
+    "textAtReview": "Was that your best? Hm. Okay."
+  },
+  "solo:torquewarden:06": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:48.854Z",
+    "textAtReview": "Torque is law here."
+  },
+  "solo:torquewarden:07": {
+    "status": "approved",
+    "at": "2026-11-03T22:23:00.859Z",
+    "textAtReview": "Bounce off me all you like."
+  },
+  "solo:torquewarden:08": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:48.854Z",
+    "textAtReview": "Your spin ends where I begin."
+  },
+  "solo:torquewarden:09": {
+    "status": "approved",
+    "at": "2026-11-03T22:23:02.460Z",
+    "textAtReview": "Next. Form an orderly queue."
+  },
+  "solo:torquewarden:10": {
+    "status": "approved",
+    "at": "2026-11-03T22:23:03.962Z",
+    "textAtReview": "I've had harder Tuesdays."
+  },
+  "solo:torquewarden:11": {
+    "status": "approved",
+    "at": "2026-11-03T22:23:06.139Z",
+    "textAtReview": "Don't take it personally. Do learn."
+  },
+  "solo:torquewarden:12": {
+    "status": "approved",
+    "at": "2026-11-03T22:16:48.854Z",
+    "textAtReview": "That's all the effort you get."
+  },
+  "solo:underdogger:01": {
+    "status": "approved",
+    "at": "2026-11-03T22:17:20.681Z",
+    "textAtReview": "Never count me out! Cheers!"
+  },
+  "solo:underdogger:02": {
+    "status": "approved",
+    "at": "2026-11-03T22:23:11.498Z",
+    "textAtReview": "Nobody bet on me. Big mistake!"
+  },
+  "solo:underdogger:03": {
+    "status": "approved",
+    "at": "2026-11-03T22:17:20.681Z",
+    "textAtReview": "The underdog bites back!"
+  },
+  "solo:underdogger:04": {
+    "status": "approved",
+    "at": "2026-11-03T22:17:20.681Z",
+    "textAtReview": "Raise the horn! Raise the score!"
+  },
+  "solo:underdogger:05": {
+    "status": "approved",
+    "at": "2026-11-03T22:17:20.681Z",
+    "textAtReview": "Told you. Never count me out!"
+  },
+  "solo:underdogger:06": {
+    "status": "approved",
+    "at": "2026-11-03T22:17:20.681Z",
+    "textAtReview": "Heavy metal, heavy finish!"
+  },
+  "solo:underdogger:07": {
+    "status": "approved",
+    "at": "2026-11-03T22:17:20.681Z",
+    "textAtReview": "From the bottom to the top!"
+  },
+  "solo:underdogger:08": {
+    "status": "approved",
+    "at": "2026-11-03T22:17:20.681Z",
+    "textAtReview": "A toast! To me! And that point!"
+  },
+  "solo:underdogger:09": {
+    "status": "approved",
+    "at": "2026-11-03T22:17:20.681Z",
+    "textAtReview": "Rock on, rip on, roll on!"
+  },
+  "solo:underdogger:10": {
+    "status": "approved",
+    "at": "2026-11-03T22:17:20.681Z",
+    "textAtReview": "Odds? I eat odds for breakfast."
+  },
+  "solo:underdogger:11": {
+    "status": "approved",
+    "at": "2026-11-03T22:17:20.681Z",
+    "textAtReview": "Long live the underdog!"
+  },
+  "solo:underdogger:12": {
+    "status": "approved",
+    "at": "2026-11-03T22:23:13.941Z",
+    "textAtReview": "Written off? Write THIS down!"
+  }
+}

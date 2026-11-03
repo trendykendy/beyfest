@@ -1,0 +1,570 @@
+{
+  "solo": {
+    "The Beanblader": [
+      { "id": "solo:beanblader:01", "text": "Be still. The bean has spoken." },
+      { "id": "solo:beanblader:02", "text": "Inner peace. Outer ring-out." },
+      { "id": "solo:beanblader:03", "text": "I did not launch. I simply let go." },
+      { "id": "solo:beanblader:04", "text": "The stadium is calm. Like me." },
+      { "id": "solo:beanblader:05", "text": "Spin is a breath. I breathe deeply." },
+      { "id": "solo:beanblader:06", "text": "Patience wins. Also, beans." },
+      { "id": "solo:beanblader:07", "text": "Namaste. Also, burst finish." },
+      { "id": "solo:beanblader:08", "text": "The beans foresaw this point." },
+      { "id": "solo:beanblader:09", "text": "Effort is noise. Victory is silence." },
+      { "id": "solo:beanblader:10", "text": "One breath. One rip. One point." },
+      { "id": "solo:beanblader:11", "text": "I float. My opponent does not." },
+      { "id": "solo:beanblader:12", "text": "Stamina of the soul, friend." }
+    ],
+    "The Beyby": [
+      { "id": "solo:beyby:01", "text": "Small bey, BIG trouble!" },
+      { "id": "solo:beyby:02", "text": "Too fast! You blinked!" },
+      { "id": "solo:beyby:03", "text": "Down from the sky! Point!" },
+      { "id": "solo:beyby:04", "text": "Bet you didn't see me coming!" },
+      { "id": "solo:beyby:05", "text": "Little legs, huge launch!" },
+      { "id": "solo:beyby:06", "text": "Again! Again! Let's go again!" },
+      { "id": "solo:beyby:07", "text": "Fear? Never heard of it!" },
+      { "id": "solo:beyby:08", "text": "Zoom! That's a point!" },
+      { "id": "solo:beyby:09", "text": "Who you calling tiny now?" },
+      { "id": "solo:beyby:10", "text": "Nap time's over! Point time!" },
+      { "id": "solo:beyby:11", "text": "Speed is my bedtime story!" },
+      { "id": "solo:beyby:12", "text": "Catch me if you can! You can't!" }
+    ],
+    "The Breycist": [
+      { "id": "solo:breycist:01", "text": "Didn't even look. Didn't need to." },
+      { "id": "solo:breycist:02", "text": "Smooth. Like my tracksuit." },
+      { "id": "solo:breycist:03", "text": "Was that a point? I wasn't watching." },
+      { "id": "solo:breycist:04", "text": "Cool launch. Cooler finish." },
+      { "id": "solo:breycist:05", "text": "Sorry, were you still playing?" },
+      { "id": "solo:breycist:06", "text": "I'd high-five you, but... nah." },
+      { "id": "solo:breycist:07", "text": "Wake me up when it gets close." },
+      { "id": "solo:breycist:08", "text": "Not even a crease in the jacket." },
+      { "id": "solo:breycist:09", "text": "Don't clap. Okay, you can clap." },
+      { "id": "solo:breycist:10", "text": "Same time next round? Same result." },
+      { "id": "solo:breycist:11", "text": "The stadium knows my name." },
+      { "id": "solo:breycist:12", "text": "Effortless. As always, really." }
+    ],
+    "The Buzzsaw": [
+      { "id": "solo:buzzsaw:01", "text": "BACKFLIP LAUNCH! Did you see that?!" },
+      { "id": "solo:buzzsaw:02", "text": "Upside down and still scoring!" },
+      { "id": "solo:buzzsaw:03", "text": "If it's stupid and it works, it's not stupid." },
+      { "id": "solo:buzzsaw:04", "text": "Next one's a double backflip!" },
+      { "id": "solo:buzzsaw:05", "text": "That launch had a triple twist!" },
+      { "id": "solo:buzzsaw:06", "text": "Spinning bey, spinning me, point!" },
+      { "id": "solo:buzzsaw:07", "text": "Did I land it? Who cares! POINT!" },
+      { "id": "solo:buzzsaw:08", "text": "Somebody film that next time!" },
+      { "id": "solo:buzzsaw:09", "text": "Totally planned. Mostly planned." },
+      { "id": "solo:buzzsaw:10", "text": "Bzzzzzzz! Cut right through!" },
+      { "id": "solo:buzzsaw:11", "text": "Gravity is just a suggestion!" },
+      { "id": "solo:buzzsaw:12", "text": "Stylish? Absurd? Why not both!" }
+    ],
+    "The Cheatseeker": [
+      { "id": "solo:cheatseeker:01", "text": "Clean point. I checked page 12." },
+      { "id": "solo:cheatseeker:02", "text": "Legal launch, legal win. Noted." },
+      { "id": "solo:cheatseeker:03", "text": "The rule book approves of me." },
+      { "id": "solo:cheatseeker:04", "text": "Points awarded, by the book." },
+      { "id": "solo:cheatseeker:05", "text": "Rule one: I find the gaps." },
+      { "id": "solo:cheatseeker:06", "text": "Hmm. No rules broken. By me." },
+      { "id": "solo:cheatseeker:07", "text": "Footnote: that was a ring-out." },
+      { "id": "solo:cheatseeker:08", "text": "Verified. Stamped. Scored." },
+      { "id": "solo:cheatseeker:09", "text": "I read the rules. You should too." },
+      { "id": "solo:cheatseeker:10", "text": "Appendix B: I win this one." },
+      { "id": "solo:cheatseeker:11", "text": "Every point by the letter." },
+      { "id": "solo:cheatseeker:12", "text": "Inspection complete. Point mine." }
+    ],
+    "The Fairy Dancer": [
+      { "id": "solo:fairydancer:01", "text": "A pirouette, a pixie, a point!" },
+      { "id": "solo:fairydancer:02", "text": "Float like a fairy, burst like one!" },
+      { "id": "solo:fairydancer:03", "text": "Grace first. Ring-out second." },
+      { "id": "solo:fairydancer:04", "text": "Sprinkle, spin, and score!" },
+      { "id": "solo:fairydancer:05", "text": "Pretty wings, sharp edges." },
+      { "id": "solo:fairydancer:06", "text": "Dance with me? You'll lose." },
+      { "id": "solo:fairydancer:07", "text": "Pixie dust gets everywhere. Sorry!" },
+      { "id": "solo:fairydancer:08", "text": "That was ballet. With damage." },
+      { "id": "solo:fairydancer:09", "text": "One twirl, one point. Easy." },
+      { "id": "solo:fairydancer:10", "text": "Encore? Oh, if you insist." },
+      { "id": "solo:fairydancer:11", "text": "Delicate? Ask the stadium wall." },
+      { "id": "solo:fairydancer:12", "text": "Every spin a little curtsy." }
+    ],
+    "The Joyzerker": [
+      { "id": "solo:joyzerker:01", "text": "Yay! A point! RAAAGH! A POINT!" },
+      { "id": "solo:joyzerker:02", "text": "So happy! SO ANGRY! Point!" },
+      { "id": "solo:joyzerker:03", "text": "Oops! Did I do that? YES I DID!" },
+      { "id": "solo:joyzerker:04", "text": "Best day ever! WORST DAY FOR YOU!" },
+      { "id": "solo:joyzerker:05", "text": "Hugs for all! BURSTS FOR ALL!" },
+      { "id": "solo:joyzerker:06", "text": "Joy level: max! Zerk level: MAX!" },
+      { "id": "solo:joyzerker:07", "text": "Hehe! Hahaha! RAAAH! Hehe." },
+      { "id": "solo:joyzerker:08", "text": "Lovely spin! NOW CRUMBLE!" },
+      { "id": "solo:joyzerker:09", "text": "Happy dance! ANGRY DANCE!" },
+      { "id": "solo:joyzerker:10", "text": "Good vibes only! AND RAGE!" },
+      { "id": "solo:joyzerker:11", "text": "Aww, a point! GRRR, A POINT!" },
+      { "id": "solo:joyzerker:12", "text": "Sunshine! Rainbows! RING-OUT!" }
+    ],
+    "The Modsmith": [
+      { "id": "solo:modsmith:01", "text": "Modded. Tested. Victorious." },
+      { "id": "solo:modsmith:02", "text": "Exactly as my sums predicted." },
+      { "id": "solo:modsmith:03", "text": "Version 47 works! Mostly." },
+      { "id": "solo:modsmith:04", "text": "Calibration complete. Point." },
+      { "id": "solo:modsmith:05", "text": "A few screws loose? On purpose." },
+      { "id": "solo:modsmith:06", "text": "My bey has more mods than parts." },
+      { "id": "solo:modsmith:07", "text": "Science! With a ripcord!" },
+      { "id": "solo:modsmith:08", "text": "Data says I win. Data's right." },
+      { "id": "solo:modsmith:09", "text": "Note to self: that worked." },
+      { "id": "solo:modsmith:10", "text": "Ah, the new bearing works. *wink*" },
+      { "id": "solo:modsmith:11", "text": "Measure twice, rip once." },
+      { "id": "solo:modsmith:12", "text": "It's not cheating, it's research." }
+    ],
+    "The Pugilist": [
+      { "id": "solo:pugilist:01", "text": "POW! Right in the stadium!" },
+      { "id": "solo:pugilist:02", "text": "One-two combo! Point!" },
+      { "id": "solo:pugilist:03", "text": "Gloves on, bey out, point in!" },
+      { "id": "solo:pugilist:04", "text": "Ding ding! That's my round!" },
+      { "id": "solo:pugilist:05", "text": "Float like a butterfly, sting like a bey!" },
+      { "id": "solo:pugilist:06", "text": "Haha! Knockout punch!" },
+      { "id": "solo:pugilist:07", "text": "Jab, rip, uppercut, point!" },
+      { "id": "solo:pugilist:08", "text": "Who's next? I'm just warming up!" },
+      { "id": "solo:pugilist:09", "text": "Did you feel that? I felt that!" },
+      { "id": "solo:pugilist:10", "text": "That's a heavyweight finish!" },
+      { "id": "solo:pugilist:11", "text": "Bob, weave, and burst!" },
+      { "id": "solo:pugilist:12", "text": "Put 'em up! Again! Again!" }
+    ],
+    "The Stancemancer": [
+      { "id": "solo:stancemancer:01", "text": "Stance first. Points follow." },
+      { "id": "solo:stancemancer:02", "text": "Knees bent. Opponent spent." },
+      { "id": "solo:stancemancer:03", "text": "Balanced. Precise. Scored." },
+      { "id": "solo:stancemancer:04", "text": "Feet planted. Bey launched." },
+      { "id": "solo:stancemancer:05", "text": "Don't let the glasses fool you." },
+      { "id": "solo:stancemancer:06", "text": "Posture is power." },
+      { "id": "solo:stancemancer:07", "text": "Low stance, high score." },
+      { "id": "solo:stancemancer:08", "text": "Perfect angle. Perfect point." },
+      { "id": "solo:stancemancer:09", "text": "The water was calm. Then it hit." },
+      { "id": "solo:stancemancer:10", "text": "Breathe. Bend. Burst." },
+      { "id": "solo:stancemancer:11", "text": "Precision, not luck." },
+      { "id": "solo:stancemancer:12", "text": "My form never wobbles." }
+    ],
+    "The Torque Warden": [
+      { "id": "solo:torquewarden:01", "text": "Immovable. Unbeatable." },
+      { "id": "solo:torquewarden:02", "text": "You hit a wall. The wall was me." },
+      { "id": "solo:torquewarden:03", "text": "Hm. As expected." },
+      { "id": "solo:torquewarden:04", "text": "I've seen tougher spins in a teacup." },
+      { "id": "solo:torquewarden:05", "text": "Was that your best? Hm. Okay." },
+      { "id": "solo:torquewarden:06", "text": "Torque is law here." },
+      { "id": "solo:torquewarden:07", "text": "Bounce off me all you like." },
+      { "id": "solo:torquewarden:08", "text": "Your spin ends where I begin." },
+      { "id": "solo:torquewarden:09", "text": "Next. Form an orderly queue." },
+      { "id": "solo:torquewarden:10", "text": "I've had harder Tuesdays." },
+      { "id": "solo:torquewarden:11", "text": "Don't take it personally. Do learn." },
+      { "id": "solo:torquewarden:12", "text": "That's all the effort you get." }
+    ],
+    "The Underdogger": [
+      { "id": "solo:underdogger:01", "text": "Never count me out! Cheers!" },
+      { "id": "solo:underdogger:02", "text": "Nobody bet on me. Big mistake!" },
+      { "id": "solo:underdogger:03", "text": "The underdog bites back!" },
+      { "id": "solo:underdogger:04", "text": "Raise the horn! Raise the score!" },
+      { "id": "solo:underdogger:05", "text": "Told you. Never count me out!" },
+      { "id": "solo:underdogger:06", "text": "Heavy metal, heavy finish!" },
+      { "id": "solo:underdogger:07", "text": "From the bottom to the top!" },
+      { "id": "solo:underdogger:08", "text": "A toast! To me! And that point!" },
+      { "id": "solo:underdogger:09", "text": "Rock on, rip on, roll on!" },
+      { "id": "solo:underdogger:10", "text": "Odds? I eat odds for breakfast." },
+      { "id": "solo:underdogger:11", "text": "Long live the underdog!" },
+      { "id": "solo:underdogger:12", "text": "Written off? Write THIS down!" }
+    ]
+  },
+  "rivals": {
+    "The Beanblader|The Beyby": [
+      { "id": "rival:beanblader|beyby:01", "lead": "The Beanblader", "line": "Slow down, little one. Breathe.", "reply": "Can't breathe! Too busy zooming!" },
+      { "id": "rival:beanblader|beyby:02", "lead": "The Beanblader", "line": "The bean waits. The baby rushes.", "reply": "Rushing's how I'm gonna win!" },
+      { "id": "rival:beanblader|beyby:03", "lead": "The Beyby", "line": "Too fast for your floaty beans!", "reply": "The beans were not upset. Nor am I." },
+      { "id": "rival:beanblader|beyby:04", "lead": "The Beyby", "line": "Bet you can't meditate THAT away!", "reply": "Already did. I feel lovely." }
+    ],
+    "The Beanblader|The Breycist": [
+      { "id": "rival:beanblader|breycist:01", "lead": "The Beanblader", "line": "You do not watch. I do not worry.", "reply": "I watched that one. Kinda." },
+      { "id": "rival:beanblader|breycist:02", "lead": "The Beanblader", "line": "Calm beats cool, my friend.", "reply": "Cool is a type of calm, actually." },
+      { "id": "rival:beanblader|breycist:03", "lead": "The Breycist", "line": "Didn't look. Still beat the monk.", "reply": "Your eyes were closed. So were mine." },
+      { "id": "rival:beanblader|breycist:04", "lead": "The Breycist", "line": "Nice robe. Mine has a zip.", "reply": "My robe has inner peace. And pockets." }
+    ],
+    "The Beanblader|The Buzzsaw": [
+      { "id": "rival:beanblader|buzzsaw:01", "lead": "The Beanblader", "line": "Stillness defeats the backflip.", "reply": "Stillness can't do a double flip!" },
+      { "id": "rival:beanblader|buzzsaw:02", "lead": "The Beanblader", "line": "Feet on the ground... well, nearly.", "reply": "You're FLOATING! That's cheating-ish!" },
+      { "id": "rival:beanblader|buzzsaw:03", "lead": "The Buzzsaw", "line": "Flip, rip, WIN! Hah!", "reply": "A fine flip. Breathe after it." },
+      { "id": "rival:beanblader|buzzsaw:04", "lead": "The Buzzsaw", "line": "Upside down beats cross-legged!", "reply": "Every way up is fine with me." }
+    ],
+    "The Beanblader|The Cheatseeker": [
+      { "id": "rival:beanblader|cheatseeker:01", "lead": "The Beanblader", "line": "Peace needs no rule book.", "reply": "Page 9 says peace needs a referee." },
+      { "id": "rival:beanblader|cheatseeker:02", "lead": "The Beanblader", "line": "The beans abide by every rule.", "reply": "Beans aren't in the rules. Yet." },
+      { "id": "rival:beanblader|cheatseeker:03", "lead": "The Cheatseeker", "line": "Levitating? Let me check the rules.", "reply": "The rules do not mention floating." },
+      { "id": "rival:beanblader|cheatseeker:04", "lead": "The Cheatseeker", "line": "Point mine. Fully rule compliant.", "reply": "Your compliance brings me peace." }
+    ],
+    "The Beanblader|The Fairy Dancer": [
+      { "id": "rival:beanblader|fairydancer:01", "lead": "The Beanblader", "line": "Float meets flutter. Float wins.", "reply": "Next time I'm bringing extra wings." },
+      { "id": "rival:beanblader|fairydancer:02", "lead": "The Beanblader", "line": "Your pixie dust is in my beans.", "reply": "Bean dust is in my wings too!" },
+      { "id": "rival:beanblader|fairydancer:03", "lead": "The Fairy Dancer", "line": "A pirouette for the peaceful one!", "reply": "I accept it with deep gratitude." },
+      { "id": "rival:beanblader|fairydancer:04", "lead": "The Fairy Dancer", "line": "Fairies spin faster than beans!", "reply": "Beans do not spin. They wait." }
+    ],
+    "The Beanblader|The Joyzerker": [
+      { "id": "rival:beanblader|joyzerker:01", "lead": "The Beanblader", "line": "Calm your inner zerker, friend.", "reply": "My inner zerker says NO! Haha!" },
+      { "id": "rival:beanblader|joyzerker:02", "lead": "The Beanblader", "line": "Find balance. Like me.", "reply": "I have balance! Half joy, half RAGE!" },
+      { "id": "rival:beanblader|joyzerker:03", "lead": "The Joyzerker", "line": "Yay! Beans everywhere! RAAAH!", "reply": "Please do not shout at the beans." },
+      { "id": "rival:beanblader|joyzerker:04", "lead": "The Joyzerker", "line": "Inner peace? INNER PIECES!", "reply": "I remain whole. And peaceful." }
+    ],
+    "The Beanblader|The Modsmith": [
+      { "id": "rival:beanblader|modsmith:01", "lead": "The Beanblader", "line": "No mods. Only mindfulness.", "reply": "Mindfulness doesn't have a gyro." },
+      { "id": "rival:beanblader|modsmith:02", "lead": "The Beanblader", "line": "Your gadgets cannot measure calm.", "reply": "Hold on, I'm building one now." },
+      { "id": "rival:beanblader|modsmith:03", "lead": "The Modsmith", "line": "My sensors read your calm: 98%.", "reply": "The other 2% is beans." },
+      { "id": "rival:beanblader|modsmith:04", "lead": "The Modsmith", "line": "Engineered beats enlightened.", "reply": "Then why are you sweating, friend?" }
+    ],
+    "The Beanblader|The Pugilist": [
+      { "id": "rival:beanblader|pugilist:01", "lead": "The Beanblader", "line": "Peace in the face of punches.", "reply": "I'll punch the peace right back!" },
+      { "id": "rival:beanblader|pugilist:02", "lead": "The Beanblader", "line": "Unclench your gloves, friend.", "reply": "Never! They're comfy!" },
+      { "id": "rival:beanblader|pugilist:03", "lead": "The Pugilist", "line": "Pow! Right in the serenity!", "reply": "My serenity is unharmed." },
+      { "id": "rival:beanblader|pugilist:04", "lead": "The Pugilist", "line": "Float that, monk man!", "reply": "I shall. Gently. Upward." }
+    ],
+    "The Beanblader|The Stancemancer": [
+      { "id": "rival:beanblader|stancemancer:01", "lead": "The Beanblader", "line": "A good stance. Floating is better.", "reply": "You can't have stance without ground." },
+      { "id": "rival:beanblader|stancemancer:02", "lead": "The Beanblader", "line": "Water flows. Beans float.", "reply": "Freight trains do not float." },
+      { "id": "rival:beanblader|stancemancer:03", "lead": "The Stancemancer", "line": "Grounded beats floating.", "reply": "Grounded is merely a mood." },
+      { "id": "rival:beanblader|stancemancer:04", "lead": "The Stancemancer", "line": "Precision over prayer beads.", "reply": "The beads are precise too." }
+    ],
+    "The Beanblader|The Torque Warden": [
+      { "id": "rival:beanblader|torquewarden:01", "lead": "The Beanblader", "line": "Even mountains drift, Warden.", "reply": "Not this mountain. Not ever." },
+      { "id": "rival:beanblader|torquewarden:02", "lead": "The Beanblader", "line": "The calm moved the immovable.", "reply": "Moved? I simply... relocated." },
+      { "id": "rival:beanblader|torquewarden:03", "lead": "The Torque Warden", "line": "Your beans are no match for torque.", "reply": "The beans hold no grudges." },
+      { "id": "rival:beanblader|torquewarden:04", "lead": "The Torque Warden", "line": "The wall stands. The beans scatter.", "reply": "Scattered beans grow back stronger." }
+    ],
+    "The Beanblader|The Underdogger": [
+      { "id": "rival:beanblader|underdogger:01", "lead": "The Beanblader", "line": "Peace to the underdog.", "reply": "I'll take peace AND the next point!" },
+      { "id": "rival:beanblader|underdogger:02", "lead": "The Beanblader", "line": "Lower the horn. Find your calm.", "reply": "This horn IS my calm!" },
+      { "id": "rival:beanblader|underdogger:03", "lead": "The Underdogger", "line": "Horns up for the underdog!", "reply": "May your horn be ever full of juice." },
+      { "id": "rival:beanblader|underdogger:04", "lead": "The Underdogger", "line": "Never count me out, bean man!", "reply": "I never count. I just breathe." }
+    ],
+    "The Beyby|The Breycist": [
+      { "id": "rival:beyby|breycist:01", "lead": "The Beyby", "line": "Looked away? I zoomed past you!", "reply": "I meant to let you past. Obviously." },
+      { "id": "rival:beyby|breycist:02", "lead": "The Beyby", "line": "Zippy beats drippy!", "reply": "Excuse me, this tracksuit is ironed." },
+      { "id": "rival:beyby|breycist:03", "lead": "The Breycist", "line": "Too cool for small fry.", "reply": "Small fry, BIG bite! Next round!" },
+      { "id": "rival:beyby|breycist:04", "lead": "The Breycist", "line": "Didn't look. Didn't have to, kid.", "reply": "Look next time! I'm right here!" }
+    ],
+    "The Beyby|The Buzzsaw": [
+      { "id": "rival:beyby|buzzsaw:01", "lead": "The Beyby", "line": "I can flip too! Kind of!", "reply": "Kid, you're a natural! Do it again!" },
+      { "id": "rival:beyby|buzzsaw:02", "lead": "The Beyby", "line": "Faster than your backflip!", "reply": "Nothing's faster than my backflip!" },
+      { "id": "rival:beyby|buzzsaw:03", "lead": "The Buzzsaw", "line": "Did you see how high I got?!", "reply": "I saw your shoes! Way up there!" },
+      { "id": "rival:beyby|buzzsaw:04", "lead": "The Buzzsaw", "line": "Backflip beats baby leap!", "reply": "Baby leap beats you next time!" }
+    ],
+    "The Beyby|The Cheatseeker": [
+      { "id": "rival:beyby|cheatseeker:01", "lead": "The Beyby", "line": "Was that legal? Who cares! Point!", "reply": "I care. I checked. It was legal." },
+      { "id": "rival:beyby|cheatseeker:02", "lead": "The Beyby", "line": "Your rule book is bigger than me!", "reply": "And it says you must stand still!" },
+      { "id": "rival:beyby|cheatseeker:03", "lead": "The Cheatseeker", "line": "Rule 4: no tiny zoomies.", "reply": "That's not a real rule!" },
+      { "id": "rival:beyby|cheatseeker:04", "lead": "The Cheatseeker", "line": "By the book. Literally.", "reply": "I'll jump OVER your book!" }
+    ],
+    "The Beyby|The Fairy Dancer": [
+      { "id": "rival:beyby|fairydancer:01", "lead": "The Beyby", "line": "Faster than a fairy!", "reply": "Faster isn't fancier, little one." },
+      { "id": "rival:beyby|fairydancer:02", "lead": "The Beyby", "line": "Bye bye, sparkles!", "reply": "The sparkles will return. Always." },
+      { "id": "rival:beyby|fairydancer:03", "lead": "The Fairy Dancer", "line": "A twirl too quick for the tot!", "reply": "Not a tot! A TORNADO!" },
+      { "id": "rival:beyby|fairydancer:04", "lead": "The Fairy Dancer", "line": "Pixie dust in your hood!", "reply": "Hey! Now I'm glittery! ...Cool." }
+    ],
+    "The Beyby|The Joyzerker": [
+      { "id": "rival:beyby|joyzerker:01", "lead": "The Beyby", "line": "Yay! I'm the zoomiest!", "reply": "YAY! WAIT. GRRR. Yay?" },
+      { "id": "rival:beyby|joyzerker:02", "lead": "The Beyby", "line": "Small and mighty!", "reply": "Small and mighty? TINY AND RAGEY!" },
+      { "id": "rival:beyby|joyzerker:03", "lead": "The Joyzerker", "line": "Aww, tiny bey! BURST TINY BEY!", "reply": "Can't burst what you can't catch!" },
+      { "id": "rival:beyby|joyzerker:04", "lead": "The Joyzerker", "line": "So cute! SO DEFEATED!", "reply": "Not defeated! Just reloading!" }
+    ],
+    "The Beyby|The Modsmith": [
+      { "id": "rival:beyby|modsmith:01", "lead": "The Beyby", "line": "No mods! Just speed!", "reply": "Speed is a mod you can't buy." },
+      { "id": "rival:beyby|modsmith:02", "lead": "The Beyby", "line": "Your gadgets can't track me!", "reply": "Recalibrating... still can't." },
+      { "id": "rival:beyby|modsmith:03", "lead": "The Modsmith", "line": "Calculated your speed. And beat it.", "reply": "I'll get faster than your maths!" },
+      { "id": "rival:beyby|modsmith:04", "lead": "The Modsmith", "line": "My tracker clocked you. Too slow.", "reply": "Your tracker needs new batteries!" }
+    ],
+    "The Beyby|The Pugilist": [
+      { "id": "rival:beyby|pugilist:01", "lead": "The Beyby", "line": "Ducked right under your gloves!", "reply": "Haha! Kid's got moves!" },
+      { "id": "rival:beyby|pugilist:02", "lead": "The Beyby", "line": "Can't punch what's flying!", "reply": "Watch me try! Again!" },
+      { "id": "rival:beyby|pugilist:03", "lead": "The Pugilist", "line": "Pow! Mini knockout!", "reply": "Mini? I'm the main event!" },
+      { "id": "rival:beyby|pugilist:04", "lead": "The Pugilist", "line": "That's how a big kid does it!", "reply": "Wait till I grow! Next week!" }
+    ],
+    "The Beyby|The Stancemancer": [
+      { "id": "rival:beyby|stancemancer:01", "lead": "The Beyby", "line": "Stance this! Zoom!", "reply": "Speed fades. Stance stays." },
+      { "id": "rival:beyby|stancemancer:02", "lead": "The Beyby", "line": "Too quick to see you crouch!", "reply": "My crouch saw you. Clearly." },
+      { "id": "rival:beyby|stancemancer:03", "lead": "The Stancemancer", "line": "Plant your feet, little one.", "reply": "My feet are for jumping!" },
+      { "id": "rival:beyby|stancemancer:04", "lead": "The Stancemancer", "line": "Speed meets precision. Precision wins.", "reply": "Rematch! At MAXIMUM SPEED!" }
+    ],
+    "The Beyby|The Torque Warden": [
+      { "id": "rival:beyby|torquewarden:01", "lead": "The Beyby", "line": "Made the wall wobble!", "reply": "That wasn't a wobble. Was it?" },
+      { "id": "rival:beyby|torquewarden:02", "lead": "The Beyby", "line": "Fedora? More like Fe-DONE-a!", "reply": "...I will allow that one." },
+      { "id": "rival:beyby|torquewarden:03", "lead": "The Torque Warden", "line": "Small spin. Big wall.", "reply": "I'll climb your wall! Zoom zoom!" },
+      { "id": "rival:beyby|torquewarden:04", "lead": "The Torque Warden", "line": "The wall does not move for babies.", "reply": "Not a baby! A BEYBY!" }
+    ],
+    "The Beyby|The Underdogger": [
+      { "id": "rival:beyby|underdogger:01", "lead": "The Beyby", "line": "Two underdogs! I win this one!", "reply": "Fair play, little legend!" },
+      { "id": "rival:beyby|underdogger:02", "lead": "The Beyby", "line": "Raise your horn to me!", "reply": "Cheers to the tiny titan!" },
+      { "id": "rival:beyby|underdogger:03", "lead": "The Underdogger", "line": "Never count out the big dog!", "reply": "I can count to ten! Rematch!" },
+      { "id": "rival:beyby|underdogger:04", "lead": "The Underdogger", "line": "Horns up! Small fries down!", "reply": "Fries? I'm the whole meal!" }
+    ],
+    "The Breycist|The Buzzsaw": [
+      { "id": "rival:breycist|buzzsaw:01", "lead": "The Breycist", "line": "No flip needed. Just class.", "reply": "Class is FINE. Flips are FUN!" },
+      { "id": "rival:breycist|buzzsaw:02", "lead": "The Breycist", "line": "Did you flip? I wasn't looking.", "reply": "You missed the best flip ever!" },
+      { "id": "rival:breycist|buzzsaw:03", "lead": "The Buzzsaw", "line": "Look at THIS one! Upside down!", "reply": "Fine. I looked. It was alright." },
+      { "id": "rival:breycist|buzzsaw:04", "lead": "The Buzzsaw", "line": "Even Mr Cool turned to watch!", "reply": "I was checking my reflection." }
+    ],
+    "The Breycist|The Cheatseeker": [
+      { "id": "rival:breycist|cheatseeker:01", "lead": "The Breycist", "line": "Rule book? I wrote the style guide.", "reply": "Style guides aren't in the rules." },
+      { "id": "rival:breycist|cheatseeker:02", "lead": "The Breycist", "line": "Looking for a foul? Keep looking.", "reply": "Oh, I'm always looking." },
+      { "id": "rival:breycist|cheatseeker:03", "lead": "The Cheatseeker", "line": "No-look launch? Rule 7 says look.", "reply": "Rule 7 never saw me coming." },
+      { "id": "rival:breycist|cheatseeker:04", "lead": "The Cheatseeker", "line": "Clean point. Unlike your sneer.", "reply": "That's a smirk, my friend." }
+    ],
+    "The Breycist|The Fairy Dancer": [
+      { "id": "rival:breycist|fairydancer:01", "lead": "The Breycist", "line": "Cool beats cute, every time.", "reply": "Cute IS cool, darling." },
+      { "id": "rival:breycist|fairydancer:02", "lead": "The Breycist", "line": "Even pixies stop to watch me.", "reply": "We stopped to laugh, actually!" },
+      { "id": "rival:breycist|fairydancer:03", "lead": "The Fairy Dancer", "line": "A twirl you HAD to watch!", "reply": "Fine. One look. It was lovely." },
+      { "id": "rival:breycist|fairydancer:04", "lead": "The Fairy Dancer", "line": "Even the cool guy looked up!", "reply": "I'd rather look good. And I do." }
+    ],
+    "The Breycist|The Joyzerker": [
+      { "id": "rival:breycist|joyzerker:01", "lead": "The Breycist", "line": "Calm down. Watch how it's done.", "reply": "I WATCHED! NOW I'M HAPPY-ANGRY!" },
+      { "id": "rival:breycist|joyzerker:02", "lead": "The Breycist", "line": "Too chill for your chaos.", "reply": "Nobody is too chill for the ZERK!" },
+      { "id": "rival:breycist|joyzerker:03", "lead": "The Joyzerker", "line": "Yay! Wipe off that smirk! RAAH!", "reply": "Smirk's still here. Waterproof." },
+      { "id": "rival:breycist|joyzerker:04", "lead": "The Joyzerker", "line": "Cool guy? COOLED GUY!", "reply": "Still cool. Slightly sweaty." }
+    ],
+    "The Breycist|The Modsmith": [
+      { "id": "rival:breycist|modsmith:01", "lead": "The Breycist", "line": "Raw style beats a rewired bey.", "reply": "You won't say that at version 48." },
+      { "id": "rival:breycist|modsmith:02", "lead": "The Breycist", "line": "No upgrades. Just me.", "reply": "That's what worries me." },
+      { "id": "rival:breycist|modsmith:03", "lead": "The Modsmith", "line": "Your smirk isn't in my data.", "reply": "You can't measure cool, mate." },
+      { "id": "rival:breycist|modsmith:04", "lead": "The Modsmith", "line": "Engineered a no-look counter.", "reply": "Clever. I still didn't look." }
+    ],
+    "The Breycist|The Pugilist": [
+      { "id": "rival:breycist|pugilist:01", "lead": "The Breycist", "line": "Didn't even need to punch.", "reply": "Then I'll punch twice as hard!" },
+      { "id": "rival:breycist|pugilist:02", "lead": "The Breycist", "line": "Careful, you'll crease the jacket.", "reply": "That's the plan, fancy pants!" },
+      { "id": "rival:breycist|pugilist:03", "lead": "The Pugilist", "line": "Pow! NOW I've got your attention!", "reply": "Okay, I turned around. Briefly." },
+      { "id": "rival:breycist|pugilist:04", "lead": "The Pugilist", "line": "Knocked the cool right off you!", "reply": "Cool grows back. Like my hair." }
+    ],
+    "The Breycist|The Stancemancer": [
+      { "id": "rival:breycist|stancemancer:01", "lead": "The Breycist", "line": "No stance. Just swagger.", "reply": "Swagger is a stance. A poor one." },
+      { "id": "rival:breycist|stancemancer:02", "lead": "The Breycist", "line": "Glasses or not, too slow.", "reply": "These see everything. Even smirks." },
+      { "id": "rival:breycist|stancemancer:03", "lead": "The Stancemancer", "line": "Your back was turned. Mistake.", "reply": "I'll face you... next time." },
+      { "id": "rival:breycist|stancemancer:04", "lead": "The Stancemancer", "line": "Form beats fashion.", "reply": "Fashion IS form, my friend." }
+    ],
+    "The Breycist|The Torque Warden": [
+      { "id": "rival:breycist|torquewarden:01", "lead": "The Breycist", "line": "Even walls admire this jacket.", "reply": "This wall admires nothing." },
+      { "id": "rival:breycist|torquewarden:02", "lead": "The Breycist", "line": "Nice hat. My hair's nicer.", "reply": "Your hair moved. I did not." },
+      { "id": "rival:breycist|torquewarden:03", "lead": "The Torque Warden", "line": "You looked away. I did not.", "reply": "I looked back. It was worse." },
+      { "id": "rival:breycist|torquewarden:04", "lead": "The Torque Warden", "line": "Unmoved by your style.", "reply": "Everyone's moved by my style." }
+    ],
+    "The Breycist|The Underdogger": [
+      { "id": "rival:breycist|underdogger:01", "lead": "The Breycist", "line": "Underdog? I'm the overdog.", "reply": "Never count me out, fancy!" },
+      { "id": "rival:breycist|underdogger:02", "lead": "The Breycist", "line": "Raise a toast to the smooth one.", "reply": "I'll toast your NEXT loss!" },
+      { "id": "rival:breycist|underdogger:03", "lead": "The Underdogger", "line": "Horns up! Tracksuit down!", "reply": "It's still zipped. Perfectly." },
+      { "id": "rival:breycist|underdogger:04", "lead": "The Underdogger", "line": "Look at this one, cool guy!", "reply": "Nah. ...Okay, that was good." }
+    ],
+    "The Buzzsaw|The Cheatseeker": [
+      { "id": "rival:buzzsaw|cheatseeker:01", "lead": "The Buzzsaw", "line": "Find THAT in your rule book!", "reply": "Page 40: backflips are... allowed." },
+      { "id": "rival:buzzsaw|cheatseeker:02", "lead": "The Buzzsaw", "line": "Triple-flip launch! Legal?", "reply": "Checking... it's not NOT legal." },
+      { "id": "rival:buzzsaw|cheatseeker:03", "lead": "The Cheatseeker", "line": "Rule 12: one flip per launch.", "reply": "You just made that rule up!" },
+      { "id": "rival:buzzsaw|cheatseeker:04", "lead": "The Cheatseeker", "line": "Fully legal. Unlike that flip.", "reply": "That flip was art! Art is legal!" }
+    ],
+    "The Buzzsaw|The Fairy Dancer": [
+      { "id": "rival:buzzsaw|fairydancer:01", "lead": "The Buzzsaw", "line": "A backflip beats a pirouette!", "reply": "A pirouette is a flip, sideways." },
+      { "id": "rival:buzzsaw|fairydancer:02", "lead": "The Buzzsaw", "line": "Pixie dust? I flipped through it!", "reply": "Now you're sparkly. You're welcome." },
+      { "id": "rival:buzzsaw|fairydancer:03", "lead": "The Fairy Dancer", "line": "Grace defeats chaos!", "reply": "Chaos is just grace with more noise!" },
+      { "id": "rival:buzzsaw|fairydancer:04", "lead": "The Fairy Dancer", "line": "Twirl beats twist!", "reply": "Next time I'll twirl AND twist!" }
+    ],
+    "The Buzzsaw|The Joyzerker": [
+      { "id": "rival:buzzsaw|joyzerker:01", "lead": "The Buzzsaw", "line": "Wheee! Upside down and happy!", "reply": "HAPPY! UPSIDE DOWN! RAAAH!" },
+      { "id": "rival:buzzsaw|joyzerker:02", "lead": "The Buzzsaw", "line": "Absurd launch! Absurd point!", "reply": "Absurd! I LOVE IT! I HATE IT!" },
+      { "id": "rival:buzzsaw|joyzerker:03", "lead": "The Joyzerker", "line": "Fun flip! NOW FLIP OVER!", "reply": "Way ahead of you! Wheee!" },
+      { "id": "rival:buzzsaw|joyzerker:04", "lead": "The Joyzerker", "line": "Joy beats flips! RAGE BEATS ALL!", "reply": "Hah! Best match of the day!" }
+    ],
+    "The Buzzsaw|The Modsmith": [
+      { "id": "rival:buzzsaw|modsmith:01", "lead": "The Buzzsaw", "line": "No mods needed. Just flips!", "reply": "Your flips need a gyroscope." },
+      { "id": "rival:buzzsaw|modsmith:02", "lead": "The Buzzsaw", "line": "Engineer THAT launch!", "reply": "Already drawing the blueprints." },
+      { "id": "rival:buzzsaw|modsmith:03", "lead": "The Modsmith", "line": "Calculated your flip. Then beat it.", "reply": "You can't calculate fun!" },
+      { "id": "rival:buzzsaw|modsmith:04", "lead": "The Modsmith", "line": "My bey has a flip detector.", "reply": "Did it detect THAT one coming?" }
+    ],
+    "The Buzzsaw|The Pugilist": [
+      { "id": "rival:buzzsaw|pugilist:01", "lead": "The Buzzsaw", "line": "Backflip beats boxing!", "reply": "Wait till I box a backflip!" },
+      { "id": "rival:buzzsaw|pugilist:02", "lead": "The Buzzsaw", "line": "Ding ding! Upside down!", "reply": "That's not how boxing works!" },
+      { "id": "rival:buzzsaw|pugilist:03", "lead": "The Pugilist", "line": "Pow! Right in the backflip!", "reply": "Haha! Rematch, champ!" },
+      { "id": "rival:buzzsaw|pugilist:04", "lead": "The Pugilist", "line": "Gloves beat gravity!", "reply": "Gravity's on MY team, though!" }
+    ],
+    "The Buzzsaw|The Stancemancer": [
+      { "id": "rival:buzzsaw|stancemancer:01", "lead": "The Buzzsaw", "line": "Who needs a stance? Wheee!", "reply": "Everyone. Especially you." },
+      { "id": "rival:buzzsaw|stancemancer:02", "lead": "The Buzzsaw", "line": "Balance? I'm upside down!", "reply": "Somehow that is worse." },
+      { "id": "rival:buzzsaw|stancemancer:03", "lead": "The Stancemancer", "line": "Feet on the floor. Point in the bag.", "reply": "Feet on the floor? How boring!" },
+      { "id": "rival:buzzsaw|stancemancer:04", "lead": "The Stancemancer", "line": "Precision beats absurdity.", "reply": "Absurdity will rise again!" }
+    ],
+    "The Buzzsaw|The Torque Warden": [
+      { "id": "rival:buzzsaw|torquewarden:01", "lead": "The Buzzsaw", "line": "I flipped OVER the wall!", "reply": "Hmph. Walls can be climbed. Once." },
+      { "id": "rival:buzzsaw|torquewarden:02", "lead": "The Buzzsaw", "line": "Spin the hat! Spin the bey!", "reply": "Nobody touches the hat." },
+      { "id": "rival:buzzsaw|torquewarden:03", "lead": "The Torque Warden", "line": "Land on your feet. Then lose.", "reply": "I landed on my HEAD. Still smiling!" },
+      { "id": "rival:buzzsaw|torquewarden:04", "lead": "The Torque Warden", "line": "The wall does not flip.", "reply": "That's why walls are boring!" }
+    ],
+    "The Buzzsaw|The Underdogger": [
+      { "id": "rival:buzzsaw|underdogger:01", "lead": "The Buzzsaw", "line": "Raise a horn to that flip!", "reply": "Cheers! Do another one!" },
+      { "id": "rival:buzzsaw|underdogger:02", "lead": "The Buzzsaw", "line": "Absurd beats underdog!", "reply": "Never count the dog out!" },
+      { "id": "rival:buzzsaw|underdogger:03", "lead": "The Underdogger", "line": "Underdog bites the backflipper!", "reply": "Ouch! Good bite! Good game!" },
+      { "id": "rival:buzzsaw|underdogger:04", "lead": "The Underdogger", "line": "Horns up! Backflips down!", "reply": "I'll backflip back up!" }
+    ],
+    "The Cheatseeker|The Fairy Dancer": [
+      { "id": "rival:cheatseeker|fairydancer:01", "lead": "The Cheatseeker", "line": "Rule 3: no glitter in the stadium.", "reply": "That rule is not in any book!" },
+      { "id": "rival:cheatseeker|fairydancer:02", "lead": "The Cheatseeker", "line": "Wings checked. Barely legal.", "reply": "Barely legal is still legal, love." },
+      { "id": "rival:cheatseeker|fairydancer:03", "lead": "The Fairy Dancer", "line": "Is graceful against the rules?", "reply": "Checking. ...Sadly, no." },
+      { "id": "rival:cheatseeker|fairydancer:04", "lead": "The Fairy Dancer", "line": "Read THIS: a pirouette!", "reply": "Duly noted. Page 22. Grudgingly." }
+    ],
+    "The Cheatseeker|The Joyzerker": [
+      { "id": "rival:cheatseeker|joyzerker:01", "lead": "The Cheatseeker", "line": "Is rage in the rules? Hm.", "reply": "RAGE IS IN MY HEART! Hehe." },
+      { "id": "rival:cheatseeker|joyzerker:02", "lead": "The Cheatseeker", "line": "Two moods. One rule book.", "reply": "Then get TWO RULE BOOKS!" },
+      { "id": "rival:cheatseeker|joyzerker:03", "lead": "The Joyzerker", "line": "Point! FIND A RULE FOR THAT!", "reply": "Searching... page 50... nothing." },
+      { "id": "rival:cheatseeker|joyzerker:04", "lead": "The Joyzerker", "line": "Happy! ANGRY! LEGAL!", "reply": "I'm still checking 'angry'." }
+    ],
+    "The Cheatseeker|The Modsmith": [
+      { "id": "rival:cheatseeker|modsmith:01", "lead": "The Cheatseeker", "line": "Those mods... are they legal?", "reply": "Legal-ish. Strongly ish." },
+      { "id": "rival:cheatseeker|modsmith:02", "lead": "The Cheatseeker", "line": "Rule 9 bans glowing parts.", "reply": "There's no rule 9. I checked." },
+      { "id": "rival:cheatseeker|modsmith:03", "lead": "The Modsmith", "line": "My bey passed every inspection.", "reply": "I'll inspect it again. Slowly." },
+      { "id": "rival:cheatseeker|modsmith:04", "lead": "The Modsmith", "line": "Modded within the rules. Barely.", "reply": "Barely is my favourite word." }
+    ],
+    "The Cheatseeker|The Pugilist": [
+      { "id": "rival:cheatseeker|pugilist:01", "lead": "The Cheatseeker", "line": "Punching the stadium? Rule 2.", "reply": "I punched the AIR! Totally legal!" },
+      { "id": "rival:cheatseeker|pugilist:02", "lead": "The Cheatseeker", "line": "By the book. Ow, gloves!", "reply": "Haha! Sorry! Great point though!" },
+      { "id": "rival:cheatseeker|pugilist:03", "lead": "The Pugilist", "line": "Did the book see THAT punch?", "reply": "It saw. It wrote it down." },
+      { "id": "rival:cheatseeker|pugilist:04", "lead": "The Pugilist", "line": "Rules can't stop a knockout!", "reply": "The rules note it. Reluctantly." }
+    ],
+    "The Cheatseeker|The Stancemancer": [
+      { "id": "rival:cheatseeker|stancemancer:01", "lead": "The Cheatseeker", "line": "Stance checked. Legal. Mine wins.", "reply": "You checked my stance? Flattered." },
+      { "id": "rival:cheatseeker|stancemancer:02", "lead": "The Cheatseeker", "line": "Rule 6: glasses must be clean.", "reply": "Polished this morning. Try again." },
+      { "id": "rival:cheatseeker|stancemancer:03", "lead": "The Stancemancer", "line": "No rule against good posture.", "reply": "I'll write one. Footnote 4." },
+      { "id": "rival:cheatseeker|stancemancer:04", "lead": "The Stancemancer", "line": "Precise. Legal. Point.", "reply": "Annoyingly, all three are true." }
+    ],
+    "The Cheatseeker|The Torque Warden": [
+      { "id": "rival:cheatseeker|torquewarden:01", "lead": "The Cheatseeker", "line": "Even walls follow the rules.", "reply": "This wall WROTE the rules." },
+      { "id": "rival:cheatseeker|torquewarden:02", "lead": "The Cheatseeker", "line": "The hat. Is it regulation?", "reply": "The hat is beyond regulation." },
+      { "id": "rival:cheatseeker|torquewarden:03", "lead": "The Torque Warden", "line": "Find a rule against me.", "reply": "Searching. Still searching." },
+      { "id": "rival:cheatseeker|torquewarden:04", "lead": "The Torque Warden", "line": "The book bends. I do not.", "reply": "The book has excellent binding!" }
+    ],
+    "The Cheatseeker|The Underdogger": [
+      { "id": "rival:cheatseeker|underdogger:01", "lead": "The Cheatseeker", "line": "Rule 8: no horns in the stadium.", "reply": "This horn's a fan, not a player!" },
+      { "id": "rival:cheatseeker|underdogger:02", "lead": "The Cheatseeker", "line": "Underdog? Rules don't care.", "reply": "And I don't care about rules!" },
+      { "id": "rival:cheatseeker|underdogger:03", "lead": "The Underdogger", "line": "Never count me out! Not even you!", "reply": "Counted. You're out. Kidding." },
+      { "id": "rival:cheatseeker|underdogger:04", "lead": "The Underdogger", "line": "Find a rule against this toast!", "reply": "Toasting is allowed. Sadly." }
+    ],
+    "The Fairy Dancer|The Joyzerker": [
+      { "id": "rival:fairydancer|joyzerker:01", "lead": "The Fairy Dancer", "line": "A pirouette for both your faces!", "reply": "Happy face loved it! ANGRY FACE NO!" },
+      { "id": "rival:fairydancer|joyzerker:02", "lead": "The Fairy Dancer", "line": "Glitter calms the zerker.", "reply": "IT DOESN'T! ...It's quite nice." },
+      { "id": "rival:fairydancer|joyzerker:03", "lead": "The Joyzerker", "line": "Pretty wings! NOW BURST WINGS!", "reply": "Wings grow back, sweetie." },
+      { "id": "rival:fairydancer|joyzerker:04", "lead": "The Joyzerker", "line": "Twirl! TWIRL INTO THE WALL!", "reply": "Rude! Graceful, but rude!" }
+    ],
+    "The Fairy Dancer|The Modsmith": [
+      { "id": "rival:fairydancer|modsmith:01", "lead": "The Fairy Dancer", "line": "Magic beats mechanics.", "reply": "Magic is just tech I haven't built." },
+      { "id": "rival:fairydancer|modsmith:02", "lead": "The Fairy Dancer", "line": "Can your mods do a twirl?", "reply": "They can now. Updating." },
+      { "id": "rival:fairydancer|modsmith:03", "lead": "The Modsmith", "line": "Wing drag calculated. Point.", "reply": "You measured my wings? Romantic." },
+      { "id": "rival:fairydancer|modsmith:04", "lead": "The Modsmith", "line": "Pixie dust? Filtered. Point.", "reply": "My dust gets past every filter." }
+    ],
+    "The Fairy Dancer|The Pugilist": [
+      { "id": "rival:fairydancer|pugilist:01", "lead": "The Fairy Dancer", "line": "A dance beats a punch.", "reply": "Dance AND punch! That's boxing!" },
+      { "id": "rival:fairydancer|pugilist:02", "lead": "The Fairy Dancer", "line": "Float like a fairy, darling.", "reply": "Sting like a glove, mate!" },
+      { "id": "rival:fairydancer|pugilist:03", "lead": "The Pugilist", "line": "Pow! Right in the pixie dust!", "reply": "Oops, now your gloves sparkle." },
+      { "id": "rival:fairydancer|pugilist:04", "lead": "The Pugilist", "line": "Knocked the twirl outta you!", "reply": "The twirl is eternal, sweetie." }
+    ],
+    "The Fairy Dancer|The Stancemancer": [
+      { "id": "rival:fairydancer|stancemancer:01", "lead": "The Fairy Dancer", "line": "Flowing like water? I flow better.", "reply": "Water doesn't wear wings." },
+      { "id": "rival:fairydancer|stancemancer:02", "lead": "The Fairy Dancer", "line": "Grace over grind.", "reply": "Grace is just posture with glitter." },
+      { "id": "rival:fairydancer|stancemancer:03", "lead": "The Stancemancer", "line": "Steady beats sparkly.", "reply": "Sparkly will strike back, sweetie." },
+      { "id": "rival:fairydancer|stancemancer:04", "lead": "The Stancemancer", "line": "Your spin wobbles. Mine never does.", "reply": "Wobbling is a dance move!" }
+    ],
+    "The Fairy Dancer|The Torque Warden": [
+      { "id": "rival:fairydancer|torquewarden:01", "lead": "The Fairy Dancer", "line": "Even walls love ballet.", "reply": "This wall... tolerates it." },
+      { "id": "rival:fairydancer|torquewarden:02", "lead": "The Fairy Dancer", "line": "Twirled right past the Warden!", "reply": "I let you. For the art." },
+      { "id": "rival:fairydancer|torquewarden:03", "lead": "The Torque Warden", "line": "Sparkles bounce off stone.", "reply": "Sparkles stick to fedoras, though." },
+      { "id": "rival:fairydancer|torquewarden:04", "lead": "The Torque Warden", "line": "Your wings will not move me.", "reply": "Wait till you see them flap." }
+    ],
+    "The Fairy Dancer|The Underdogger": [
+      { "id": "rival:fairydancer|underdogger:01", "lead": "The Fairy Dancer", "line": "A twirl for the underdog!", "reply": "And a toast for the fairy!" },
+      { "id": "rival:fairydancer|underdogger:02", "lead": "The Fairy Dancer", "line": "Glitter in your horn, sorry!", "reply": "Sparkly juice! Even better!" },
+      { "id": "rival:fairydancer|underdogger:03", "lead": "The Underdogger", "line": "Heavy metal beats ballet!", "reply": "Ballet IS heavy metal, love." },
+      { "id": "rival:fairydancer|underdogger:04", "lead": "The Underdogger", "line": "Never count me out, sparkles!", "reply": "I never count. I dance." }
+    ],
+    "The Joyzerker|The Modsmith": [
+      { "id": "rival:joyzerker|modsmith:01", "lead": "The Joyzerker", "line": "Cool mods! NOW BROKEN MODS!", "reply": "That's a feature, I promise." },
+      { "id": "rival:joyzerker|modsmith:02", "lead": "The Joyzerker", "line": "Calculate THIS! RAAAH! Haha!", "reply": "Calculating... error... too much joy." },
+      { "id": "rival:joyzerker|modsmith:03", "lead": "The Modsmith", "line": "I predicted both of your moods.", "reply": "YOU DID? THAT'S CREEPY! Hehe!" },
+      { "id": "rival:joyzerker|modsmith:04", "lead": "The Modsmith", "line": "Rage data collected. Thank you.", "reply": "YOU'RE WELCOME! GRRR! Thanks!" }
+    ],
+    "The Joyzerker|The Pugilist": [
+      { "id": "rival:joyzerker|pugilist:01", "lead": "The Joyzerker", "line": "Haha! Hug? NO! KNOCKOUT!", "reply": "Haha! Same energy, buddy!" },
+      { "id": "rival:joyzerker|pugilist:02", "lead": "The Joyzerker", "line": "Happy punches! ANGRY PUNCHES!", "reply": "I only have happy ones! Pow!" },
+      { "id": "rival:joyzerker|pugilist:03", "lead": "The Pugilist", "line": "Pow! Joyful knockout!", "reply": "Joyful? YES! FURIOUS? ALSO YES!" },
+      { "id": "rival:joyzerker|pugilist:04", "lead": "The Pugilist", "line": "Two brawlers, one winner. Me!", "reply": "One rematch! RIGHT NOW!" }
+    ],
+    "The Joyzerker|The Stancemancer": [
+      { "id": "rival:joyzerker|stancemancer:01", "lead": "The Joyzerker", "line": "Stance THIS! RAAAH!", "reply": "Rage makes your feet wobble." },
+      { "id": "rival:joyzerker|stancemancer:02", "lead": "The Joyzerker", "line": "Calm is boring! YAY CHAOS!", "reply": "Chaos is just stance, unpractised." },
+      { "id": "rival:joyzerker|stancemancer:03", "lead": "The Stancemancer", "line": "Calm water beats wild fire.", "reply": "FIRE IS HAPPY! FIRE IS ANGRY!" },
+      { "id": "rival:joyzerker|stancemancer:04", "lead": "The Stancemancer", "line": "Breathe. You'll zerk less.", "reply": "I'LL ZERK MORE! Hehe." }
+    ],
+    "The Joyzerker|The Torque Warden": [
+      { "id": "rival:joyzerker|torquewarden:01", "lead": "The Joyzerker", "line": "Moved the wall! YAY! RAAAH!", "reply": "The wall shifted. Slightly." },
+      { "id": "rival:joyzerker|torquewarden:02", "lead": "The Joyzerker", "line": "Smile, Warden! NO? ATTACK!", "reply": "I am smiling. Inside." },
+      { "id": "rival:joyzerker|torquewarden:03", "lead": "The Torque Warden", "line": "Rage breaks on stone.", "reply": "Joy goes AROUND stone! Hehe!" },
+      { "id": "rival:joyzerker|torquewarden:04", "lead": "The Torque Warden", "line": "Neither joy nor rage moves me.", "reply": "BOTH WILL! NEXT ROUND!" }
+    ],
+    "The Joyzerker|The Underdogger": [
+      { "id": "rival:joyzerker|underdogger:01", "lead": "The Joyzerker", "line": "Cheers! YAY! CHEERS OF RAGE!", "reply": "That's the spirit! Horns up!" },
+      { "id": "rival:joyzerker|underdogger:02", "lead": "The Joyzerker", "line": "Joy and zerk beat the underdog!", "reply": "Never count me out, double guy!" },
+      { "id": "rival:joyzerker|underdogger:03", "lead": "The Underdogger", "line": "Underdog wins! Horns up!", "reply": "YAY FOR YOU! GRRR FOR ME!" },
+      { "id": "rival:joyzerker|underdogger:04", "lead": "The Underdogger", "line": "Rock on! Metal beats moods!", "reply": "METAL IS A MOOD! MY MOOD!" }
+    ],
+    "The Modsmith|The Pugilist": [
+      { "id": "rival:modsmith|pugilist:01", "lead": "The Modsmith", "line": "Glove-proof shielding. Works.", "reply": "Then I'll punch harder!" },
+      { "id": "rival:modsmith|pugilist:02", "lead": "The Modsmith", "line": "Predicted your punch. Dodged.", "reply": "Predict this one, egghead!" },
+      { "id": "rival:modsmith|pugilist:03", "lead": "The Pugilist", "line": "Pow! Calculate that!", "reply": "Calculated. Ow." },
+      { "id": "rival:modsmith|pugilist:04", "lead": "The Pugilist", "line": "No mods. Just muscles!", "reply": "Muscles don't get firmware updates." }
+    ],
+    "The Modsmith|The Stancemancer": [
+      { "id": "rival:modsmith|stancemancer:01", "lead": "The Modsmith", "line": "Engineering beats posture.", "reply": "Posture is engineering, for people." },
+      { "id": "rival:modsmith|stancemancer:02", "lead": "The Modsmith", "line": "Your stance: 97% perfect.", "reply": "I'll fix the other 3% tonight." },
+      { "id": "rival:modsmith|stancemancer:03", "lead": "The Stancemancer", "line": "Precision beats gadgets.", "reply": "My gadgets ARE precision." },
+      { "id": "rival:modsmith|stancemancer:04", "lead": "The Stancemancer", "line": "Your screws rattled. I didn't.", "reply": "That rattle is intentional." }
+    ],
+    "The Modsmith|The Torque Warden": [
+      { "id": "rival:modsmith|torquewarden:01", "lead": "The Modsmith", "line": "Torque calculated. Exceeded.", "reply": "Your calculator lies." },
+      { "id": "rival:modsmith|torquewarden:02", "lead": "The Modsmith", "line": "Found the weak point in the wall.", "reply": "There are none. Check again." },
+      { "id": "rival:modsmith|torquewarden:03", "lead": "The Torque Warden", "line": "Your mods mean nothing here.", "reply": "Taking notes for version 49." },
+      { "id": "rival:modsmith|torquewarden:04", "lead": "The Torque Warden", "line": "Gadgets break. Walls do not.", "reply": "Then I'll build a wall-breaker." }
+    ],
+    "The Modsmith|The Underdogger": [
+      { "id": "rival:modsmith|underdogger:01", "lead": "The Modsmith", "line": "Odds calculated. Underdog lost.", "reply": "Your maths forgot heart!" },
+      { "id": "rival:modsmith|underdogger:02", "lead": "The Modsmith", "line": "Upgraded your horn. It's a launcher.", "reply": "Brilliant! Can it still hold juice?" },
+      { "id": "rival:modsmith|underdogger:03", "lead": "The Underdogger", "line": "Never count me out. Even you!", "reply": "My count says... a rematch." },
+      { "id": "rival:modsmith|underdogger:04", "lead": "The Underdogger", "line": "Heavy metal beats metal parts!", "reply": "My parts are also metal!" }
+    ],
+    "The Pugilist|The Stancemancer": [
+      { "id": "rival:pugilist|stancemancer:01", "lead": "The Pugilist", "line": "Stance this! Pow!", "reply": "Hm. That was a fine punch." },
+      { "id": "rival:pugilist|stancemancer:02", "lead": "The Pugilist", "line": "Glasses off, gloves on!", "reply": "The glasses stay. Always." },
+      { "id": "rival:pugilist|stancemancer:03", "lead": "The Stancemancer", "line": "Water beats fists.", "reply": "Wet fists still punch!" },
+      { "id": "rival:pugilist|stancemancer:04", "lead": "The Stancemancer", "line": "Your swing was wide. Mine was not.", "reply": "Wide is where the fun is!" }
+    ],
+    "The Pugilist|The Torque Warden": [
+      { "id": "rival:pugilist|torquewarden:01", "lead": "The Pugilist", "line": "Pow! Even walls feel that!", "reply": "...A little. Do not tell anyone." },
+      { "id": "rival:pugilist|torquewarden:02", "lead": "The Pugilist", "line": "Knocked the hat sideways!", "reply": "The hat is fine. Barely." },
+      { "id": "rival:pugilist|torquewarden:03", "lead": "The Torque Warden", "line": "You punched a wall. Wall wins.", "reply": "Ow! Worth it, though!" },
+      { "id": "rival:pugilist|torquewarden:04", "lead": "The Torque Warden", "line": "Gloves cannot dent torque.", "reply": "Then I'll get bigger gloves!" }
+    ],
+    "The Pugilist|The Underdogger": [
+      { "id": "rival:pugilist|underdogger:01", "lead": "The Pugilist", "line": "Haha! Brawler beats the dog!", "reply": "Never count me out, champ!" },
+      { "id": "rival:pugilist|underdogger:02", "lead": "The Pugilist", "line": "Pow! Toast THAT!", "reply": "Cheers! Ow! Cheers!" },
+      { "id": "rival:pugilist|underdogger:03", "lead": "The Underdogger", "line": "Horns beat gloves!", "reply": "Gloves beat horns NEXT round!" },
+      { "id": "rival:pugilist|underdogger:04", "lead": "The Underdogger", "line": "Underdog uppercut! Haha!", "reply": "Haha! Great punch, mate!" }
+    ],
+    "The Stancemancer|The Torque Warden": [
+      { "id": "rival:stancemancer|torquewarden:01", "lead": "The Stancemancer", "line": "Water flows round walls.", "reply": "Walls do not mind. Much." },
+      { "id": "rival:stancemancer|torquewarden:02", "lead": "The Stancemancer", "line": "A precise stance moved you.", "reply": "I moved. Do not get used to it." },
+      { "id": "rival:stancemancer|torquewarden:03", "lead": "The Torque Warden", "line": "Stance is good. Torque is better.", "reply": "Freight trains carry torque too." },
+      { "id": "rival:stancemancer|torquewarden:04", "lead": "The Torque Warden", "line": "Your form is steady. Mine is stone.", "reply": "Water wears down stone. Slowly." }
+    ],
+    "The Stancemancer|The Underdogger": [
+      { "id": "rival:stancemancer|underdogger:01", "lead": "The Stancemancer", "line": "Precision beats passion.", "reply": "Passion comes back louder!" },
+      { "id": "rival:stancemancer|underdogger:02", "lead": "The Stancemancer", "line": "Balanced. Unlike that horn.", "reply": "This horn has perfect balance!" },
+      { "id": "rival:stancemancer|underdogger:03", "lead": "The Underdogger", "line": "Never count me out, glasses!", "reply": "I never miscount. Rematch." },
+      { "id": "rival:stancemancer|underdogger:04", "lead": "The Underdogger", "line": "Heavy metal hits like a train!", "reply": "That's my line. Well played." }
+    ],
+    "The Torque Warden|The Underdogger": [
+      { "id": "rival:torquewarden|underdogger:01", "lead": "The Torque Warden", "line": "The underdog stays under.", "reply": "Never count me out, big hat!" },
+      { "id": "rival:torquewarden|underdogger:02", "lead": "The Torque Warden", "line": "Immovable. Even by toasts.", "reply": "Then I'll toast twice as loud!" },
+      { "id": "rival:torquewarden|underdogger:03", "lead": "The Underdogger", "line": "Moved the immovable! Horns up!", "reply": "Hmph. One step. That's all." },
+      { "id": "rival:torquewarden|underdogger:04", "lead": "The Underdogger", "line": "A toast to the wall-breaker: me!", "reply": "The wall will remember this." }
+    ]
+  }
+}
