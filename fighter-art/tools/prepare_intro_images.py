@@ -5,7 +5,8 @@
   nothing is cropped here.
 - The logo's three tiers touch, so they're split along the emptiest seam
   between them. Each tier is saved at the full (padded) canvas size, so the
-  scene stacks them at the same position and they line up exactly.
+  scene stacks them at the same position and they line up exactly. 2026's
+  second 2 gets its outline back from the first (mend_second_two).
 
     python tools/prepare_intro_images.py ../tournament-app/web/static/intro
 """
@@ -73,6 +74,50 @@ def emptiest_rows(alpha, y_lo, y_hi):
     return max(0, y - 50), min(alpha.shape[0], y + 50)
 
 
+def mend_second_two(tier):
+    """Give 2026's second 2 the black outline along its foot back.
+
+    The second 2 sits on the T of THREAT, and the seam gives most of the
+    outline they share to the lower tier, leaving a thin, ragged edge that
+    shows while 2026 is on screen alone. The first 2 is the same shape and
+    its outline is whole, so the strip under its foot is copied across.
+    """
+    alpha = tier[..., 3].astype(int)
+    solid = alpha[640:820] > 128
+    # Where the second 2 sits relative to the first: the best overlap of the
+    # two shapes, searched along the row (they share a baseline)
+    first = solid[:, 280:540]
+    dx = max(range(400, 560), key=lambda d: (first & solid[:, 280 + d:540 + d]).sum())
+
+    def bottom(x):
+        return np.nonzero(alpha[:, x] > 128)[0].max()
+
+    # The columns under the second 2's foot whose outline is short of the first's
+    thin = [x for x in range(280 + dx, 540 + dx) if bottom(x) < bottom(x - dx) - 2]
+    lo, hi = min(thin) - 4, max(thin) + 4
+
+    # ...and on to the right past the tip of the T's outline still hanging
+    # below the first 2's, so the blend at that end doesn't keep it. (On the
+    # left the 0's drop shadow sits that low, as it should.)
+    def hangs(x):
+        return (alpha[bottom(x - dx) + 2:, x] > 10).any()
+
+    for _ in range(20):
+        if not any(hangs(x) for x in range(hi + 1, hi + 8)):  # the blend zone, and a column more
+            break
+        hi += 1
+    # Everything below the gold (the gold ends by row 820 under both 2s),
+    # faded in and out over a few columns at each end so no seam shows
+    FEATHER = 6
+    rows = slice(818, tier.shape[0])
+    for x in range(lo - FEATHER, hi + FEATHER + 1):
+        w = min(1, (x - (lo - FEATHER)) / FEATHER, ((hi + FEATHER) - x) / FEATHER)
+        src = tier[rows, x - dx].astype(float)
+        dst = tier[rows, x].astype(float)
+        tier[rows, x] = np.round(dst + (src - dst) * w).astype(np.uint8)
+    print(f"copied the first 2's outline under the second ({dx} px along, columns {lo}-{hi})")
+
+
 def split_logo(path, out_dir):
     im = Image.open(path).convert("RGBA")
     w, h = im.size
@@ -102,6 +147,8 @@ def split_logo(path, out_dir):
     for name, mask in tiers.items():
         tier = rgba.copy()
         tier[..., 3] = np.where(mask, alpha, 0)
+        if name == "logo-2-year":
+            mend_second_two(tier)
         Image.fromarray(tier).save(out_dir / f"{name}.webp", quality=QUALITY, alpha_quality=90, method=6)
     # How much alpha each cut slices through: near 0 means a clean split
     print(f"logo cuts: {alpha[cut1, np.arange(alpha.shape[1])].mean():.1f}, "
