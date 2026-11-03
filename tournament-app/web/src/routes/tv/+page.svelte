@@ -74,6 +74,8 @@
   import LiveQr from "$lib/components/tv/LiveQr.svelte";
   import IntroPlayer from "$lib/components/tv/IntroPlayer.svelte";
   import { introImages } from "$lib/intro";
+  import PixelBubble from "$lib/components/tv/speech/PixelBubble.svelte";
+  import { pickSpeech } from "$lib/speech/pick";
 
   let { data } = $props();
 
@@ -272,6 +274,7 @@
   // transform/opacity animate (Pi).
   const FINISH_BY_KEY = new Map(FINISHES.map((f) => [f.key, f]));
   const CALLOUT_FRESH_MS = 6000; // don't replay a call-out the rotation lands on later
+  const CALLOUT_MS = 1500; // the call-out's slam, hold and flight onto the pill
 
   let logSeen = new Map<string, number>();
   let logPrimed = false;
@@ -345,7 +348,7 @@
         // fly down onto the pill
         { offset: 1, opacity: 1, transform: `translate(${dx}px, ${dy}px) scale(${sc})` },
       ],
-      { duration: 1500, fill: "forwards" },
+      { duration: CALLOUT_MS, fill: "forwards" },
     );
     fxAnim = anim;
     // Safety net: a hidden/throttled tab can pause animations indefinitely,
@@ -363,6 +366,90 @@
       });
     };
   }
+
+  // ── Speech bubbles ──────────────────────────────────────────────────
+  // After a round, the scorer's fighter says a line (lib/speech) in a pixel
+  // bubble over their art panel, once the call-out has landed on its pill.
+  // Sometimes it's a rival exchange and the other fighter answers on the
+  // other side. Same gating as the call-out (Match centre, this match, fresh),
+  // but reduced motion still gets the bubbles, just with no pop and straight
+  // away (there's no call-out to wait for). A side without an art panel (no
+  // fighter) never speaks; a fighter with no lines (custom) stays quiet.
+  // Lines don't repeat within a match. A newer round, undo, another match or
+  // leaving Match centre clears them.
+  const SPEECH_AFTER_MS = CALLOUT_MS + 300; // after the call-out lands
+  const SPEECH_AFTER_CALM_MS = 300; // reduced motion: no call-out to wait for
+  const SPEECH_REPLY_MS = 1500; // the reply pops this long after the lead
+  const SPEECH_HOLD_MS = 3000; // each bubble stays up this long
+  type SpeechBubble = { id: number; text: string; show: boolean };
+  let speechL = $state<SpeechBubble>({ id: 0, text: "", show: false });
+  let speechR = $state<SpeechBubble>({ id: 0, text: "", show: false });
+  let speechFor = $state<{ code: string; n: number } | null>(null); // the round that's speaking
+  let speechTimers: ReturnType<typeof setTimeout>[] = [];
+  let speechSeq = 0;
+  let spoken = "";
+  let speechUsed = { code: "", ids: new Set<string>() }; // this match's lines so far
+
+  function clearSpeech() {
+    speechTimers.forEach(clearTimeout);
+    speechTimers = [];
+    if (speechL.show) speechL = { ...speechL, show: false };
+    if (speechR.show) speechR = { ...speechR, show: false };
+    speechFor = null;
+  }
+  function sayAt(side: "left" | "right", text: string, at: number) {
+    const id = ++speechSeq;
+    const set = (b: SpeechBubble) => (side === "left" ? (speechL = b) : (speechR = b));
+    speechTimers.push(
+      setTimeout(() => set({ id, text, show: true }), at),
+      setTimeout(() => set({ id, text, show: false }), at + SPEECH_HOLD_MS),
+    );
+  }
+
+  $effect(() => {
+    const ev = latestRound;
+    if (!ev || scene !== "spotlight" || spotMatch?.code !== ev.code) return;
+    const key = `${ev.code}#${ev.n}@${ev.at}`; // @at: a round re-logged after Undo speaks again
+    if (key === spoken) return;
+    spoken = key;
+    const m = spotMatch;
+    untrack(() => {
+      clearSpeech();
+      if (Date.now() - ev.at > CALLOUT_FRESH_MS) return;
+      const round = m.liveLog[ev.n - 1];
+      if (m.liveLog.length !== ev.n || !round || (round.who !== 1 && round.who !== 2)) return; // undone since
+      const who = round.who as 1 | 2;
+      const other = who === 1 ? 2 : 1;
+      const sideOf = (w: 1 | 2) => (w === 1 ? "left" : "right") as "left" | "right";
+      // Only fighters with an art panel speak (that's where the bubble hangs).
+      const speaker = (w: 1 | 2) => {
+        const name = sideName(m, w);
+        return slabArt(name, sideOf(w)) ? (fighterFor(name, data.fighters)?.name ?? null) : null;
+      };
+      const scorer = speaker(who);
+      if (!scorer) return;
+      if (speechUsed.code !== m.code) speechUsed = { code: m.code, ids: new Set() };
+      const said = pickSpeech(scorer, speaker(other), speechUsed.ids);
+      if (!said) return;
+      speechUsed.ids.add(said.lead.id);
+      speechFor = { code: m.code, n: ev.n };
+      const at = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? SPEECH_AFTER_CALM_MS : SPEECH_AFTER_MS;
+      sayAt(sideOf(who), said.lead.text, at);
+      if (said.reply) sayAt(sideOf(other), said.reply.text, at + SPEECH_REPLY_MS);
+    });
+  });
+  // Undo, another match, or off Match centre: drop what's being said.
+  $effect(() => {
+    const f = speechFor;
+    if (!f) return;
+    if (scene !== "spotlight" || spotMatch?.code !== f.code || spotMatch.liveLog.length < f.n) untrack(clearSpeech);
+  });
+  // The art panel is skewed -10deg about its centre, so its top edge sits
+  // tan(10deg)*h/2 toward the VS from its box (half the 190px panel = 95px).
+  // Aim each bubble's tail at the middle of that top edge.
+  const ART_SKEW = Math.tan((10 * Math.PI) / 180);
+  let cardHA = $state(0);
+  let cardHB = $state(0);
 
   // ── Stadium draw ────────────────────────────────────────────────────
   // The server draws a stadium (on Start match, after each round that doesn't
@@ -1270,12 +1357,19 @@
           {@const artB = slabArt(sideName(spotMatch, 2), "right")}
           <div class="mc-duel tier-{tierOf(spotMatch.stage)}" class:lite={fxLite}>
             <div class="mc-side left" class:won={wonA} class:lost={wonB}>
-              <div class="mc-card">
+              <div
+                class="mc-card"
+                bind:clientHeight={cardHA}
+                style:--pb-anchor="{Math.round(95 + (ART_SKEW * cardHA) / 2)}px"
+              >
                 {#if artA}{@render artPanel(artA)}{/if}
                 <div class="mc-slab">
                   <div class="mc-name">{sideName(spotMatch, 1)}</div>
                   <div class="mc-score">{showScore ? av : "–"}</div>
                 </div>
+                {#if artA}
+                  {#key speechL.id}<PixelBubble side="left" text={speechL.text} show={speechL.show} />{/key}
+                {/if}
               </div>
               {@render sideFoot(1, wonA, true)}
             </div>
@@ -1285,12 +1379,19 @@
               <div class="mc-ft">First to <b>{t}</b></div>
             </div>
             <div class="mc-side right" class:won={wonB} class:lost={wonA}>
-              <div class="mc-card">
+              <div
+                class="mc-card"
+                bind:clientHeight={cardHB}
+                style:--pb-anchor="{Math.round(95 - (ART_SKEW * cardHB) / 2)}px"
+              >
                 <div class="mc-slab">
                   <div class="mc-score">{showScore ? bv : "–"}</div>
                   <div class="mc-name">{sideName(spotMatch, 2)}</div>
                 </div>
                 {#if artB}{@render artPanel(artB)}{/if}
+                {#if artB}
+                  {#key speechR.id}<PixelBubble side="right" text={speechR.text} show={speechR.show} />{/key}
+                {/if}
               </div>
               {@render sideFoot(2, wonB, true)}
             </div>
@@ -2097,7 +2198,17 @@
     color: var(--ink-soft);
   }
   /* Slab + art panel side by side; the finish pills stay underneath both. */
+  /* The speech bubbles hang off the card, the tail's tip on the middle of the
+     art panel's top. They share the height of the status row above, so each
+     bubble spreads OUT over its panel toward the screen edge (--pb-tail-x:
+     the bubble's near edge sits --pb-out beyond the card's) and stops short
+     of LIVE / the stadium chip (--pb-max; long lines wrap to 2–3 rows). */
   .mc-card {
+    position: relative;
+    --pb-gap: 8px;
+    --pb-out: clamp(0px, (100vw - 1720px) / 2 - 24px, 56px);
+    --pb-max: 390px;
+    --pb-tail-x: calc(var(--pb-anchor) + var(--pb-out));
     display: flex;
     align-items: stretch;
   }

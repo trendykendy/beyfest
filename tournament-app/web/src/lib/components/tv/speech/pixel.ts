@@ -44,55 +44,6 @@ export function stepPoly(profile: number[], u = U): string {
   return `polygon(${pts.join(", ")})`;
 }
 
-/**
- * The corner profile of the box `b` fat pixels inside one with `profile`, so
- * an outline drawn as "outer layer minus inner layer" stays b thick around
- * the steps too (not thin on the diagonal).
- */
-export function innerProfile(profile: number[], b: number): number[] {
-  const at = (i: number) => profile[i] ?? 0;
-  const out: number[] = [];
-  for (let k = 0; k < profile.length; k++) {
-    // Inner row k sits level with outer row k+b. A pixel is inside the
-    // outline when every pixel within b steps (up/down/left/right, not
-    // diagonally) is inside the outer box, which gives the classic sprite
-    // outline: b thick on the flats, a clean single step on the corners.
-    let m = 0;
-    for (let d = -b; d <= b; d++) m = Math.max(m, at(k + b + d) - Math.abs(d));
-    out.push(m);
-  }
-  while (out.length && out[out.length - 1] === 0) out.pop();
-  return out;
-}
-
-/** Quantise 0..1 into `n` held frames: the steps() look for JS transitions. */
-export const stepped = (t: number, n: number) => (t >= 1 ? 1 : Math.floor(t * n) / n);
-
-/**
- * Turn a polygon into a pixel staircase: every edge becomes 1-fat-pixel
- * horizontal/vertical moves on the u grid. Returns an SVG points string.
- */
-export function staircase(points: [number, number][], u = U): string {
-  const snap = (v: number) => Math.round(v / u) * u;
-  const out: [number, number][] = [];
-  for (let i = 0; i < points.length; i++) {
-    const [ax, ay] = points[i];
-    const [bx, by] = points[(i + 1) % points.length];
-    const n = Math.max(1, Math.round(Math.max(Math.abs(bx - ax), Math.abs(by - ay)) / u));
-    let py = snap(ay);
-    if (i === 0) out.push([snap(ax), py]);
-    for (let s = 1; s <= n; s++) {
-      const x = snap(ax + ((bx - ax) * s) / n);
-      const y = snap(ay + ((by - ay) * s) / n);
-      out.push([x, py], [x, y]);
-      py = y;
-    }
-  }
-  // Drop repeats so the path stays small.
-  const clean = out.filter((p, i) => i === 0 || p[0] !== out[i - 1][0] || p[1] !== out[i - 1][1]);
-  return clean.map((p) => `${p[0]},${p[1]}`).join(" ");
-}
-
 /** True when the viewer asked for less motion (bubbles then just appear). */
 export function reducedMotion(): boolean {
   return typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;

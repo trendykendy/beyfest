@@ -1,15 +1,14 @@
 <script lang="ts">
   import starterList from "../../../../../static/starter-fighters/fighters.json";
   import { artFor, faceCrop, toFace } from "$lib/fighters";
-  import PixelBubble, { BUBBLE_DESIGNS, type BubbleSide, type BubbleVariant } from "$lib/components/tv/speech/PixelBubble.svelte";
+  import PixelBubble, { type BubbleSide } from "$lib/components/tv/speech/PixelBubble.svelte";
   import { page } from "$app/state";
   import { tick } from "svelte";
 
   // Lab page for the pixel speech bubbles over the Match centre's art panels.
   // Not linked from anywhere.
-  //   ?v=1..5       which design (buttons switch too)
-  //   ?all          every design side by side, still
-  //   ?len=short|medium|long   pin the line length (default: cycles)
+  //   ?len=short|medium|long   pin the line length (default: cycles;
+  //                            long is the longest approved line, 45 chars)
   //   ?l=<img> ?r=<img>        starter fighters by picture name (e.g. buzzsaw)
   //   ?clean hides the controls, ?t=<ms> shows the rival exchange frozen at
   //   that moment, R / space replays, H hides the control bar.
@@ -44,7 +43,7 @@
     short: { solo: "Let it rip!", a: "Too easy!", b: "Lucky spin!" },
     medium: { solo: "That's how it's done, baby!", a: "Is that all you've got?", b: "I'm only warming up!" },
     long: {
-      solo: "My Bey bites harder than your whole deck!",
+      solo: "If it's stupid and it works, it's not stupid.",
       a: "You'll need a bigger launcher than that!",
       b: "Keep talking. I'll keep scoring points.",
     },
@@ -52,8 +51,6 @@
   type Len = keyof typeof LINES;
   const LENS: Len[] = ["short", "medium", "long"];
 
-  let variant = $state<BubbleVariant>(Math.min(5, Math.max(1, Number(q.get("v")) || 1)) as BubbleVariant);
-  let all = $state(q.has("all"));
   let lenPin = $state<Len | "cycle">((q.get("len") as Len) ?? "cycle");
   let cycle = $state(0);
   const len = $derived<Len>(lenPin === "cycle" ? LENS[cycle % 3] : lenPin);
@@ -70,7 +67,6 @@
   let scored = $state(false);
   $effect(() => {
     run;
-    if (all) return;
     soloL = exL = exR = scored = false;
     if (freezeAt !== null) {
       exL = exR = scored = true;
@@ -96,7 +92,6 @@
   $effect(() => {
     if (freezeAt === null) return;
     run;
-    variant;
     tick().then(() =>
       requestAnimationFrame(() => {
         for (const a of document.getAnimations()) {
@@ -121,11 +116,6 @@
   function replay() {
     run++;
   }
-  function pick(v: BubbleVariant) {
-    variant = v;
-    all = false;
-    replay();
-  }
   function onkey(e: KeyboardEvent) {
     if ((e.target as HTMLElement)?.tagName === "SELECT") return;
     if (e.key === "h" || e.key === "H") showControls = !showControls;
@@ -133,9 +123,7 @@
       e.preventDefault();
       replay();
     }
-    if (e.key >= "1" && e.key <= "5") pick(Number(e.key) as BubbleVariant);
   }
-  const short = (s: Starter) => s.name.replace(/^The /, "");
 </script>
 
 <svelte:window onkeydown={onkey} bind:innerWidth={w} bind:innerHeight={h} />
@@ -153,33 +141,6 @@
 
 <div class="page">
   <div class="screen" style:transform="scale({scale})">
-    {#if all}
-      <!-- Every design, still, a long line on the left and a short reply on the right. -->
-      <div class="sheet">
-        {#each [1, 2, 3, 4, 5] as v (v)}
-          <div class="cell">
-            <div class="cell-row">
-              <div class="mini left" style:--pb-anchor="{Math.round(95 + SKEW * 70)}px" style:--pb-gap="6px">
-                {@render artPanel(left, "left")}
-                <PixelBubble variant={v as BubbleVariant} side="left" name={short(left)} text={LINES.long.a} still />
-              </div>
-              <div class="cell-label"><b>{v}</b> {BUBBLE_DESIGNS[v as BubbleVariant]}</div>
-              <div class="mini right" style:--pb-anchor="{Math.round(95 - SKEW * 70)}px" style:--pb-gap="6px">
-                {@render artPanel(right, "right")}
-                <PixelBubble variant={v as BubbleVariant} side="right" name={short(right)} text={LINES.short.b} still />
-              </div>
-            </div>
-          </div>
-        {/each}
-        <div class="cell legend">
-          <p><b>1</b> Pixelify Sans · typewriter · window opens</p>
-          <p><b>2</b> Pixelify Sans Bold · springy pop</p>
-          <p><b>3</b> Press Start 2P · slam + shake</p>
-          <p><b>4</b> DotGothic16 + Silkscreen tab · unfolds</p>
-          <p><b>5</b> VT323 · blinks on</p>
-        </div>
-      </div>
-    {:else}
       <div class="strip"></div>
       <div class="stage">
         <div class="mc">
@@ -200,9 +161,9 @@
                   <div class="mc-name">{left.player}</div>
                   <div class="mc-score">{scored ? 4 : 3}</div>
                 </div>
-                {#key `${run}-${variant}`}
-                  <PixelBubble {variant} side="left" name={short(left)} text={LINES[len].solo} show={soloL} />
-                  <PixelBubble {variant} side="left" name={short(left)} text={LINES[len].a} show={exL} />
+                {#key run}
+                  <PixelBubble side="left" text={LINES[len].solo} show={soloL} />
+                  <PixelBubble side="left" text={LINES[len].a} show={exL} />
                 {/key}
               </div>
             </div>
@@ -217,26 +178,19 @@
                   <div class="mc-name">{right.player}</div>
                 </div>
                 {@render artPanel(right, "right")}
-                {#key `${run}-${variant}`}
-                  <PixelBubble {variant} side="right" name={short(right)} text={LINES[len].b} show={exR} />
+                {#key run}
+                  <PixelBubble side="right" text={LINES[len].b} show={exR} />
                 {/key}
               </div>
             </div>
           </div>
         </div>
       </div>
-    {/if}
   </div>
 
   {#if showControls}
     <div class="controls">
       <button onclick={replay}>Replay</button>
-      {#each [1, 2, 3, 4, 5] as v (v)}
-        <button class:on={!all && variant === v} onclick={() => pick(v as BubbleVariant)}>
-          {v} · {BUBBLE_DESIGNS[v as BubbleVariant]}
-        </button>
-      {/each}
-      <button class:on={all} onclick={() => (all = !all)}>All</button>
       <label>
         Line
         <select bind:value={lenPin} onchange={replay}>
@@ -256,7 +210,7 @@
           {#each STARTERS as s (s.image)}<option value={s}>{s.name}</option>{/each}
         </select>
       </label>
-      <span class="hint">{all ? "" : `${len} · `}1–5 design · R / space replays · H hides this</span>
+      <span class="hint">{len} · R / space replays · H hides this</span>
     </div>
   {/if}
 </div>
@@ -340,8 +294,14 @@
     position: relative;
     min-width: 0;
   }
+  /* The bubbles hang off this, placed as on the TV (see .mc-card there):
+     spread out over the art panel toward the screen edge, and narrow enough
+     to stay clear of the status row. */
   .mc-card {
-    position: relative; /* the bubbles hang off this */
+    position: relative;
+    --pb-out: 56px;
+    --pb-max: 390px;
+    --pb-tail-x: calc(var(--pb-anchor) + var(--pb-out));
     display: flex;
     align-items: stretch;
   }
@@ -478,60 +438,6 @@
     margin-left: 4px;
   }
 
-  /* ── ?all sheet ─────────────────────────────────────────────────── */
-  .sheet {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(3, 1fr);
-    gap: 0;
-  }
-  .cell {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 18px 40px 26px;
-    border-right: 2px solid rgb(255 255 255 / 0.08);
-    border-bottom: 2px solid rgb(255 255 255 / 0.08);
-  }
-  .cell-label {
-    align-self: flex-end;
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 2rem;
-    line-height: 1;
-    color: var(--on-field-soft);
-  }
-  .cell-label b {
-    color: var(--gold);
-    font-weight: inherit;
-  }
-  .cell-row {
-    margin-top: auto;
-    display: flex;
-    justify-content: space-between;
-  }
-  .mini {
-    position: relative;
-    display: flex;
-  }
-  .mini .mc-art {
-    height: 140px;
-  }
-  .legend {
-    justify-content: center;
-    gap: 6px;
-    font-family: var(--font-text);
-    font-size: 1.4rem;
-    color: var(--on-field-soft);
-  }
-  .legend p {
-    margin: 0;
-  }
-  .legend b {
-    color: var(--gold);
-  }
-
   .controls {
     position: fixed;
     left: 12px;
@@ -556,10 +462,6 @@
     color: #fff;
     border: 1px solid #555;
     cursor: pointer;
-  }
-  button.on {
-    background: var(--gold);
-    color: #000;
   }
   .hint {
     opacity: 0.6;

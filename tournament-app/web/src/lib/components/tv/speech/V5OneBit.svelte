@@ -45,7 +45,7 @@
   .txt {
     position: relative;
     margin: 0;
-    max-width: 460px;
+    max-width: var(--pb-max, 460px);
     padding: 12px 20px 14px;
     font-family: "VT323", monospace;
     font-size: 38px;
