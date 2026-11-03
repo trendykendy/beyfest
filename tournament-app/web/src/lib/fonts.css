@@ -84,3 +84,57 @@
   src: url(/fonts/saira_italic_latin-ext.woff2) format("woff2");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
+/* ── Pixel fonts (speech bubbles) ────────────────────────────────
+   All SIL OFL 1.1, latin subset (from fontsource); licence text sits next
+   to each file in static/fonts/<name>-OFL.txt. Plain ASCII lines only —
+   anything outside latin falls back to Saira. */
+@font-face {
+  font-family: "Press Start 2P";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/pressstart2p_latin.woff2) format("woff2");
+}
+@font-face {
+  font-family: "Silkscreen";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/silkscreen_400_latin.woff2) format("woff2");
+}
+@font-face {
+  font-family: "Silkscreen";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/silkscreen_700_latin.woff2) format("woff2");
+}
+@font-face {
+  font-family: "Pixelify Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/pixelifysans_400_latin.woff2) format("woff2");
+}
+@font-face {
+  font-family: "Pixelify Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/pixelifysans_700_latin.woff2) format("woff2");
+}
+@font-face {
+  font-family: "VT323";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/vt323_latin.woff2) format("woff2");
+}
+@font-face {
+  font-family: "DotGothic16";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/dotgothic16_latin.woff2) format("woff2");
+}
