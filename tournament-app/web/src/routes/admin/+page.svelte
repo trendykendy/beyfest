@@ -25,6 +25,7 @@
   let { data, form } = $props();
 
   // Which match a refused "Fix result" was about (its error shows in that panel).
+  let creating = $state(false); // the create form is on its way to the server
   const fixing = $derived(form && "fixing" in form && form.fixing ? String(form.fixing) : "");
   // …and which blader a refused rename was about (shown in the Bladers panel).
   const renaming = $derived(form && "renaming" in form && form.renaming ? String(form.renaming) : "");
@@ -140,7 +141,20 @@
           Type in the bladers who turned up, one per line (commas work too). You need between 8 and 15.
           The groups are drawn at random and the right bracket is built for that number.
         </p>
-        <form method="POST" action="?/create" use:enhance class="create-form">
+        <!-- The button locks while it runs: loading the fighters takes a few
+             seconds, and a second press would add them twice. -->
+        <form
+          method="POST"
+          action="?/create"
+          class="create-form"
+          use:enhance={() => {
+            creating = true;
+            return async ({ update }) => {
+              await update();
+              creating = false;
+            };
+          }}
+        >
           <label>
             <span class="field">Tournament name</span>
             <input type="text" name="name" value={form?.name ?? "Beyfest 2026 — Triple Threat"} />
@@ -168,8 +182,8 @@
             {/if}
           </p>
 
-          <button class="big-action" type="submit" disabled={enteredCount < 8 || enteredCount > 15}>
-            Draw groups and build bracket
+          <button class="big-action" type="submit" disabled={creating || enteredCount < 8 || enteredCount > 15}>
+            {creating ? "Loading fighters and drawing groups…" : "Draw groups and build bracket"}
           </button>
         </form>
       </div>

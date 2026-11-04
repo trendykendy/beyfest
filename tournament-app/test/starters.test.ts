@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mergeStarters, planStarters, splitNames, tickedStarters, type Starter } from "../web/src/lib/starters";
+import { mergeStarters, planStarters, splitNames, startersFor, tickedStarters, type Starter } from "../web/src/lib/starters";
 import type { PBFighter } from "../web/src/lib/fighters";
 
 const fighter = (over: Partial<PBFighter>): PBFighter => ({
@@ -113,6 +113,21 @@ describe("planStarters", () => {
 });
 
 const names = ["Conor", "Sean", "Vhar", "Mark"];
+
+describe("startersFor", () => {
+  const nameless: Starter = { name: "The Stray" }; // no player name
+  const others: Starter = { name: "The Joyzerker", player: "Eamon" };
+
+  test("matches bladers by player or combat name, ignoring case and spaces", () => {
+    const all = [breycist, nameless, others];
+    expect(startersFor(all, [" conor ", "the stray"])).toEqual([breycist, nameless]);
+  });
+
+  test("leaves out starters who aren't playing, and walk-ins match nothing", () => {
+    expect(startersFor([breycist, others], ["Eamon", "Walk-in"])).toEqual([others]);
+    expect(startersFor([breycist], [])).toEqual([]);
+  });
+});
 
 describe("tickedStarters", () => {
   test("ticks every starter when none are in the box", () => {

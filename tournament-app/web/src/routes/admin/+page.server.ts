@@ -15,8 +15,9 @@ import {
   archiveTournament,
 } from "$lib/server/tournament";
 import { readStarters } from "$lib/server/starterFiles";
+import { addStarters } from "$lib/server/addStarters";
 import { createRoyale, recordBattle, resetRoyale, RoyaleError, startBattle } from "$lib/server/royale";
-import type { StarterPick } from "$lib/starters";
+import { startersFor, type StarterPick } from "$lib/starters";
 
 // The starting fighters, for the "Use the starting fighters" pop-up on the
 // create form: the name that goes in the Bladers box (player, else combat
@@ -84,12 +85,24 @@ export const actions: Actions = {
       return fail(409, { error: "A tournament already exists. Reset it first.", players: raw, name });
     }
 
+    // Load the starters who are playing, before the tournament exists, so the
+    // TV has their fighters as soon as it appears. A new install's library is
+    // empty, which would leave Match centre with no art or speech bubbles.
+    // A failure here is worth a warning, not a lost tournament.
+    let warning = "";
+    try {
+      const { problems } = await addStarters(locals.pb, (all) => startersFor(all, names));
+      if (problems.length) warning = `Some starting fighters didn't load. ${problems.join("; ")}`;
+    } catch (e) {
+      warning = `Couldn't load the starting fighters: ${(e as Error).message}`;
+    }
+
     try {
       await createTournament(locals.pb, name, names);
     } catch (e) {
       return fail(500, { error: (e as Error).message, players: raw, name });
     }
-    return { created: true };
+    return warning ? { created: true, error: warning } : { created: true };
   },
 
   score: async ({ request, locals }) => {

@@ -69,7 +69,8 @@ you start it: the TV window opens behind it.
    - **Add starting fighters** loads the fighters that come with the app (combat names, player
      names, katakana, images and voice clips, from `web/static/starter-fighters/`). It only adds
      who's missing and fills in gaps, so it never overwrites changes made here, and it's safe to
-     press again after an update.
+     press again after an update. Creating a tournament does the same for any starters playing in
+     it, so a new install has its fighters without pressing this.
    - Each fighter has a **combat name** (shown and announced, e.g. *The Breycist*) and a
      **player name** (as typed in for the tournament, e.g. *Conor*), plus katakana, a cut-out
      image and a voice clip of the combat name. The best images are transparent PNGs, at least
