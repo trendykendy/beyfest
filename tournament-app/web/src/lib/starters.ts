@@ -77,6 +77,14 @@ export function planStarters(starters: Starter[], library: PBFighter[], pictures
   return steps;
 }
 
+// The starters playing in a tournament: those whose player or combat name is
+// among the bladers. Anyone else stays out of the library, so a starter who
+// was deleted on purpose doesn't come back just because a tournament began.
+export function startersFor(starters: Starter[], names: string[]): Starter[] {
+  const playing = new Set(names.map(key));
+  return starters.filter((s) => playing.has(key(s.player)) || playing.has(key(s.name)));
+}
+
 // ── Picking starters for a new tournament ──
 // The create form's "Use the starting fighters" pop-up lets the organiser
 // tick which starters are here today. These work on the Bladers box's text,
