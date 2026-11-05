@@ -1,3 +1,4 @@
+import { matchPointState } from "./matchPoint";
 import { pointsToWin } from "@beyfest/engine";
 import type { PBMatch } from "./view";
 
@@ -78,7 +79,7 @@ export function oddsFor(chance: number): number {
 export function bettingOpen(m: PBMatch): boolean {
   if (m.matchStatus !== "ready" || !m.p1 || !m.p2) return false;
   const target = pointsToWin(m.stage, m.roundLabel);
-  return Math.max(m.liveP1, m.liveP2) < target - 1;
+  return matchPointState(m.liveP1, m.liveP2, target) === "none";
 }
 
 export type MatchOdds = { p1: number; p2: number; chance1: number };

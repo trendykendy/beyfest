@@ -18,16 +18,19 @@
   import {
     AND,
     GRAND_CHAMPION,
+    MATCH_POINT_CALL,
     QUALIFIED,
     QUALIFIED_CALL,
     ROYALE,
     ROYALE_CHAMPION,
     STINGER,
+    SUDDEN_DEATH_CALL,
     VERSUS,
     WINNER_SLAM,
     WINS,
     championCallFresh,
     finishClip,
+    matchPointCalls,
     qualifiedCall,
     royaleLabelClip,
     titleClip,
@@ -75,6 +78,9 @@
   import IntroPlayer from "$lib/components/tv/IntroPlayer.svelte";
   import { introImages } from "$lib/intro";
   import PixelBubble from "$lib/components/tv/speech/PixelBubble.svelte";
+  import TensionGlow from "$lib/components/tv/TensionGlow.svelte";
+  import UltimateFinish, { eventLanding, type Variant } from "$lib/components/tv/UltimateFinish.svelte";
+  import { matchPointEvent, matchPointState, type MatchPointEvent, type MatchPointState } from "$lib/matchPoint";
   import { pickSpeech } from "$lib/speech/pick";
 
   let { data } = $props();
@@ -448,13 +454,14 @@
       };
       // By now the draw effect has seen the same update, so drawHold says
       // whether this round's shuffle is on (or about to be).
-      speechTimers.push(setTimeout(() => (drawHold === m.code ? (speechWait = say) : say()), at));
+      // Likewise a match point moment: the line waits until that has gone too.
+      speechTimers.push(setTimeout(() => (drawHold === m.code || mp?.code === m.code ? (speechWait = say) : say()), at));
     });
   });
   // A line held back for the stadium shuffle: say it once the shuffle is gone.
   $effect(() => {
     const say = speechWait;
-    if (!say || drawHold) return;
+    if (!say || drawHold || mp) return;
     untrack(() => {
       speechWait = null;
       speechTimers.push(setTimeout(say, SPEECH_AFTER_DRAW_MS));
@@ -675,8 +682,11 @@
   // Load every clip the next intros could need, so each one's length is known
   // when an intro is timed and it plays on cue.
   onMount(() =>
-    [...VERSUS, ...FINISHES.map((f) => finishClip(f.key)), WINS, STINGER, ROYALE, AND, QUALIFIED].forEach((u) => announcer.preload(u)),
+    [...VERSUS, ...FINISHES.map((f) => finishClip(f.key)), WINS, STINGER, ROYALE, AND, QUALIFIED, MATCH_POINT_CALL, SUDDEN_DEATH_CALL].forEach((u) =>
+      announcer.preload(u),
+    ),
   );
+  onMount(() => announcer.preloadTension());
   // The admin page's TV panel sets these, live.
   $effect(() => {
     announcer.setEnabled(!data.tv.soundOff);
@@ -988,6 +998,79 @@
   // Moving off the match (or off Match centre) drops a draw in progress.
   $effect(() => {
     if (drawHold && (scene !== "spotlight" || spotMatch?.code !== drawHold)) endDraw();
+  });
+
+  // ── Match point (Ultimate Finish) ─────────────────────────────────
+  // While the match on screen has someone one point away, the room darkens
+  // behind the Match centre, the heartbeat plays and the art panels zoom onto
+  // the faces. What the moment itself looks like is UltimateFinish.
+  const MP_VARIANT: Variant = "b";
+  const mpNow = $derived.by((): MatchPointState => {
+    const m = spotMatch;
+    if (scene !== "spotlight" || !m || !isLive(m)) return "none";
+    const s = matchPointState(m.liveP1, m.liveP2, pointsToWin(m.stage, m.roundLabel));
+    return s === "decided" ? "none" : s;
+  });
+  // The moment a round has earned. It waits for the call-out and the stadium
+  // draw (`go` is set when it plays), so the three never overlap; the speech
+  // bubbles wait for it in turn.
+  let mp = $state<{ code: string; n: number; event: MatchPointEvent; id: string; go: boolean } | null>(null);
+  let mpCalloutDone = $state(false);
+  let mpTimers: ReturnType<typeof setTimeout>[] = [];
+  let mpSeen = "";
+  // No zoom until a new match point's slam is over; a save or sudden death
+  // comes along with the faces already zoomed.
+  const mpZoom = $derived(mpNow !== "none" && mp?.event !== "slam");
+
+  function clearMoment() {
+    mpTimers.forEach(clearTimeout);
+    mpTimers = [];
+    mpCalloutDone = false;
+    mp = null;
+  }
+
+  // The running score before this round: the last round's finish taken off.
+  // Fresh rounds only, like the call-outs, so a reload never replays a moment.
+  $effect(() => {
+    const ev = latestRound;
+    if (!ev || scene !== "spotlight" || spotMatch?.code !== ev.code) return;
+    const key = `${ev.code}#${ev.n}@${ev.at}`;
+    if (key === mpSeen) return;
+    mpSeen = key;
+    const m = spotMatch;
+    untrack(() => {
+      clearMoment();
+      if (Date.now() - ev.at > CALLOUT_FRESH_MS) return;
+      const round = m.liveLog[ev.n - 1];
+      if (m.liveLog.length !== ev.n || !round) return; // undone since
+      const pts = FINISH_BY_KEY.get(round.finish)?.pts ?? 0;
+      const after: [number, number] = [m.liveP1, m.liveP2];
+      const before: [number, number] = [after[0] - (round.who === 1 ? pts : 0), after[1] - (round.who === 2 ? pts : 0)];
+      const event = matchPointEvent(before, after, pointsToWin(m.stage, m.roundLabel));
+      if (!event) return;
+      mp = { code: m.code, n: ev.n, event, id: key, go: false };
+      mpTimers.push(setTimeout(() => (mpCalloutDone = true), AFTER_CALLOUT_MS));
+    });
+  });
+  // The call-out and the draw are out of the way: play it.
+  $effect(() => {
+    const p = mp;
+    if (!p || p.go || !mpCalloutDone || drawHold) return;
+    untrack(() => {
+      mp = { ...p, go: true };
+      mpTimers.push(setTimeout(() => announcer.matchPointHit(matchPointCalls(p.event)), eventLanding(MP_VARIANT, p.event)));
+    });
+  });
+  // Undo, another match, the result going in, or off Match centre: drop it.
+  $effect(() => {
+    const p = mp;
+    if (!p) return;
+    if (mpNow === "none" || spotMatch?.code !== p.code || spotMatch.liveLog.length < p.n) untrack(clearMoment);
+  });
+  // The heartbeat follows the match point, and the admin page's sound switch.
+  $effect(() => {
+    if (mpNow !== "none" && !data.tv.soundOff) announcer.startTension();
+    else announcer.stopTension();
   });
 
   // The phone page's QR in the corner: not on Standby (it has a big one),
@@ -1318,11 +1401,12 @@
         <div class="mc-art" aria-hidden="true">
           <div class="mc-art-pic">
             <div class="mc-art-bg"></div>
-            <img src={art.src} alt="" style={art.style} />
+            <div class="mc-art-zoom"><img src={art.src} alt="" style={art.style} /></div>
           </div>
         </div>
       {/snippet}
-      <div class="mc">
+      <TensionGlow mp={mpNow} />
+      <div class="mc" class:zoomed={mpZoom}>
         {#if spotMatch}
           {@const t = pointsToWin(spotMatch.stage, spotMatch.roundLabel)}
           {@const done = spotMatch.matchStatus === "done"}
@@ -1489,6 +1573,24 @@
       {/if}
     {/if}
   </main>
+
+  <!-- Match point: the banner, and the moment over the whole screen. -->
+  {#if mpNow !== "none" && spotMatch}
+    <div class="mp-layer">
+      <UltimateFinish
+        variant={MP_VARIANT}
+        mp={mpNow}
+        event={mp?.go ? mp.event : null}
+        eventId={mp?.go ? mp.n : 0}
+        announced={!mp}
+        p1={{ name: sideName(spotMatch, 1), img: "" }}
+        p2={{ name: sideName(spotMatch, 2), img: "" }}
+        score={[spotMatch.liveP1, spotMatch.liveP2]}
+        lite={fxLite}
+        ondone={clearMoment}
+      />
+    </div>
+  {/if}
 
   <!-- The winner screen covers the whole screen after a result, and holds
        until the next match starts; that match's intro plays over it. -->
@@ -1759,6 +1861,12 @@
     position: absolute;
     inset: 0;
     z-index: 40;
+  }
+  .mp-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 39; /* under the intro and winner screens */
+    pointer-events: none;
   }
   /* Blank page for Start match's build-up. Hidden by opacity, so the layout
      (and the draw's place in it) doesn't move; gone at once, back with a fade
@@ -2105,6 +2213,7 @@
      Two slanted white slabs (skewX, so the border and hard shadow survive —
      clip-path would cut them), scores facing the gold VS in the middle. */
   .mc {
+    position: relative; /* in front of TensionGlow */
     width: 100%;
     height: 100%;
     display: flex;
@@ -2299,6 +2408,21 @@
     height: 100%;
     object-fit: cover;
     object-position: 50% 20%;
+  }
+  /* Match point: faceCrop() puts the face in the middle of this box, so
+     scaling it from the middle zooms straight onto the face. */
+  .mc-art-zoom {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.7s cubic-bezier(0.2, 1.3, 0.4, 1);
+  }
+  .mc.zoomed .mc-art-zoom {
+    transform: scale(2.2);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mc-art-zoom {
+      transition: none;
+    }
   }
   /* Behind the cut-out: slow sunburst rays plus a tier-colour glow that
      breathes. Transforms and opacity only, so it's cheap to draw. */
