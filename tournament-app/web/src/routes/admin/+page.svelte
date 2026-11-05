@@ -122,6 +122,10 @@
     <form method="POST" action="?/intro" use:enhance>
       <button class="btn" type="submit">Play the intro</button>
     </form>
+    <!-- A fake ad on the TV, for downtime: about 15 seconds, over everything. -->
+    <form method="POST" action="?/ad" use:enhance>
+      <button class="btn" type="submit">Play an ad</button>
+    </form>
     <form method="POST" action="?/logout" use:enhance>
       <button class="btn" type="submit">Log out</button>
     </form>
