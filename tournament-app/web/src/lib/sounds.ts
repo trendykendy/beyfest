@@ -116,6 +116,25 @@ export function stingerDelay(talkingFor: number): number {
 // the next match starts.
 export const WINNER_SLAM = 450; // the winner's banner lands
 
+// ── Match point ──────────────────────────────────────────────────────
+// The impact as match point lands, then the heartbeat loops under the ducked
+// music until the match ends. The announcer calls it over the impact's tail;
+// sudden death reuses the battle royale's call.
+export const MATCH_POINT_HIT = "/sounds/match-point-impact.mp3";
+export const HEARTBEAT = "/sounds/heartbeat.mp3"; // one lub-dub, padded with silence
+export const HEARTBEAT_MS = 1200; // the file's length; the TV's pulse keeps time with it
+export const MATCH_POINT_CALL = "/sounds/match-point.mp3";
+export const SUDDEN_DEATH_CALL = "/sounds/royale/sudden-death.mp3";
+// How loud the impact and heartbeat play: 1 is full volume. The heartbeat
+// also follows the admin page's music level; the calls aren't affected.
+export const MATCH_POINT_FX_LEVEL = 0.75;
+
+// The announcer's line for a match point moment; a save is the impact alone.
+export function matchPointCalls(event: "slam" | "suddenDeath" | "saved"): string[] {
+  if (event === "slam") return [MATCH_POINT_CALL];
+  return event === "suddenDeath" ? [SUDDEN_DEATH_CALL] : [];
+}
+
 // ── Battle royale ────────────────────────────────────────────────────
 // Clips the organiser provides, dropped into static/sounds/royale/. Until a
 // file is there its call is simply skipped (the intro's timing allows for it).

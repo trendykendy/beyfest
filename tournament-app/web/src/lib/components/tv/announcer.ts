@@ -18,6 +18,9 @@ import {
   CHAMPION_CALL_START,
   CHAMPION_THEME,
   GRAND_CHAMPION,
+  HEARTBEAT,
+  MATCH_POINT_FX_LEVEL,
+  MATCH_POINT_HIT,
   MUSIC,
   STINGER,
   STINGER_END_FADE_MS,
@@ -37,6 +40,8 @@ const DUCK_MS = 150;
 const FADE_OUT_MS = 2500;
 const STINGER_OUT_MS = 300; // a new match's music arriving over the stinger
 const CHAMP_OUT_MS = 1000; // the champion theme, leaving the Champion scene
+const TENSION_OUT_MS = 400; // the heartbeat, when match point is over
+const HIT_CALL_GAP = 350; // the impact lands first, then the call goes over its tail
 
 // Step an <audio>'s volume to `to` over `ms`. Returns the timer, to cancel it.
 function fade(a: HTMLAudioElement, to: number, ms: number, done?: () => void) {
@@ -156,6 +161,7 @@ export class Announcer {
 
   // No result to end on (the match vanished, or sound went off): fade out.
   stopMusic() {
+    this.stopTension();
     this.wantMusic = false;
     this.cancelCalls();
     this.musicOut(FADE_OUT_MS);
@@ -183,6 +189,7 @@ export class Announcer {
   // calls still to come, and fade out the match music and the stinger. Safe
   // to call at any time, playing or not.
   silenceMatch(ms = 400) {
+    this.stopTension();
     this.wantMusic = false;
     this.cancelCalls();
     this.musicOut(ms);
@@ -196,6 +203,7 @@ export class Announcer {
     this.level = level;
     if (this.music && this.wantMusic) this.fadeTo(this.target(), DUCK_MS);
     if (this.stinger && !this.stinger.paused) this.stinger.volume = level;
+    if (this.tension && this.heartbeat) this.beatFade(level * MATCH_POINT_FX_LEVEL, DUCK_MS);
     this.champLevelChanged();
   }
 
@@ -212,11 +220,12 @@ export class Announcer {
   // After a click: the browser now allows sound, so pick the music back up.
   unlock() {
     if (this.wantMusic && this.music?.paused) this.music.play().catch(() => {});
+    if (this.tension && this.enabled && this.heartbeat?.paused) this.heartbeat.play().catch(() => {});
     this.unlockChampion();
   }
 
   private target() {
-    return this.level * (this.ducked ? DUCK : 1);
+    return this.level * (this.ducked || this.tension ? DUCK : 1);
   }
 
   private play(url: string) {
@@ -277,6 +286,7 @@ export class Announcer {
   // stinger starts at the ducked level and rises to the music's normal
   // level while the music fades out, then plays to its end.
   private hitStinger() {
+    this.stopTension();
     this.wantMusic = false;
     this.ducked = false;
     this.musicOut(STINGER_IN_MS);
@@ -330,6 +340,59 @@ export class Announcer {
   // The Champion scene has its own music (the champion theme, looped for as
   // long as the scene is up, from the top each time it comes up) and its own
   // one-off call, which the page decides on. Either one silences match audio.
+  // ── Match point ──
+  // Its own <audio>, looped like the champion theme, so the heartbeat's fades
+  // never fight the music's. While tension is on, the music stays ducked.
+  private tension = false;
+  private heartbeat: HTMLAudioElement | null = null;
+  private beatTween: ReturnType<typeof setInterval> | undefined;
+
+  preloadTension() {
+    this.preload(MATCH_POINT_HIT);
+    this.clips.get(MATCH_POINT_HIT)!.volume = MATCH_POINT_FX_LEVEL;
+    if (this.heartbeat) return;
+    const a = new Audio(HEARTBEAT);
+    a.preload = "auto";
+    a.loop = true;
+    a.volume = 0;
+    this.heartbeat = a;
+  }
+
+  // Match point is on: duck the music and start the heartbeat. Safe to call
+  // again while it's already going.
+  startTension() {
+    if (!this.enabled || this.tension) return;
+    this.tension = true;
+    this.preloadTension();
+    if (this.music && this.wantMusic) this.fadeTo(this.target(), DUCK_MS);
+    const a = this.heartbeat!;
+    a.currentTime = 0;
+    a.play().catch((e) => this.failed(e));
+    this.beatFade(this.level * MATCH_POINT_FX_LEVEL, DUCK_MS);
+  }
+
+  // Match point is over: the heartbeat fades and the music comes back.
+  stopTension() {
+    if (!this.tension) return;
+    this.tension = false;
+    const a = this.heartbeat;
+    if (a) this.beatFade(0, TENSION_OUT_MS, () => a.pause());
+    if (this.music && this.wantMusic) this.fadeTo(this.target(), DUCK_MS);
+  }
+
+  // The impact, with any calls over its tail (empty URLs are skipped).
+  matchPointHit(calls: string[]) {
+    if (!this.enabled) return;
+    this.preloadTension();
+    this.play(MATCH_POINT_HIT);
+    this.queue(calls, HIT_CALL_GAP);
+  }
+
+  private beatFade(to: number, ms: number, done?: () => void) {
+    clearInterval(this.beatTween);
+    if (this.heartbeat) this.beatTween = fade(this.heartbeat, to, ms, done);
+  }
+
   private champWanted = false; // the Champion scene is on screen
   private champTheme: HTMLAudioElement | null = null;
   private champDucked = false;
