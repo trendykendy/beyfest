@@ -49,7 +49,7 @@ export const SHOTS = [
   ["clash", 12_400, 250], // C1, quick, in time for "cracked"
   ["overAll", 14_700, 900], // S1: one stood over all
   ["winter", 19_950, 1_000], // B2, then W1: the new challengers
-  ["denied", 25_400, 900], // P2: Breycist vs Buzzsaw
+  ["denied", 25_400, 900], // P2: the Buzzsaw beaten, the Breycist above him
   ["crown", 31_100, 900], // R2
   ["year", 36_350, 800], // B3: a year passes
   ["g1", 37_350, 800],
@@ -160,7 +160,7 @@ export const CAMERA: Partial<Record<Shot, [Frame, Frame]>> = {
   clash: [{ x: 0.5, y: 0.5, zoom: 1.04 }, { x: 0.5, y: 0.5, zoom: 1.14 }],
   overAll: [{ x: 0.5, y: 0.48, zoom: 1.12 }, { x: 0.5, y: 0.41, zoom: 1.04 }], // tilts up to the Breycist
   winter: [{ x: 0.5, y: 0.46, zoom: 1.02 }, { x: 0.5, y: 0.42, zoom: 1.12 }],
-  denied: [{ x: 0.52, y: 0.5, zoom: 1.08 }, { x: 0.44, y: 0.44, zoom: 1.2 }],
+  denied: [{ x: 0.5, y: 0.586, zoom: 1.02 }, { x: 0.5, y: 0.414, zoom: 1.02 }], // tilts up from the broken Bey to the two men
   crown: [{ x: 0.5, y: 0.45, zoom: 1.02 }, { x: 0.53, y: 0.37, zoom: 1.16 }],
   year: [{ x: 0.5, y: 0.5, zoom: 1.02 }, { x: 0.5, y: 0.5, zoom: 1.08 }],
   g1: [{ x: 0.45, y: 0.42, zoom: 1.16 }, { x: 0.55, y: 0.42, zoom: 1.18 }],

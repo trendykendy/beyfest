@@ -334,11 +334,14 @@ by the wind, their energy glowing warm against the snow (pink sparkles; bronze
 beans). Determined, confident faces, clearly visible, in the middle third.
 
 **P2, the Winter League final** (attach R2, breycist, buzzsaw, Pugilist face).
-In R2's frozen arena, snow falling, the two clash: the Breycist on the left,
-launching with a fierce grin, his red-and-white energy surging across the
-frame; the Buzzsaw on the right, mid-backflip, his blue-and-orange energy
-being forced back and breaking apart. Both faces visible. The red is
-winning.
+Replaced on 2026-11-04: the end of the fight, not the middle. In R2's frozen
+arena, snow falling: the Buzzsaw on the right, close to the camera, on both
+knees, arched back, fists clenched, screaming at the sky, his energy fading to
+grey wisps; his Beyblade shattered into separate blue, orange and silver pieces
+on the ice in the middle, with a few sparks and a curl of smoke; the Breycist
+on the left, on the stadium rim above him, a smug smirk, catching his own
+Beyblade. Both faces visible. The two faces and the Bey are too far apart for
+one 16:9 frame, so the camera tilts from the Bey up to the men.
 
 **G1, G2, G3: the 2026 field** (attach B3, the three or two fighters, Pugilist
 face). On B3's night stage, crowd and spotlights behind, the fighters stand

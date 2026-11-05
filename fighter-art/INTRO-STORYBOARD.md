@@ -92,7 +92,7 @@ Kept from version 1: B1–B3, C1, C2, R2, R3 and the logo. R1 is dropped.
 | P1 | "they battled till…" | The first final: launching at each other across the stadium | Breycist vs Underdogger | B1 as the setting |
 | S1 | "one stood over all" | The Breycist on the stadium, the other seven beaten round him | the first eight | B1 as the setting |
 | W1 | "new challengers joined the fray" | Walking in through the blizzard | Fairy Dancer, Beanblader | Edit of B2 |
-| P2 | "could not be denied" | The Winter League final: his red overpowers the Buzzsaw's blue | Breycist vs Buzzsaw | R2's frozen arena as the setting |
+| P2 | "could not be denied" | The end of the Winter League final: the Buzzsaw on his knees, screaming, his Bey in pieces, the Breycist smug above him | Breycist vs Buzzsaw | R2's frozen arena as the setting |
 | G1 | "ten brave souls" | Ready, launchers raised | Buzzsaw, Underdogger, Torque Warden | B3 as the setting |
 | G2 | (continues) | Ready, launchers raised | Stancemancer, Cheatseeker, Joyzerker | B3 as the setting |
 | G3 | (music) | Ready, launchers raised | Fairy Dancer, Beanblader | B3 as the setting |
@@ -111,7 +111,7 @@ souls" is right after all: G1–G3 and the two newcomers in N1.
 | 12.9–15.3 | C1, the clash | shake on "cracked", sparks on "sparked" |
 | 15.3–20.7 | **S1**, one stood over all | slow tilt up to him; name card on "the Breycist" |
 | 20.7–26.4 | B2, then **W1** | snow; W1 fades in on "new challengers" |
-| 26.4–32.2 | **P2**, the Winter League final | slow push toward the Breycist; red embers |
+| 26.4–32.2 | **P2**, the Winter League final | slow tilt up from the broken Bey to the two men; red embers |
 | 32.2–36.3 | R2, the crown | as version 1 |
 | 36.3–37.9 | R2 into B3: a year passes | as version 1, shorter |
 | 37.9–39.9 | **G1** | slow pan |
