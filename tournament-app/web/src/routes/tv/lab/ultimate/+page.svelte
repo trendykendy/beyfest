@@ -1,8 +1,10 @@
 <script lang="ts">
+  import StadiumTag from "$lib/components/tv/StadiumTag.svelte";
   import TensionGlow from "$lib/components/tv/TensionGlow.svelte";
   import UltimateFinish, { eventLanding, eventLength, type Variant } from "$lib/components/tv/UltimateFinish.svelte";
   import { Announcer } from "$lib/components/tv/announcer";
   import { faceCrop } from "$lib/fighters";
+  import { STADIA } from "$lib/stadia";
   import { matchPointEvent, matchPointState, type MatchPointEvent } from "$lib/matchPoint";
   import { MATCH_POINT_FX_LEVEL, MATCH_POINT_HIT, SUDDEN_DEATH_CALL, finishClip, matchPointCalls } from "$lib/sounds";
   import { page } from "$app/state";
@@ -57,6 +59,10 @@
   // ── The mock match ──
   let score = $state<[number, number]>([3, 3]);
   let callout = $state(""); // the finish, as the TV calls it
+  let stadiumNo = $state(0); // which stadium the tag shows
+  let tagRun = $state(0); // bump for a new tag
+  let tagSpin = $state(false); // the tag is spinning onto the next stadium
+  let tagHidden = $state(false); // held back until the moment has gone
   let drawing = $state(false); // the stadium draw is up
   let winner = $state<0 | 1 | null>(null);
   let note = $state(""); // what's happening, for the controls
@@ -122,6 +128,8 @@
     script = "";
     callout = "";
     drawing = false;
+    tagHidden = false;
+    tagSpin = false;
     event = null;
     note = "";
   }
@@ -140,8 +148,9 @@
     announcer.intro([]);
   }
 
-  // A round is logged: the call-out, then the draw, and then the moment, so the
-  // two never overlap. Tension starts with the score and holds through the draw.
+  // A round is logged. Short of match point: the call-out, then the big draw.
+  // At match point, as on the TV: the moment straight after the score, then the
+  // arena tag spins onto the next stadium, with no big draw.
   async function round(lead: number, other: number, finish: string, label: string) {
     const after = pts(lead, other);
     const ev = matchPointEvent(score, after, TARGET);
@@ -157,16 +166,33 @@
       announcer.endMatch([], true);
       return;
     }
+    if (ev) {
+      tagHidden = true;
+      await wait(300);
+      callout = "";
+      note = ev;
+      fire(ev);
+      await wait(eventLength(variant, ev));
+      await spinTag();
+      return;
+    }
     await wait(AFTER_CALLOUT);
     callout = "";
     drawing = true;
     await wait(DRAW);
     drawing = false;
-    if (ev) {
-      note = ev;
-      fire(ev);
-      await wait(eventLength(variant, ev));
-    }
+    stadiumNo = (stadiumNo + 1) % STADIA.length;
+    tagRun++;
+  }
+
+  async function spinTag() {
+    await wait(250);
+    stadiumNo = (stadiumNo + 1) % STADIA.length;
+    tagSpin = true;
+    tagHidden = false;
+    tagRun++;
+    await wait(2400);
+    tagSpin = false;
   }
 
   const SCRIPTS: Record<string, () => Promise<void>> = {
@@ -192,13 +218,11 @@
       await wait(2000);
       await round(5, 0, "dominant", "Dominant finish");
     },
-    "Tension through the draw": async () => {
+    "Arena tag spin": async () => {
       setUp(4, 2);
       await wait(1500);
-      drawing = true;
-      await wait(DRAW * 2);
-      drawing = false;
-      await wait(3000);
+      await spinTag();
+      await wait(1500);
     },
   };
 
@@ -281,6 +305,11 @@
       <div class="status">
         {#if winner !== null}<span class="tag won">Match won</span>{:else}<span class="tag live">Live</span>{/if}
         <span class="context">Winners semi-final · First to {TARGET}</span>
+        {#if winner === null && !drawing && !tagHidden}
+          {#key tagRun}
+            <StadiumTag stadium={STADIA[stadiumNo].key} round={score[0] + score[1] + 1} spin={tagSpin} />
+          {/key}
+        {/if}
       </div>
       <div class="duel">
         {#each [0, 1] as i}

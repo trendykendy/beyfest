@@ -21,6 +21,8 @@ import {
   HEARTBEAT,
   MATCH_POINT_FX_LEVEL,
   MATCH_POINT_HIT,
+  MATCH_POINT_REVERB,
+  MATCH_POINT_REVERB_SECONDS,
   MUSIC,
   STINGER,
   STINGER_END_FADE_MS,
@@ -42,6 +44,9 @@ const STINGER_OUT_MS = 300; // a new match's music arriving over the stinger
 const CHAMP_OUT_MS = 1000; // the champion theme, leaving the Champion scene
 const TENSION_OUT_MS = 400; // the heartbeat, when match point is over
 const HIT_CALL_GAP = 350; // the impact lands first, then the call goes over its tail
+const REVERB_IN = 0.35; // seconds to settle, as the reverb comes in
+const REVERB_OUT = 0.2; // and as it goes (the tail still rings on after)
+const REVERB_TONE_HZ = 2400; // its top end is rolled off, so it sits dark behind the room
 
 // Step an <audio>'s volume to `to` over `ms`. Returns the timer, to cancel it.
 function fade(a: HTMLAudioElement, to: number, ms: number, done?: () => void) {
@@ -58,6 +63,18 @@ function fade(a: HTMLAudioElement, to: number, ms: number, done?: () => void) {
     }
   }, STEP);
   return timer;
+}
+
+// A big room's echo, made rather than recorded: stereo noise dying away. The
+// channels are separate noise, which is what makes it sound wide.
+function hallResponse(ctx: AudioContext, seconds: number): AudioBuffer {
+  const length = Math.floor(ctx.sampleRate * seconds);
+  const buffer = ctx.createBuffer(2, length, ctx.sampleRate);
+  for (let channel = 0; channel < 2; channel++) {
+    const data = buffer.getChannelData(channel);
+    for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / length) ** 3;
+  }
+  return buffer;
 }
 
 // Whether the browser will play sound before anyone has clicked the page.
@@ -221,6 +238,7 @@ export class Announcer {
   unlock() {
     if (this.wantMusic && this.music?.paused) this.music.play().catch(() => {});
     if (this.tension && this.enabled && this.heartbeat?.paused) this.heartbeat.play().catch(() => {});
+    if (this.tension) this.reverbOn();
     this.unlockChampion();
   }
 
@@ -252,6 +270,7 @@ export class Announcer {
       if (this.music === m && this.wantMusic) this.startMusic();
     };
     this.music = m;
+    if (this.tension) this.reverbOn(); // a new track during match point
     m.play().catch((e) => this.failed(e));
     this.fadeTo(this.target(), FADE_IN_MS);
   }
@@ -369,6 +388,7 @@ export class Announcer {
     a.currentTime = 0;
     a.play().catch((e) => this.failed(e));
     this.beatFade(this.level * MATCH_POINT_FX_LEVEL, DUCK_MS);
+    this.reverbOn();
   }
 
   // Match point is over: the heartbeat fades and the music comes back.
@@ -378,6 +398,7 @@ export class Announcer {
     const a = this.heartbeat;
     if (a) this.beatFade(0, TENSION_OUT_MS, () => a.pause());
     if (this.music && this.wantMusic) this.fadeTo(this.target(), DUCK_MS);
+    this.reverbOff();
   }
 
   // The impact, with any calls over its tail (empty URLs are skipped).
@@ -386,6 +407,67 @@ export class Announcer {
     this.preloadTension();
     this.play(MATCH_POINT_HIT);
     this.queue(calls, HIT_CALL_GAP);
+  }
+
+  // The reverb on the music. Only the music goes through it: the heartbeat
+  // and the calls stay dry. A track stays routed through Web Audio once it's
+  // on it, with the reverb simply faded out.
+  //
+  // Web Audio takes over a track's output, so a suspended context would
+  // silence the music. A track is only routed once the context is confirmed
+  // running; until then there's no reverb, but the music carries on.
+  private audio: AudioContext | null = null;
+  private reverbIn: GainNode | null = null;
+  private routed = new WeakSet<HTMLAudioElement>();
+
+  private reverbOn() {
+    const ctx = this.reverbContext();
+    if (!ctx) return;
+    ctx
+      .resume()
+      .then(() => {
+        const music = this.music;
+        if (!this.tension || !music || ctx.state !== "running") return;
+        this.route(ctx, music);
+        this.reverbIn?.gain.setTargetAtTime(MATCH_POINT_REVERB, ctx.currentTime, REVERB_IN);
+      })
+      .catch(() => {});
+  }
+
+  private reverbOff() {
+    if (this.audio && this.reverbIn) this.reverbIn.gain.setTargetAtTime(0, this.audio.currentTime, REVERB_OUT);
+  }
+
+  private reverbContext(): AudioContext | null {
+    if (this.audio) return this.audio;
+    try {
+      const ctx = new AudioContext();
+      const input = ctx.createGain();
+      input.gain.value = 0;
+      const tone = ctx.createBiquadFilter();
+      tone.type = "lowpass";
+      tone.frequency.value = REVERB_TONE_HZ;
+      const reverb = ctx.createConvolver();
+      reverb.buffer = hallResponse(ctx, MATCH_POINT_REVERB_SECONDS);
+      input.connect(tone).connect(reverb).connect(ctx.destination);
+      this.audio = ctx;
+      this.reverbIn = input;
+      return ctx;
+    } catch {
+      return null; // no Web Audio: no reverb, and nothing else changes
+    }
+  }
+
+  private route(ctx: AudioContext, music: HTMLAudioElement) {
+    if (this.routed.has(music) || !this.reverbIn) return;
+    try {
+      const source = ctx.createMediaElementSource(music);
+      source.connect(ctx.destination);
+      source.connect(this.reverbIn);
+      this.routed.add(music);
+    } catch {
+      // Couldn't take it over: it plays on as it was, with no reverb.
+    }
   }
 
   private beatFade(to: number, ms: number, done?: () => void) {

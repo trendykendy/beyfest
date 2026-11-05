@@ -66,6 +66,7 @@
   import { stadiumOf } from "$lib/stadia";
   import BroadcastBracket from "$lib/components/tv/BroadcastBracket.svelte";
   import StadiumDraw from "$lib/components/tv/StadiumDraw.svelte";
+  import StadiumTag from "$lib/components/tv/StadiumTag.svelte";
   import VsIntro from "$lib/components/tv/VsIntro.svelte";
   import ChampionScene from "$lib/components/tv/ChampionScene.svelte";
   import WinnerScreen from "$lib/components/tv/WinnerScreen.svelte";
@@ -456,14 +457,15 @@
       };
       // By now the draw effect has seen the same update, so drawHold says
       // whether this round's shuffle is on (or about to be).
-      // Likewise a match point moment: the line waits until that has gone too.
-      speechTimers.push(setTimeout(() => (drawHold === m.code || mp?.code === m.code ? (speechWait = say) : say()), at));
+      // Likewise a match point moment and the arena tag's spin after it.
+      const held = () => drawHold === m.code || mp?.code === m.code || reel?.code === m.code;
+      speechTimers.push(setTimeout(() => (held() ? (speechWait = say) : say()), at));
     });
   });
   // A line held back for the stadium shuffle: say it once the shuffle is gone.
   $effect(() => {
     const say = speechWait;
-    if (!say || drawHold || mp) return;
+    if (!say || drawHold || mp || reel) return;
     untrack(() => {
       speechWait = null;
       speechTimers.push(setTimeout(say, SPEECH_AFTER_DRAW_MS));
@@ -988,6 +990,13 @@
     drawn = key;
     if (Date.now() - ev.at > CALLOUT_FRESH_MS) return; // stale by the time it showed
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // chip only
+    // At match point the arena tag draws it instead, so the splash can come
+    // straight after the score (see the match point block below).
+    if (ev.kind === "next" && mpNow !== "none") {
+      endDraw();
+      reel = { code: ev.code, round: ev.round, spinning: false };
+      return;
+    }
     const pool = LOOKS.filter((l) => l !== lastLook);
     const look = pool[Math.floor(Math.random() * pool.length)];
     lastLook = look;
@@ -1032,11 +1041,15 @@
     const s = matchPointState(m.liveP1, m.liveP2, pointsToWin(m.stage, m.roundLabel));
     return s === "decided" ? "none" : s;
   });
-  // The moment a round has earned. It waits for the call-out and the stadium
-  // draw (`go` is set when it plays), so the three never overlap; the speech
-  // bubbles wait for it in turn.
+  // The moment a round has earned. No big stadium draw here, so it comes up
+  // straight after the score (`go` is set when it plays), and then the arena
+  // tag spins onto the next stadium. The speech bubbles wait for both.
   let mp = $state<{ code: string; n: number; event: MatchPointEvent; id: string; go: boolean } | null>(null);
-  let mpCalloutDone = $state(false);
+  let mpScored = $state(false); // the short beat after the score has passed
+  const MP_AFTER_SCORE_MS = 300;
+  // The arena tag's spin: held back while the moment plays, then `spinning`.
+  let reel = $state<{ code: string; round: number; spinning: boolean } | null>(null);
+  const REEL_AFTER_MOMENT_MS = 250;
   let mpTimers: ReturnType<typeof setTimeout>[] = [];
   let mpSeen = "";
   // No zoom until a new match point's slam is over; a save or sudden death
@@ -1046,7 +1059,7 @@
   function clearMoment() {
     mpTimers.forEach(clearTimeout);
     mpTimers = [];
-    mpCalloutDone = false;
+    mpScored = false;
     mp = null;
   }
 
@@ -1070,13 +1083,13 @@
       const event = matchPointEvent(before, after, pointsToWin(m.stage, m.roundLabel));
       if (!event) return;
       mp = { code: m.code, n: ev.n, event, id: key, go: false };
-      mpTimers.push(setTimeout(() => (mpCalloutDone = true), AFTER_CALLOUT_MS));
+      mpTimers.push(setTimeout(() => (mpScored = true), MP_AFTER_SCORE_MS));
     });
   });
-  // The call-out and the draw are out of the way: play it.
+  // Play it. (drawHold: an organiser's Redraw, or a draw that was already up.)
   $effect(() => {
     const p = mp;
-    if (!p || p.go || !mpCalloutDone || drawHold) return;
+    if (!p || p.go || !mpScored || drawHold) return;
     untrack(() => {
       mp = { ...p, go: true };
       mpTimers.push(setTimeout(() => announcer.matchPointHit(matchPointCalls(p.event)), eventLanding(MP_VARIANT, p.event)));
@@ -1087,6 +1100,19 @@
     const p = mp;
     if (!p) return;
     if (mpNow === "none" || spotMatch?.code !== p.code || spotMatch.liveLog.length < p.n) untrack(clearMoment);
+  });
+  // The moment has gone: the arena tag spins.
+  $effect(() => {
+    const r = reel;
+    if (!r || r.spinning || mp) return;
+    const t = setTimeout(() => (reel = { ...r, spinning: true }), REEL_AFTER_MOMENT_MS);
+    return () => clearTimeout(t);
+  });
+  // Undo, another match, the result going in, or off Match centre: no spin.
+  $effect(() => {
+    const r = reel;
+    if (!r) return;
+    if (mpNow === "none" || spotMatch?.code !== r.code || spotMatch.liveLog.length < r.round - 1) reel = null;
   });
   // The heartbeat follows the match point, and the admin page's sound switch.
   $effect(() => {
@@ -1450,14 +1476,14 @@
             {:else}<span class="mc-tag next">Up next</span>{/if}
             <span class="mc-context">{matchContext(spotMatch, data.matches)}</span>
             <!-- This round's stadium, held back while its draw is playing. -->
-            {#if live && !decided && drawHold !== spotMatch.code && stadiumOf(spotMatch.stadium)}
-              {@const st = stadiumOf(spotMatch.stadium)!}
+            {#if live && !decided && drawHold !== spotMatch.code && !(reel?.code === spotMatch.code && !reel.spinning) && stadiumOf(spotMatch.stadium)}
               {#key spotMatch.stadiumAt}
-                <span class="mc-stadium" data-stadium={st.key}>
-                  <span class="rd"><b>Round {spotMatch.liveLog.length + 1}</b></span>
-                  <span class="num"><b>{st.num}</b></span>
-                  <span><b>{st.name}</b></span>
-                </span>
+                <StadiumTag
+                  stadium={spotMatch.stadium}
+                  round={spotMatch.liveLog.length + 1}
+                  spin={reel?.code === spotMatch.code}
+                  ondone={() => (reel = null)}
+                />
               {/key}
             {/if}
             <!-- The finish call-out hangs above this line (see .fx-wrap). -->
@@ -2979,52 +3005,4 @@
   }
   /* This round's stadium, in the status line: round tag, numeral block in the
      stadium's colour, name. Pops in when a draw lands (it's keyed on the draw). */
-  .mc-stadium {
-    display: inline-flex;
-    align-items: stretch;
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 2.2rem;
-    line-height: 1;
-    transform: skewX(-10deg);
-    background: var(--paper);
-    color: var(--ink);
-    border: var(--outline) solid var(--ink);
-    box-shadow: 6px 6px 0 var(--st);
-    animation: chip-pop 320ms cubic-bezier(0.2, 0.9, 0.3, 1.4);
-  }
-  .mc-stadium > span {
-    display: grid;
-    place-items: center;
-    padding: 8px 18px 10px;
-  }
-  .mc-stadium b {
-    display: block;
-    font-weight: inherit;
-    transform: skewX(10deg);
-    padding-right: 0.12em; /* italic overhang */
-  }
-  .mc-stadium .rd {
-    background: var(--ink);
-    color: var(--paper);
-    font-family: var(--font-text);
-    font-weight: 700;
-    font-stretch: 75%;
-    letter-spacing: 0.12em;
-    font-size: 1.5rem;
-  }
-  .mc-stadium .num {
-    background: var(--st);
-    color: var(--st-ink);
-    border-right: var(--outline) solid var(--ink);
-    min-width: 2.2em;
-  }
-  @keyframes chip-pop {
-    from {
-      transform: skewX(-10deg) scale(1.25);
-    }
-    to {
-      transform: skewX(-10deg) scale(1);
-    }
-  }
 </style>

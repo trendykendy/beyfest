@@ -128,6 +128,10 @@ export const SUDDEN_DEATH_CALL = "/sounds/royale/sudden-death.mp3";
 // How loud the impact and heartbeat play: 1 is full volume. The heartbeat
 // also follows the admin page's music level; the calls aren't affected.
 export const MATCH_POINT_FX_LEVEL = 0.75;
+// The reverb on the match music during match point: how much is added (0 is
+// none) and how long it rings, in seconds.
+export const MATCH_POINT_REVERB = 1.2;
+export const MATCH_POINT_REVERB_SECONDS = 2.4;
 
 // The announcer's line for a match point moment; a save is the impact alone.
 export function matchPointCalls(event: "slam" | "suddenDeath" | "saved"): string[] {
