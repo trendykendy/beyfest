@@ -76,6 +76,8 @@
   import Trophy from "$lib/components/Trophy.svelte";
   import LiveQr from "$lib/components/tv/LiveQr.svelte";
   import IntroPlayer from "$lib/components/tv/IntroPlayer.svelte";
+  import AdPlayer from "$lib/components/tv/AdPlayer.svelte";
+  import { ADS } from "$lib/ads";
   import { introImages } from "$lib/intro";
   import PixelBubble from "$lib/components/tv/speech/PixelBubble.svelte";
   import TensionGlow from "$lib/components/tv/TensionGlow.svelte";
@@ -949,7 +951,26 @@
   });
   function playBeyfestIntro() {
     announcer.stopMusic();
+    adPlaying = 0;
     beyfestIntro = Date.now();
+  }
+
+  // ── Fake ads ─────────────────────────────────────────────────────────
+  // Same idea as the intro: over everything when the organiser presses
+  // "Play an ad" (tv_state.adAt changes) or A is pressed at the TV. Escape
+  // stops it.
+  let adPlaying = $state(0); // a new number plays it again; 0 is off
+  let adSeen = untrack(() => data.tv.adAt);
+  $effect(() => {
+    const at = data.tv.adAt;
+    if (at === adSeen) return;
+    adSeen = at;
+    if (at) playAd();
+  });
+  function playAd() {
+    announcer.stopMusic();
+    beyfestIntro = 0;
+    adPlaying = Date.now();
   }
 
   function endDraw() {
@@ -1131,8 +1152,11 @@
       toggleFull();
     } else if (e.key.toLowerCase() === "i") {
       playBeyfestIntro();
-    } else if (e.key === "Escape" && beyfestIntro) {
+    } else if (e.key.toLowerCase() === "a") {
+      playAd();
+    } else if (e.key === "Escape" && (beyfestIntro || adPlaying)) {
       beyfestIntro = 0;
+      adPlaying = 0;
     } else {
       poke();
     }
@@ -1690,6 +1714,20 @@
           muted={data.tv.soundOff}
           onblocked={() => (soundBlocked = true)}
           ondone={() => (beyfestIntro = 0)}
+        />
+      </div>
+    {/key}
+  {/if}
+
+  <!-- A fake ad, over everything, from the admin page or A. -->
+  {#if adPlaying && mounted}
+    {#key adPlaying}
+      <div class="intro-layer">
+        <AdPlayer
+          ad={ADS[0]}
+          muted={data.tv.soundOff}
+          onblocked={() => (soundBlocked = true)}
+          ondone={() => (adPlaying = 0)}
         />
       </div>
     {/key}

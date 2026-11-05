@@ -243,6 +243,16 @@ export const actions: Actions = {
     return { intro: true };
   },
 
+  // "Play an ad": the same, for a fake ad, through adAt.
+  ad: async ({ locals }) => {
+    const tv = await loadTvState(locals.pb);
+    if (!tv.id) {
+      return fail(500, { error: "TV settings are missing. Restart PocketBase so its migrations run." });
+    }
+    await locals.pb.collection("tv_state").update(tv.id, { adAt: Date.now() });
+    return { ad: true };
+  },
+
   // "Score this": remember the organiser's pick, so the TV's "Up next" shows
   // that match and a reload of this page keeps it.
   pick: async ({ request, locals }) => {
