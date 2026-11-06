@@ -2305,6 +2305,9 @@
     line-height: 1;
     padding: 10px 26px 12px 20px;
     clip-path: polygon(0 0, 100% 0, calc(100% - var(--cut)) 100%, 0 100%);
+    /* Its own layer: without this the browser drops the clip for odd frames
+       while the arena tag beside it rolls, so the cut corner flickers. */
+    will-change: transform;
   }
   .mc-tag.live {
     background: var(--red);
