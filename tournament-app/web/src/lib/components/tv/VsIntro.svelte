@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { artFor } from "$lib/fighters";
   import FighterSilhouette from "./FighterSilhouette.svelte";
+  import VsArc from "./VsArc.svelte";
 
   // The fighter intro before a match: two half-banners (red p1, blue p2) slam
   // together on a lightning seam and VS lands on the join. EXPERIMENT: only the
@@ -64,32 +65,6 @@
   const clipBlue = `polygon(1920px ${BAND_TOP}px, ${pts}, 1920px ${BAND_BOT}px)`;
 
   const seamPath = "M" + SEAM.map(([x, y]) => `${x} ${y}`).join(" L");
-
-  // Crackle: the seam re-drawn with small random kinks. Two variants flicker
-  // against each other so the bolt looks alive.
-  function crackle() {
-    const out: string[] = [];
-    SEAM.forEach(([x, y], i) => {
-      if (i === 0) return void out.push(`M${x} ${y}`);
-      const [px, py] = SEAM[i - 1];
-      for (let k = 1; k <= 4; k++) {
-        const t = k / 4;
-        const j = k === 4 ? 0 : (Math.random() - 0.5) * 34;
-        out.push(`L${(px + (x - px) * t + j).toFixed(1)} ${(py + (y - py) * t).toFixed(1)}`);
-      }
-    });
-    return out.join(" ");
-  }
-  const crackles = [crackle(), crackle()];
-
-  // Small forked bolts off the seam near each end, crackling into the band
-  // (into open background, clear of the faces).
-  const FORKS = [
-    "M1084 200 L1030 214 L1018 252 L962 262 L936 296",
-    "M1110 180 L1070 170 L1060 196",
-    "M846 880 L904 870 L922 836 L980 826 L1006 792",
-    "M820 905 L862 914 L872 890",
-  ];
 
   // Impact burst behind VS: a 16-point star with uneven spikes.
   const burst = (() => {
@@ -193,17 +168,10 @@
         <g class="bolt" clip-path="url(#vs-band)">
           <path class="glow" d={seamPath} pathLength="1" />
           <path class="mid" d={seamPath} pathLength="1" />
-          <path class="crk a" d={crackles[0]} />
-          <path class="crk b" d={crackles[1]} />
           <path class="core" d={seamPath} pathLength="1" />
         </g>
-        <g class="forks" clip-path="url(#vs-band)">
-          {#each FORKS as d}
-            <path class="glow" {d} />
-            <path class="core" {d} />
-          {/each}
-        </g>
       </svg>
+      <VsArc seam={SEAM} top={BAND_TOP + EDGE} bottom={BAND_BOT - EDGE} {slow} {lite} />
 
       <div class="ring r1"></div>
       <div class="ring r2"></div>
@@ -445,8 +413,7 @@
     stroke-linejoin: miter;
     stroke-linecap: round;
   }
-  .bolt .glow,
-  .forks .glow {
+  .bolt .glow {
     stroke: url(#vs-seam-glow);
     stroke-width: 80;
     filter: url(#vs-blur);
@@ -472,58 +439,6 @@
       stroke-dashoffset: 0;
     }
   }
-  /* Once struck, the bolt flickers for the rest of the intro. */
-  .bolt {
-    animation: bolt-flicker calc(900ms * var(--k)) steps(1) calc(600ms * var(--k)) infinite;
-  }
-  @keyframes bolt-flicker {
-    0% { opacity: 1; }
-    8% { opacity: 0.55; }
-    12% { opacity: 1; }
-    47% { opacity: 0.8; }
-    50% { opacity: 1; }
-    71% { opacity: 0.5; }
-    74% { opacity: 1; }
-  }
-  .crk {
-    stroke: #fff;
-    stroke-width: 3;
-    opacity: 0;
-    animation: crk calc(160ms * var(--k)) steps(1) calc(470ms * var(--k)) infinite;
-  }
-  .crk.b {
-    animation-delay: calc(550ms * var(--k));
-  }
-  @keyframes crk {
-    0% { opacity: 0.9; }
-    50% { opacity: 0; }
-  }
-
-  .forks .core {
-    stroke: #fff;
-    stroke-width: 4;
-  }
-  .forks .glow {
-    stroke-width: 36;
-  }
-  /* Forks flash at the slam, again as VS lands, and once in the hold. */
-  .forks {
-    opacity: 0;
-    animation: forks calc(2400ms * var(--k)) steps(1) calc(450ms * var(--k)) forwards;
-  }
-  @keyframes forks {
-    0% { opacity: 1; }
-    4% { opacity: 0; }
-    6% { opacity: 1; }
-    10% { opacity: 0; }
-    14% { opacity: 1; }
-    17% { opacity: 0; }
-    82% { opacity: 1; }
-    85% { opacity: 0; }
-    87% { opacity: 1; }
-    90%, 100% { opacity: 0; }
-  }
-
   .ring {
     position: absolute;
     left: 965px;
@@ -722,7 +637,7 @@
     }
   }
 
-  /* Leaving: the bolt and forks go with the banners. */
+  /* Leaving: the bolt and arcs go with the banners. */
   .vs:not(.hold) .mark {
     animation: mark-out calc(260ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
   }
@@ -732,7 +647,8 @@
       opacity: 0;
     }
   }
-  .vs:not(.hold) .seam {
+  .vs:not(.hold) .seam,
+  .vs:not(.hold) :global(.arc) {
     animation: fade-out calc(200ms * var(--k)) linear calc(var(--out) * var(--k)) forwards;
   }
   @keyframes fade-out {
@@ -813,16 +729,12 @@
      filters, and nothing that repaints big areas every frame. Wide
      translucent strokes stand in for the bolt's glow; VS pulses in scale
      instead of glow. */
-  .lite .bolt .glow,
-  .lite .forks .glow {
+  .lite .bolt .glow {
     filter: none;
     stroke-opacity: 0.35;
   }
   .lite .bolt .glow {
     stroke-width: 56;
-  }
-  .lite .forks .glow {
-    stroke-width: 24;
   }
   .lite .focus {
     animation: none;
