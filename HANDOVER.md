@@ -7,7 +7,7 @@ Rewritten at the end of day 3 (25 September 2026) and updated at the end of day 
 - **Checkpoint (7 October 2026): everything is merged into `main` and tagged `checkpoint-2026-10-07`.** That includes day 4's stadium draw (`7303d2f`), the bracket-line fix (`2812b43`) and the day 3 and day 4 handovers. The user is happy with this state; it's the known-good version to come back to (`git checkout checkpoint-2026-10-07`) if feature experiments go wrong.
 - **The VS intro is on the branch `experiment/vs-intro`: committed, not merged or pushed.** It adds the fighter intro before the stadium draw on Start match, and the fighter library at `/admin/fighters`. See "VS intro" below. Merging needs the user's go-ahead.
 - Work from `main`, on a new branch per task (experiments on `experiment/<feature>`); don't commit to `main` directly. The old `redesign/tournament-app` branch is finished.
-- **The repo is public:** https://github.com/trendykendy/beyfest2026. Its history was rewritten on day 3 (before the first push) to drop deleted images and `refimages/`. All commit IDs in this file are the new ones.
+- **The repo is public:** https://github.com/trendykendy/beyfest. Its history was rewritten on day 3 (before the first push) to drop deleted images and `refimages/`. All commit IDs in this file are the new ones.
 - **The app is feature-complete for the event:**
   - the redesign (TV, admin)
   - the day 2 event-day features
@@ -35,7 +35,7 @@ Rewritten at the end of day 3 (25 September 2026) and updated at the end of day 
 
 1. **Flash the SD card** with Raspberry Pi Imager: **Raspberry Pi OS (64-bit) with desktop**. Set a username, and enable SSH if they want to run it from the Mac. The user thinks it's a Pi 3 (memory unknown).
 2. **Run the installer** in a terminal on the Pi:
-   `curl -fsSL https://raw.githubusercontent.com/trendykendy/beyfest2026/main/tournament-app/install-pi.sh | bash`
+   `curl -fsSL https://raw.githubusercontent.com/trendykendy/beyfest/main/tournament-app/install-pi.sh | bash`
    - Choose the passwords, add the home wifi, and set a hotspot password. Say yes to the restart.
 3. **After the restart,** check:
    - The TV comes up full-screen by itself.

@@ -4,12 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-Two parts for "Beyfest 2026 — Triple Threat", a Beyblade tournament:
+Two parts for Beyfest, a Beyblade tournament that runs as a series of events:
 
 - **`public-site/`** — the static single-page event website. No build system, no package manager, no server. Hosted on Netlify; deploy by uploading the contents of `public-site/`.
 - **`tournament-app/`** — the tournament app (SvelteKit + PocketBase). See its own README.
 
-`bracket-and-tourney/` is old reference material already folded into the app; ignore it.
+`bracket-and-tourney/` is old reference material already folded into the app; ignore it, except `tournament-spec.txt`, which defines the competition format.
+
+## Events
+
+- **Beyfest 2026: Triple Threat** is done. The code that ran on the day is the git tag `beyfest-2026-final`; never move or delete it.
+- **Beyfest: Tetrafatalis** is next, and `main` is where it's built. It's a total redesign from cyberpunk to epic high fantasy (the realm of Gyrondor, the Endless Ring), with four arenas, expanded betting in gold, and new waiting and break screens. The competition format itself is unchanged. Until that work lands, much of the code, art and copy still describes Triple Threat.
+- Every Tetrafatalis decision (lore, flow, betting rules, fighter makeovers, art direction, in-world names) is in the planning doc: https://claude.ai/artifact/7GbVFTiGF8EhK8PFS59YD9. Read it before building a feature, and record new decisions in its Decisions log.
+- The repo was renamed from `beyfest2026` to `beyfest` on GitHub (old URLs redirect). The default dev password `beyfest2026` in the seed migration and scripts is deliberately unchanged.
 
 ## Running the public site
 

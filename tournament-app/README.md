@@ -1,6 +1,6 @@
-# Beyfest 2026 — Tournament App
+# Beyfest — Tournament App
 
-A self-contained app to **run** the Beyfest 2026 tournament on the day: enter the
+A self-contained app to **run** a Beyfest tournament on the day: enter the
 players who show up, auto-draw the groups and build the right bracket, record
 scores, and show a live TV screen and phone page. Runs entirely on one Windows PC
 over the venue wifi — **no internet required** on the day.
@@ -27,7 +27,7 @@ live phone page.
 
 1. Install **[Bun](https://bun.sh)** (builds the app) and **[Node.js](https://nodejs.org)**,
    the current LTS (runs it; tested on Node 22).
-2. Get this repo onto the PC: `git clone https://github.com/trendykendy/beyfest2026.git`,
+2. Get this repo onto the PC: `git clone https://github.com/trendykendy/beyfest.git`,
    or copy the folder across.
 3. Run **`start.ps1`** in `tournament-app` once, with internet: right-click it →
    *Run with PowerShell*, or `pwsh -File .\start.ps1`. The first run downloads
@@ -179,7 +179,7 @@ connected to the TV and, for the install, to the internet. In a terminal on the 
 (or over SSH), run:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/trendykendy/beyfest2026/main/tournament-app/install-pi.sh | bash
+curl -fsSL https://raw.githubusercontent.com/trendykendy/beyfest/main/tournament-app/install-pi.sh | bash
 ```
 
 - It asks you to choose the **organiser** and **PocketBase admin** passwords. Write
