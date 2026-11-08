@@ -4,7 +4,7 @@
 #
 # On the Pi (64-bit Raspberry Pi OS with desktop, connected to the internet):
 #
-#   curl -fsSL https://raw.githubusercontent.com/trendykendy/beyfest2026/main/tournament-app/install-pi.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/trendykendy/beyfest/main/tournament-app/install-pi.sh | bash
 #
 # Run the same command again at any time to update. It keeps the tournament
 # data and backups; only the app is replaced. Options (add after "bash -s --"):
@@ -23,7 +23,7 @@
 # ─────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
-repo="trendykendy/beyfest2026"
+repo="trendykendy/beyfest"
 channel="${BEYFEST_CHANNEL:-main}" # the branch whose package to install (release pi-<branch>)
 pkg_url="${BEYFEST_PKG_URL:-https://github.com/${repo}/releases/download/pi-${channel}/beyfest-pi-arm64.tar.gz}"
 base="/opt/beyfest"

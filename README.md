@@ -13,7 +13,7 @@ Everything for the Beyfest 2026 Beyblade tournament:
 **Before the day (at home, with internet):**
 
 1. Install **[Bun](https://bun.sh)** and **[Node.js](https://nodejs.org)** (the LTS version).
-2. Get the code: `git clone https://github.com/trendykendy/beyfest2026.git`
+2. Get the code: `git clone https://github.com/trendykendy/beyfest.git`
 3. In `tournament-app`, right-click **`start.ps1`** → *Run with PowerShell*. The first
    run downloads PocketBase, builds the app, creates the database and asks you to
    **choose the organiser and admin passwords**. Write them down.
@@ -51,7 +51,7 @@ Re-make the package after any code change.
 ### B. Git checkout
 
 1. Install **Bun**: `curl -fsSL https://bun.sh/install | bash`
-2. `git clone https://github.com/trendykendy/beyfest2026.git`
+2. `git clone https://github.com/trendykendy/beyfest.git`
 3. Double-click **`tournament-app/start.command`**. Do this first run **at home, with
    internet**: it installs packages, builds the app and downloads PocketBase. After
    that it runs offline.
