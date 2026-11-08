@@ -1,12 +1,20 @@
-# Beyfest 2026 — Triple Threat
+# Beyfest
 
-Everything for the Beyfest 2026 Beyblade tournament:
+Everything for Beyfest, a Beyblade tournament:
 
 - **[`tournament-app/`](tournament-app/)** — the app that runs the tournament on the day:
   the player list, group draw, brackets, scores, battle royale, a live TV screen and a
   phone page. It runs on one computer over the venue wifi, with **no internet needed on
   the day**. Full guide: [`tournament-app/README.md`](tournament-app/README.md).
 - **[`public-site/`](public-site/)** — the event website (static, hosted on Netlify).
+
+## Events
+
+- **Beyfest 2026: Triple Threat** — done. The exact code that ran on the day is the git
+  tag `beyfest-2026-final` (`git checkout beyfest-2026-final`).
+- **Beyfest: Tetrafatalis** — next, being built on `main`: a fantasy redesign with four
+  arenas and expanded betting. Until that work lands, `main` still looks and works like
+  Triple Threat.
 
 ## Install on a Windows PC
 

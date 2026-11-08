@@ -1,6 +1,6 @@
-# Beyfest 2026 — Tournament App
+# Beyfest — Tournament App
 
-A self-contained app to **run** the Beyfest 2026 tournament on the day: enter the
+A self-contained app to **run** a Beyfest tournament on the day: enter the
 players who show up, auto-draw the groups and build the right bracket, record
 scores, and show a live TV screen and phone page. Runs entirely on one Windows PC
 over the venue wifi — **no internet required** on the day.
