@@ -60,7 +60,7 @@ if (phase === "setup") {
   const existing = await getActiveTournament(pb);
   if (existing) await resetTournament(pb, existing.id);
   console.log(`Creating a ${NAMES.length}-player tournament…`);
-  id = await createTournament(pb, "Beyfest 2026 — Triple Threat", NAMES);
+  id = await createTournament(pb, "Beyfest: Tetrafatalis", NAMES);
   const played = await playReady("group");
   console.log(`Played ${played} group matches.\n`);
 

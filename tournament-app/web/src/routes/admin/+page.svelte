@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import { EVENT_NAME } from "$lib/terms";
   import { invalidateAll } from "$app/navigation";
   import { onMount, untrack } from "svelte";
   import { liveUpdates } from "$lib/pbBrowser";
@@ -161,7 +162,7 @@
         >
           <label>
             <span class="field">Tournament name</span>
-            <input type="text" name="name" value={form?.name ?? "Beyfest 2026 — Triple Threat"} />
+            <input type="text" name="name" value={form?.name ?? EVENT_NAME} />
           </label>
           <div class="bladers">
             <div class="bladers-head">

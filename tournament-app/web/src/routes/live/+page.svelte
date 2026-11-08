@@ -4,6 +4,7 @@
   import { pickStructure } from "@beyfest/engine";
   import { liveUpdates } from "$lib/pbBrowser";
   import { EVENT } from "$lib/config";
+  import { EVENT_NAME, EVENT_SUBTITLE } from "$lib/terms";
   import { loadFollow, resolveFollow, saveFollow, type Follow } from "$lib/follow";
   import { loadBettor, saveBettor, type Bettor } from "$lib/betting";
   import { nameMap, type PBPlayer } from "$lib/view";
@@ -96,14 +97,14 @@
 </script>
 
 <svelte:head>
-  <title>Beyfest 2026 · Live</title>
+  <title>{EVENT_NAME} · Live</title>
 </svelte:head>
 
 <div class="live">
   <header class="top">
     <div class="top-in">
       <img class="brand" src="/logo-beyfest.webp" alt="Beyfest" />
-      <span class="brand-sub"><span>2026 Live</span><span class="kana">ライブ</span></span>
+      <span class="brand-sub"><span>{EVENT_SUBTITLE} Live</span><span class="kana">ライブ</span></span>
       {#if !online}<span class="offline" role="status">Reconnecting</span>{/if}
     </div>
   </header>

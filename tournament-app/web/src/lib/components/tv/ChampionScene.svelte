@@ -3,6 +3,7 @@
   import { artFor } from "$lib/fighters";
   import FighterSilhouette from "./FighterSilhouette.svelte";
   import { FINISHES } from "$lib/finishes";
+  import { TITLES } from "$lib/terms";
   import type { ChampionRun } from "$lib/view";
 
   // The Champion scene: the winner's fighter in a gold frame with rays turning
@@ -20,7 +21,7 @@
     champion,
     runnerUp = null,
     run = null,
-    kicker = "Beyfest 2026 champion",
+    kicker = TITLES.champion,
     awards = [],
     lite = false,
   }: {

@@ -3,6 +3,7 @@
   import { invalidateAll } from "$app/navigation";
   import { liveUpdates } from "$lib/pbBrowser";
   import { EVENT, browserPbUrl } from "$lib/config";
+  import { EVENT_SUBTITLE } from "$lib/terms";
   import {
     artFor,
     faceCrop,
@@ -1240,7 +1241,7 @@
   <header class="strip">
     <div class="brand">
       <img class="blogo" src="/logo-beyfest.webp" alt="Beyfest" />
-      <span class="bkana" lang="ja">トリプルスレット</span>
+      <span class="bkana">{EVENT_SUBTITLE}</span>
     </div>
     <div class="scene-name">
       <!-- Standby and Champion carry their own giant title; don't repeat it. -->
