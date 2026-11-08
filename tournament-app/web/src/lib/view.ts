@@ -254,7 +254,6 @@ export interface TvState {
   soundOff: boolean; // no music or announcer on the TV
   musicLevel: number; // match music volume, 0–100
   introAt: number; // when "Play the intro" was last pressed (ms), 0 if never
-  adAt: number; // when "Play an ad" was last pressed (ms), 0 if never
 }
 
 // The TV panel's music levels (tv_state.musicLevel).
