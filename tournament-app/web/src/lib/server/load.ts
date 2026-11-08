@@ -191,9 +191,8 @@ export async function loadTvState(pb: PocketBase): Promise<TvState> {
       soundOff: !!r.soundOff,
       musicLevel: typeof r.musicLevel === "number" ? r.musicLevel : 60,
       introAt: typeof r.introAt === "number" ? r.introAt : 0,
-      adAt: typeof r.adAt === "number" ? r.adAt : 0,
     };
   } catch {
-    return { id: "", mode: "auto", scene: "groups", next: "", soundOff: false, musicLevel: 60, introAt: 0, adAt: 0 };
+    return { id: "", mode: "auto", scene: "groups", next: "", soundOff: false, musicLevel: 60, introAt: 0 };
   }
 }
