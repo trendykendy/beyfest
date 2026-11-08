@@ -20,8 +20,9 @@ export function pbUrlFor(page: { hostname: string }): string {
   return env.PUBLIC_PB_URL || `http://${page.hostname}:8090`;
 }
 
-// Shown on the TV standby screen before the groups are drawn.
+// Shown on the TV standby screen and the phone page.
+// Placeholders until the Tetrafatalis date and venue are confirmed.
 export const EVENT = {
-  date: "7 November 2026",
-  place: "Innishannon",
+  date: "March 2027",
+  place: "Venue TBC",
 };

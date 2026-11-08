@@ -15,6 +15,7 @@ import {
   type PlayerInput,
 } from "@beyfest/engine";
 import { FINISHES } from "../finishes"; // relative: scripts import this file outside SvelteKit
+import { EVENT_NAME } from "../terms";
 
 const FINISH_PTS: Record<string, number> = Object.fromEntries(FINISHES.map((f) => [f.key, f.pts]));
 
@@ -218,7 +219,7 @@ export async function createTournament(
   const structure = pickStructure(names.length); // throws if not 8–15
 
   const tournament = await pb.collection("tournaments").create({
-    name: name.trim() || "Beyfest 2026",
+    name: name.trim() || EVENT_NAME,
     playerCount: names.length,
     structureKey: names.length,
     status: "setup",

@@ -2,6 +2,7 @@
   import "$lib/fonts.css";
   import "$lib/theme.css";
   import { page } from "$app/state";
+  import { EVENT_BRAND, EVENT_SUBTITLE } from "$lib/terms";
 
   let { children, data } = $props();
 
@@ -16,8 +17,8 @@
   <div class="topbar">
     <div class="container bar-inner">
       <a class="brand" href="/">
-        <span class="brand-main">BEYFEST 2026</span>
-        <span class="brand-sub label">Triple Threat</span>
+        <span class="brand-main">{EVENT_BRAND.toUpperCase()}</span>
+        <span class="brand-sub label">{EVENT_SUBTITLE}</span>
       </a>
       <nav class="nav">
         <a class:active={!isAdmin} href="/">Display</a>

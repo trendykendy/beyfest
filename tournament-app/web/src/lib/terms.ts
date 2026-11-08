@@ -4,8 +4,10 @@
 // finish keys, bracket tiers) never change, because the database and the audio
 // file names use them.
 
-/** The event itself. */
-export const EVENT_NAME = "Beyfest: Tetrafatalis";
+/** The event itself. Some screens show the two parts separately. */
+export const EVENT_BRAND = "Beyfest";
+export const EVENT_SUBTITLE = "Tetrafatalis";
+export const EVENT_NAME = `${EVENT_BRAND}: ${EVENT_SUBTITLE}`;
 export const REALM = "Gyrondor";
 export const ARENA_NAME = "the Endless Ring";
 

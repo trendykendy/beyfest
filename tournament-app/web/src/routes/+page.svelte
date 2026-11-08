@@ -4,6 +4,7 @@
   import { liveUpdates } from "$lib/pbBrowser";
   import { pickStructure, miniRRAdvancers } from "@beyfest/engine";
   import { nameMap, hasStage } from "$lib/view";
+  import { EVENT_BRAND, EVENT_SUBTITLE } from "$lib/terms";
   import GroupCard from "$lib/components/GroupCard.svelte";
   import Bracket from "$lib/components/Bracket.svelte";
   import MiniRRTable from "$lib/components/MiniRRTable.svelte";
@@ -27,8 +28,8 @@
 <div class="container">
   {#if !data.tournament}
     <div class="empty">
-      <h1>Beyfest 2026</h1>
-      <p class="tag">Triple Threat</p>
+      <h1>{EVENT_BRAND}</h1>
+      <p class="tag">{EVENT_SUBTITLE}</p>
       <p class="waiting">The tournament hasn't started yet. Standings and brackets will appear here live once the groups are drawn.</p>
     </div>
   {:else}
