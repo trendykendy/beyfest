@@ -1,5 +1,6 @@
 import { computeStandings, type Match, type Slot, type Stage, type StandingRow } from "@beyfest/engine";
 import { royaleView, type PBRoyale } from "./royale";
+import { SCREENS, STAGES, TITLES } from "./terms";
 
 // Plain shapes as they arrive from PocketBase (superset of engine fields).
 export interface PBPlayer {
@@ -230,16 +231,18 @@ export type Scene =
   | "royale"
   | "royaleChampion";
 
+// Display names come from terms.ts; the scene keys themselves are stored in
+// tv_state and must not change.
 export const SCENE_TITLE: Record<Scene, string> = {
-  standby: "Beyfest 2026",
-  groups: "Group stage",
-  rr: "Mini round-robins",
-  bracket: "Knockout bracket",
-  spotlight: "Match centre",
-  awards: "Awards",
-  champion: "Champion",
-  royale: "Battle royale",
-  royaleChampion: "Battle royale champion",
+  standby: SCREENS.waiting,
+  groups: STAGES.groups,
+  rr: STAGES.pathRoundRobins,
+  bracket: STAGES.paths,
+  spotlight: SCREENS.matchCentre,
+  awards: SCREENS.awards,
+  champion: TITLES.champion,
+  royale: TITLES.royale,
+  royaleChampion: TITLES.royaleChampion,
 };
 
 // What the venue TV should be doing, as set from the admin page.
