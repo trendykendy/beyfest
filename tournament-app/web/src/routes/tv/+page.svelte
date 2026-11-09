@@ -1452,6 +1452,10 @@
           {@const wonB = decided && bv > av}
           {@const walkover = done && spotMatch.walkover}
           {@const showScore = (done && !walkover) || live}
+          <!-- This round's arena and sides are on screen (not while their draw plays). -->
+          {@const placeShown = live && !decided && drawHold !== spotMatch.code && !(reel?.code === spotMatch.code && !reel.spinning)}
+          {@const sideOfA = placeShown && spotMatch.north ? (spotMatch.north === 1 ? "North" : "South") : ""}
+          {@const sideOfB = placeShown && spotMatch.north ? (spotMatch.north === 2 ? "North" : "South") : ""}
           <div class="mc-status">
             {#if walkover}<span class="mc-tag result">Walkover</span>
             {:else if done}<span class="mc-tag result">Result</span>
@@ -1460,7 +1464,7 @@
             {:else}<span class="mc-tag next">Up next</span>{/if}
             <span class="mc-context">{matchContext(spotMatch, data.matches)}</span>
             <!-- This round's stadium, held back while its draw is playing. -->
-            {#if live && !decided && drawHold !== spotMatch.code && !(reel?.code === spotMatch.code && !reel.spinning) && stadiumOf(spotMatch.stadium)}
+            {#if placeShown && stadiumOf(spotMatch.stadium)}
               {#key spotMatch.stadiumAt}
                 <StadiumTag
                   stadium={spotMatch.stadium}
@@ -1504,6 +1508,9 @@
                 style:--pb-anchor="{Math.round(95 + (ART_SKEW * cardHA) / 2)}px"
               >
                 {#if artA}{@render artPanel(artA)}{/if}
+                {#if sideOfA}
+                  {#key spotMatch.stadiumAt}<span class="mc-pos" class:north={sideOfA === "North"}>{sideOfA}</span>{/key}
+                {/if}
                 <div class="mc-slab">
                   <div class="mc-name">{sideName(spotMatch, 1)}</div>
                   <div class="mc-score">{showScore ? av : "–"}</div>
@@ -1525,6 +1532,9 @@
                 bind:clientHeight={cardHB}
                 style:--pb-anchor="{Math.round(95 - (ART_SKEW * cardHB) / 2)}px"
               >
+                {#if sideOfB}
+                  {#key spotMatch.stadiumAt}<span class="mc-pos" class:north={sideOfB === "North"}>{sideOfB}</span>{/key}
+                {/if}
                 <div class="mc-slab">
                   <div class="mc-score">{showScore ? bv : "–"}</div>
                   <div class="mc-name">{sideName(spotMatch, 2)}</div>
@@ -2523,6 +2533,46 @@
   @media (prefers-reduced-motion: reduce) {
     .mc-art-bg::before,
     .mc-art-bg::after {
+      animation: none;
+    }
+  }
+  /* North / South: which side of the arena each player stands on this round.
+     A tag on the card's top edge at the inner end (near the VS), clear of the
+     fighter art at the outer end. Absolutely placed, so nothing else moves. */
+  .mc-pos {
+    position: absolute;
+    top: -26px;
+    z-index: 3;
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    font-size: 2.2rem;
+    line-height: 1;
+    padding: 8px 22px 10px;
+    background: var(--ink);
+    color: var(--paper);
+    border: 3px solid var(--paper);
+    transform: skewX(-10deg);
+    animation: mc-pos-in 450ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  }
+  .mc-pos.north {
+    background: var(--paper);
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+  .left .mc-pos {
+    right: 40px;
+  }
+  .right .mc-pos {
+    left: 40px;
+  }
+  @keyframes mc-pos-in {
+    from {
+      opacity: 0;
+      transform: skewX(-10deg) translateY(-14px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mc-pos {
       animation: none;
     }
   }
