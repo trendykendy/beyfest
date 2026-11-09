@@ -6,9 +6,9 @@
 //   while the announcer talks. When the result is in it crossfades into the
 //   stinger.
 // - Volumes are set on the <audio> elements directly, stepped by a timer:
-//   simple, and light enough for a Raspberry Pi.
-// - A browser that blocks sound until someone clicks (anything but the Pi's
-//   kiosk, which allows autoplay) reports it through `onblocked`; unlock()
+//   simple and light.
+// - A browser that blocks sound until someone clicks (anything but the
+//   launcher's kiosk window, which allows autoplay) reports it through `onblocked`; unlock()
 //   after a click picks the music back up. soundAllowed() asks up front, so
 //   the TV can ask for that click before anything needs sound.
 

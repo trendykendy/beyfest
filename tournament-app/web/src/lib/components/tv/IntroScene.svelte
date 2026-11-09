@@ -22,14 +22,13 @@
   // The Beyfest 2026 intro (see $lib/intro and fighter-art/INTRO-STORYBOARD.md).
   // Everything here is drawn from `t`, the narration's clock in ms; the page
   // that plays it owns the audio. Same canvas as the other TV scenes: a fixed
-  // 1920×1080 stage scaled to fit. `lite` (the Pi) drops filters and most
-  // particles.
+  // 1920×1080 stage scaled to fit.
   //
   // Each shot is a layer that fades in softly over the one before. Its picture
   // (3:2, in a 1920×1280 box that just covers the screen) drifts slowly, Ken
   // Burns style, at a steady speed across the whole time it's on screen, fades
   // included ($lib/intro's CAMERA).
-  let { t, lite = false }: { t: number; lite?: boolean } = $props();
+  let { t }: { t: number } = $props();
 
   let w = $state(1920);
   const scale = $derived(w / 1920);
@@ -75,7 +74,7 @@
   }
 </script>
 
-<div class="intro" class:lite bind:clientWidth={w}>
+<div class="intro" bind:clientWidth={w}>
   <div class="canvas" style:transform="scale({scale})">
     <div class="stage" style:transform="translate({shakeXY[0]}px, {shakeXY[1]}px)">
       <!-- ── Act 1: the first Beyfest ── -->
@@ -88,7 +87,7 @@
             <!-- The sun at its spot in B1, swelling as it clears the horizon -->
             <div class="sun" style:opacity={0.55 + 0.35 * flash(t, CUE.champion, 2_500)} style:transform="translate(-50%, -50%) scale({lerp(0.7, 1, sunrise) + 0.6 * flash(t, CUE.champion, 2_500)})"></div>
           </div>
-          <IntroParticles {t} kind="haze" colour="#ffd9a0" count={14} {lite} />
+          <IntroParticles {t} kind="haze" colour="#ffd9a0" count={14} />
           <div class="shade" style:background="#0b1030" style:opacity={0.45 * (1 - sunrise)}></div>
         </div>
       {/if}
@@ -96,22 +95,22 @@
       {#if on("final")}
         <div class="layer" style:opacity={opacity("final")}>
           <div class="box" style:transform={cam("final")}><img src="/intro/p1-first-final.webp" alt="" /></div>
-          <IntroParticles {t} kind="embers" colour="#ffb347" count={60} at={10_450} {lite} />
+          <IntroParticles {t} kind="embers" colour="#ffb347" count={60} at={10_450} />
         </div>
       {/if}
 
       {#if on("clash")}
         <div class="layer" style:opacity={opacity("clash")}>
           <div class="box" style:transform={cam("clash")}><img src="/intro/c1-clash.webp" alt="" /></div>
-          <IntroParticles {t} kind="sparks" at={CUE.cracked} count={70} colour="#fff3c4" x={960} y={540} {lite} />
-          <IntroParticles {t} kind="sparks" at={CUE.sparked} count={140} colour="#ffc94a" x={960} y={540} {lite} />
+          <IntroParticles {t} kind="sparks" at={CUE.cracked} count={70} colour="#fff3c4" x={960} y={540} />
+          <IntroParticles {t} kind="sparks" at={CUE.sparked} count={140} colour="#ffc94a" x={960} y={540} />
         </div>
       {/if}
 
       {#if on("overAll")}
         <div class="layer" style:opacity={opacity("overAll")}>
           <div class="box" style:transform={cam("overAll")}><img src="/intro/s1-stood-over-all.webp" alt="" /></div>
-          <IntroParticles {t} kind="embers" colour="#ff3b2a" count={90} at={14_700} {lite} />
+          <IntroParticles {t} kind="embers" colour="#ff3b2a" count={90} at={14_700} />
         </div>
       {/if}
 
@@ -123,27 +122,27 @@
             <!-- The new challengers walk in: W1 is B2 with them in it -->
             <img src="/intro/w1-challengers.webp" alt="" style:opacity={easeSine(prog(t, CUE.newChallengers - 500, 1_400))} />
           </div>
-          <IntroParticles {t} kind="snow" colour="#ffffff" count={260} at={19_950} {lite} />
+          <IntroParticles {t} kind="snow" colour="#ffffff" count={260} at={19_950} />
         </div>
       {/if}
 
       {#if on("denied")}
         <div class="layer" style:opacity={opacity("denied")}>
           <div class="box" style:transform={cam("denied")}><img src="/intro/p2-winter-final.webp" alt="" /></div>
-          <IntroParticles {t} kind="snow" colour="#ffffff" count={160} at={25_400} {lite} />
-          <IntroParticles {t} kind="embers" colour="#ff3b2a" count={70} at={25_400} {lite} />
+          <IntroParticles {t} kind="snow" colour="#ffffff" count={160} at={25_400} />
+          <IntroParticles {t} kind="embers" colour="#ff3b2a" count={70} at={25_400} />
         </div>
       {/if}
 
       {#if on("crown")}
         <div class="layer" style:opacity={opacity("crown")}>
           <div class="box" style:transform={cam("crown")}>
-            <img src="/intro/r2-crown.webp" alt="" style:filter={lite ? undefined : `saturate(${1 - 0.7 * prog(t, CUE.nighOn, 1_500)})`} />
+            <img src="/intro/r2-crown.webp" alt="" style:filter={`saturate(${1 - 0.7 * prog(t, CUE.nighOn, 1_500)})`} />
             <!-- A gleam across the crown on "crown" -->
             <div class="gleam-clip"><div class="gleam" style:transform="translateX({lerp(-500, 900, prog(t, CUE.crown - 200, 900))}px) skewX(-20deg)"></div></div>
             <div class="star" style="left: 1062px; top: 104px;" style:opacity={flash(t, CUE.crown + 200, 1_000)} style:transform="translate(-50%, -50%) scale({0.4 + prog(t, CUE.crown + 200, 1_000)}) rotate({t / 10}deg)"></div>
           </div>
-          <IntroParticles {t} kind="snow" colour="#ffffff" count={200} at={31_100} opacity={1 - prog(t, CUE.nighOn, 1_200)} {lite} />
+          <IntroParticles {t} kind="snow" colour="#ffffff" count={200} at={31_100} opacity={1 - prog(t, CUE.nighOn, 1_200)} />
         </div>
       {/if}
 
@@ -151,42 +150,42 @@
       {#if on("year")}
         <div class="layer" style:opacity={opacity("year")}>
           <div class="box" style:transform={cam("year")}><img src="/intro/b3-night.webp" alt="" /></div>
-          <IntroParticles {t} kind="embers" colour="#ffc94a" count={110} at={36_350} {lite} />
+          <IntroParticles {t} kind="embers" colour="#ffc94a" count={110} at={36_350} />
         </div>
       {/if}
 
       {#if on("g1")}
         <div class="layer" style:opacity={opacity("g1")}>
           <div class="box" style:transform={cam("g1")}><img src="/intro/g1-group.webp" alt="" /></div>
-          <IntroParticles {t} kind="embers" colour="#ffc94a" count={50} at={37_350} opacity={0.7} {lite} />
+          <IntroParticles {t} kind="embers" colour="#ffc94a" count={50} at={37_350} opacity={0.7} />
         </div>
       {/if}
 
       {#if on("g2")}
         <div class="layer" style:opacity={opacity("g2")}>
           <div class="box" style:transform={cam("g2")}><img src="/intro/g2-group.webp" alt="" /></div>
-          <IntroParticles {t} kind="embers" colour="#ffc94a" count={50} at={39_600} opacity={0.7} {lite} />
+          <IntroParticles {t} kind="embers" colour="#ffc94a" count={50} at={39_600} opacity={0.7} />
         </div>
       {/if}
 
       {#if on("cord")}
         <div class="layer" style:opacity={opacity("cord")}>
           <div class="box" style:transform={cam("cord")}><img src="/intro/c2-ripcord.webp" alt="" /></div>
-          <IntroParticles {t} kind="sparks" at={CUE.bey} count={120} colour="#ffd36b" x={960} y={700} {lite} />
+          <IntroParticles {t} kind="sparks" at={CUE.bey} count={120} colour="#ffd36b" x={960} y={700} />
         </div>
       {/if}
 
       {#if on("g3")}
         <div class="layer" style:opacity={opacity("g3")}>
           <div class="box" style:transform={cam("g3")}><img src="/intro/g3-pair.webp" alt="" /></div>
-          <IntroParticles {t} kind="embers" colour="#ffc94a" count={50} at={43_350} opacity={0.7} {lite} />
+          <IntroParticles {t} kind="embers" colour="#ffc94a" count={50} at={43_350} opacity={0.7} />
         </div>
       {/if}
 
       {#if on("newBlood")}
         <div class="layer" style:opacity={opacity("newBlood")}>
           <div class="box" style:transform={cam("newBlood")}><img src="/intro/n1-new-blood.webp" alt="" /></div>
-          <IntroParticles {t} kind="embers" colour="#ff3b2a" count={70} at={45_500} {lite} />
+          <IntroParticles {t} kind="embers" colour="#ff3b2a" count={70} at={45_500} />
         </div>
       {/if}
 
@@ -197,7 +196,7 @@
             <div class="star red" style="left: 1072px; top: 498px;" style:opacity={flash(t, CUE.victory, 1_200)} style:transform="translate(-50%, -50%) scale({0.3 + prog(t, CUE.victory, 1_200)}) rotate({t / 8}deg)"></div>
           </div>
           <div class="half-shadow" style:opacity={lerp(0.5, 0.8, prog(t, 48_550, 5_000))}></div>
-          <IntroParticles {t} kind="embers" colour="#ff3b2a" count={100} at={48_550} {lite} />
+          <IntroParticles {t} kind="embers" colour="#ff3b2a" count={100} at={48_550} />
           <div class="shade" style:background="#ff2a1a" style:opacity={0.07 + 0.04 * Math.sin(t / 400)}></div>
         </div>
       {/if}
@@ -207,7 +206,7 @@
           <div class="box" style:transform={cam("title")}><img src="/intro/b3-night.webp" alt="" /></div>
           <div class="shade" style:background="#000" style:opacity={0.5}></div>
           <div class="swirl" style:opacity={0.3} style:transform="translate(-50%, -50%) rotate({t / 40}deg)"></div>
-          <IntroParticles {t} kind="embers" colour="#ffc94a" count={140} at={52_650} {lite} />
+          <IntroParticles {t} kind="embers" colour="#ffc94a" count={140} at={52_650} />
           <div class="glow gold" style:opacity={prog(t, 59_450, 900) * (0.45 + 0.15 * Math.sin(t / 500))}></div>
           <div class="logo" style:transform="scale({1 + 0.04 * flash(t, CUE.threat, 400)})">
             {#each LOGO as [at, from, file] (file)}
@@ -264,9 +263,6 @@
     inset: 0;
     width: 100%;
     height: 100%;
-  }
-  .lite .box img {
-    filter: none !important;
   }
   .flash {
     background: #fff;

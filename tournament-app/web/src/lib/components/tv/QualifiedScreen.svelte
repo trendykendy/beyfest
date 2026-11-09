@@ -14,8 +14,7 @@
   // is set, plays its exit, and calls ondone.
   //
   // Same conventions as RoyaleIntro: a fixed 1920×1080 canvas scaled to fit;
-  // every time is `calc(Nms * var(--k))`, so `slow` stretches it (lab only);
-  // `lite` drops the drop-shadow filters for the Pi.
+  // every time is `calc(Nms * var(--k))`, so `slow` stretches it (lab only).
   // face: where the face is in the cut-out; it's slid sideways so the face
   // sits in the middle of its narrow panel.
   type Fighter = { name: string; kana: string; img: string; imgMirrored?: string; mirror?: boolean; face?: Face | null };
@@ -24,7 +23,6 @@
     label = "", // "Heat 1", "Sudden death"
     toSudden = "", // a heat's runner-up who goes to the sudden death
     slow = 1,
-    lite = false,
     leaving = false, // set to play the exit; ondone fires when it's over
     ondone,
   }: {
@@ -32,7 +30,6 @@
     label?: string;
     toSudden?: string;
     slow?: number;
-    lite?: boolean;
     leaving?: boolean;
     ondone?: () => void;
   } = $props();
@@ -59,11 +56,11 @@
   });
 </script>
 
-<div class="q" class:leaving class:lite class:with-strip={!!toSudden} bind:clientWidth={w} style:--k={slow} style:--n={n}>
+<div class="q" class:leaving class:with-strip={!!toSudden} bind:clientWidth={w} style:--k={slow} style:--n={n}>
   <div class="canvas" style:transform="scale({scale})">
     <!-- The winner screen's dressing: pinstripes, rays behind QUALIFIED, the
          slam's rings and shards, streaks across the panels. -->
-    <RoyaleBackdrop rayY={230} {leaving} {lite} />
+    <RoyaleBackdrop rayY={230} {leaving} />
     <div class="shake">
       <div class="panels">
         {#each fighters as f, i (i)}
@@ -90,7 +87,7 @@
                 {/if}
               </div>
               <!-- Over the picture, under the name tag, as on the winner's banner. -->
-              <PanelStreaks rev={i >= n / 2} {lite} />
+              <PanelStreaks rev={i >= n / 2} />
               <div class="tag">
                 {#if f.kana}<div class="kana" lang="ja">{f.kana}</div>{/if}
                 <div class="name"><span>{f.name}</span></div>
@@ -100,7 +97,7 @@
         {/each}
       </div>
 
-      <SlamBurst y={230} {lite} />
+      <SlamBurst y={230} />
       <div class="mark">
         {#if label}<div class="label"><span>Battle royale · {label}</span></div>{/if}
         <div class="mark-kana" lang="ja">予選突破</div>
@@ -379,15 +376,6 @@
   }
   .leaving .strip {
     animation: fade-out calc(250ms * var(--k)) ease-in both;
-  }
-
-  /* Pi-safe: no filters, so no glow either. */
-  .lite .main,
-  .lite .pic img {
-    filter: none;
-  }
-  .lite .main {
-    animation: slam calc(300ms * var(--k)) cubic-bezier(0.2, 0.9, 0.3, 1.2) calc(150ms * var(--k)) both;
   }
 
   @keyframes fade-in {

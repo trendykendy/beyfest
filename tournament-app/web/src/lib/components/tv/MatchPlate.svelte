@@ -135,7 +135,7 @@
     height: 9px;
     border-radius: 50%;
     background: var(--red);
-    /* Opacity only: cheap on the Pi. Reduced motion is handled in theme.css. */
+    /* Opacity only: cheap. Reduced motion is handled in theme.css. */
     animation: live-pulse 1.2s ease-in-out infinite;
   }
   @keyframes live-pulse {

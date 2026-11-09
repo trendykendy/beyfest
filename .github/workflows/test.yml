@@ -1,0 +1,34 @@
+# Runs the tournament app's tests, type check and build on every push to main
+# and on pull requests, so a broken change shows up before the event machine
+# pulls it.
+name: Tests
+
+on:
+  push:
+    branches: [main]
+    paths: ["tournament-app/**", ".github/workflows/test.yml"]
+  pull_request:
+    paths: ["tournament-app/**", ".github/workflows/test.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tournament-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - run: bun install --frozen-lockfile
+      - run: bun run test
+      - run: bun run --cwd web check
+      - run: bun run build

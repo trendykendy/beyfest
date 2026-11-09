@@ -1,6 +1,6 @@
 <script lang="ts">
   // A QR code from qrPath() (lib/qr.ts): dark squares on a paper card with
-  // the quiet zone round it that scanners need. Static, no animation (Pi).
+  // the quiet zone round it that scanners need. Static, no animation.
   let { size, path, px }: { size: number; path: string; px: number } = $props();
   const QUIET = 3; // squares of white border; 4 is the spec, 3 scans fine on a lit screen
 </script>

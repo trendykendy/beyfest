@@ -12,8 +12,7 @@
   // alternate sides. It holds while the announcer talks, then clears.
   //
   // Same conventions as VsIntro: a fixed 1920×1080 canvas scaled to fit;
-  // every time is `calc(Nms * var(--k))`, so `slow` stretches it (lab only);
-  // `lite` drops the blur and drop-shadow filters for the Pi.
+  // every time is `calc(Nms * var(--k))`, so `slow` stretches it (lab only).
   // img: the cut-out's URL ("" for the silhouette). Cut-outs face left, so
   // the left half turn to face the middle; mirror flips one the other way.
   // face: where the face is in the cut-out; it's slid sideways so the face
@@ -24,7 +23,6 @@
     label = "",
     slow = 1,
     hold = false, // lab only: stay on the last frame
-    lite = false,
     out = 4200, // ms: when it starts to clear (later while the announcer talks)
     ondone,
   }: {
@@ -32,7 +30,6 @@
     label?: string;
     slow?: number;
     hold?: boolean;
-    lite?: boolean;
     out?: number;
     ondone?: () => void;
   } = $props();
@@ -62,11 +59,11 @@
   });
 </script>
 
-<div class="br" class:hold class:lite bind:clientWidth={w} style:--k={slow} style:--out="{OUT}ms" style:--n={n}>
+<div class="br" class:hold bind:clientWidth={w} style:--k={slow} style:--out="{OUT}ms" style:--n={n}>
   <div class="canvas" style:transform="scale({scale})">
     <!-- The winner screen's dressing: pinstripes, rays behind the title, the
          slam's rings and shards, streaks across the panels. -->
-    <RoyaleBackdrop rayY={164} outAt={hold ? null : OUT} {lite} />
+    <RoyaleBackdrop rayY={164} outAt={hold ? null : OUT} />
     <div class="shake">
       <div class="panels">
         {#each fighters as f, i (i)}
@@ -92,7 +89,7 @@
                 {/if}
               </div>
               <!-- Over the picture, under the name tag, as on the winner's banner. -->
-              <PanelStreaks rev={i >= n / 2} {lite} />
+              <PanelStreaks rev={i >= n / 2} />
               <div class="tag">
                 {#if f.kana}<div class="kana" lang="ja">{f.kana}</div>{/if}
                 <div class="name"><span>{f.name}</span></div>
@@ -102,7 +99,7 @@
         {/each}
       </div>
 
-      <SlamBurst y={164} {lite} />
+      <SlamBurst y={164} />
       <div class="mark">
         <div class="mark-kana" lang="ja">バトルロイヤル</div>
         <div class="words">
@@ -336,15 +333,6 @@
     opacity: 0;
     pointer-events: none;
     animation: flash calc(260ms * var(--k)) ease-out calc(150ms * var(--k)) both;
-  }
-
-  /* Pi-safe: no filters, so no glow either. */
-  .lite .main,
-  .lite .pic img {
-    filter: none;
-  }
-  .lite .main {
-    animation: slam calc(300ms * var(--k)) cubic-bezier(0.2, 0.9, 0.3, 1.2) calc(150ms * var(--k)) both;
   }
   .hold .panel,
   .hold .mark {

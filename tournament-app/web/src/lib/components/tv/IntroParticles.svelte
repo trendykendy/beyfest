@@ -6,7 +6,7 @@
   //   snow   drifts down and sideways (the Winter League)
   //   embers rise and flicker (the Breycist's red, the title's gold)
   //   sparks burst out from (x, y) at `at` and fall away
-  //   haze   big soft blobs drifting (the dawn); skipped in lite
+  //   haze   big soft blobs drifting (the dawn)
   type Kind = "snow" | "embers" | "sparks" | "haze";
   let {
     t,
@@ -17,7 +17,6 @@
     x = 960,
     y = 540,
     opacity = 1,
-    lite = false,
   }: {
     t: number;
     kind: Kind;
@@ -27,7 +26,6 @@
     x?: number;
     y?: number;
     opacity?: number;
-    lite?: boolean;
   } = $props();
 
   const W = 1920;
@@ -44,10 +42,8 @@
     };
   }
 
-  // The Pi gets a third of the particles.
-  const n = $derived(lite ? Math.ceil(count / 3) : count);
   const parts = $derived(
-    Array.from({ length: n }, (_, i) => {
+    Array.from({ length: count }, (_, i) => {
       const r = rand(i * 7919 + kind.length * 104729);
       return { a: r(), b: r(), c: r(), d: r(), e: r() };
     }),
@@ -57,7 +53,6 @@
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, W, H);
-    if (kind === "haze" && lite) return;
     const s = Math.max(0, t - at) / 1000; // seconds since it started
     ctx.globalAlpha = opacity;
     ctx.fillStyle = colour;

@@ -6,7 +6,7 @@ import { starterPicks } from "$lib/server/starterFiles";
 
 // The phone page. The load is shared between phones refreshing together (see
 // sharedView.ts); pbUrl is worked out per request, since each phone may reach
-// the Pi by a different address. The starting fighters are for signing in as
+// the server by a different address. The starting fighters are for signing in as
 // a player, so only before the groups are drawn.
 export const load: PageServerLoad = async ({ locals, url }) => {
   const view = await loadLiveView(locals.pb);

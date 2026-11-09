@@ -12,13 +12,11 @@
     top,
     bottom,
     slow = 1,
-    lite = false,
   }: {
     seam: Point[];
     top: number; // the band the arcs are clipped to
     bottom: number;
     slow?: number;
-    lite?: boolean;
   } = $props();
 
   const W = 1920;
@@ -88,7 +86,7 @@
 
   function newStrands(on: boolean) {
     const strands: Strand[] = [];
-    const count = on ? Math.round(rnd(4, lite ? 5 : 9)) : 1;
+    const count = on ? Math.round(rnd(4, 9)) : 1;
     for (let i = 0; i < count; i++) {
       const a = Math.random();
       // The bow carries the strand out past the bolt's white glow; on top of
@@ -147,12 +145,9 @@
       ctx.beginPath();
       ctx.rect(0, top, W, bottom - top);
       ctx.clip();
-      // Lite skips the additive blend and the canvas blur, the costly parts.
-      if (!lite) {
-        ctx.globalCompositeOperation = "lighter";
-        ctx.shadowColor = "#a8dcff";
-        ctx.shadowBlur = 14;
-      }
+      ctx.globalCompositeOperation = "lighter";
+      ctx.shadowColor = "#a8dcff";
+      ctx.shadowBlur = 14;
       for (const s of strands) drawStrand(ctx, s);
       ctx.restore();
     });

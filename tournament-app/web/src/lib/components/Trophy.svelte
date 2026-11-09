@@ -1,8 +1,7 @@
 <script lang="ts">
   // The champion's crest: a gold bey with a crown, in a laurel wreath
-  // (static/trophy.webp). An image rather than the 🏆 emoji, which has no
-  // colour-emoji font to render with on Raspberry Pi OS and looked different on
-  // every other machine. `size` sets the width; the crest is a little wider
+  // (static/trophy.webp). An image rather than the 🏆 emoji, which looked
+  // different on every machine. `size` sets the width; the crest is a little wider
   // than it is tall.
   let { size = "1em", label = "" }: { size?: string; label?: string } = $props();
 </script>

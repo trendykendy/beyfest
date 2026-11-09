@@ -6,24 +6,21 @@ const page = (hostname: string, port = "") => ({ hostname, port, origin: `http:/
 const v4 = (address: string, internal = false) => ({ family: "IPv4", internal, address });
 
 describe("liveUrl", () => {
-  test("the Pi's IP from the network file, port 80 left out", () => {
-    expect(liveUrl({ ip: "10.42.0.1" }, {}, page("localhost"))).toBe("http://10.42.0.1/live");
-  });
-
-  test("keeps the TV's port (dev, laptop launcher)", () => {
-    expect(liveUrl({ ip: "10.42.0.1" }, {}, page("localhost", "5173"))).toBe("http://10.42.0.1:5173/live");
+  test("keeps the TV's port (dev, laptop launcher), port 80 left out", () => {
+    expect(liveUrl({ eth: [v4("192.168.1.9")] }, page("localhost", "5173"))).toBe("http://192.168.1.9:5173/live");
+    expect(liveUrl({ eth: [v4("192.168.1.9")] }, page("localhost", "80"))).toBe("http://192.168.1.9/live");
   });
 
   test("a TV opened on an IP already has the right address", () => {
-    expect(liveUrl(null, { eth: [v4("192.168.1.9")] }, page("10.0.1.15", "3000"))).toBe("http://10.0.1.15:3000/live");
+    expect(liveUrl({ eth: [v4("192.168.1.9")] }, page("10.0.1.15", "3000"))).toBe("http://10.0.1.15:3000/live");
   });
 
   test("otherwise the machine's LAN address, not loopback", () => {
-    expect(liveUrl(null, { eth: [v4("192.168.1.9")] }, page("127.0.0.1", "5173"))).toBe("http://192.168.1.9:5173/live");
+    expect(liveUrl({ eth: [v4("192.168.1.9")] }, page("127.0.0.1", "5173"))).toBe("http://192.168.1.9:5173/live");
   });
 
   test("falls back to the TV's own address", () => {
-    expect(liveUrl(null, {}, page("beyfest.local"))).toBe("http://beyfest.local/live");
+    expect(liveUrl({}, page("beyfest.local"))).toBe("http://beyfest.local/live");
   });
 });
 

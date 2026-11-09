@@ -11,7 +11,7 @@
   //
   // Same conventions as RoyaleIntro: a fixed 1920×1080 canvas scaled to fit;
   // every time is `calc(Nms * var(--k))`, so `slow` stretches it (lab only);
-  // `lite` drops the filters. `hold` (lab only) never clears.
+  // `hold` (lab only) never clears.
   // fighters: in drawn order, so each heat is a run of neighbouring wedges.
   // heats: heat sizes (royale.ts planRoyale); empty means one battle, the final.
   type Fighter = { name: string; kana: string; img: string; face?: Face | null };
@@ -22,7 +22,6 @@
     sudden = 0,
     slow = 1,
     hold = false,
-    lite = false,
     ondone,
   }: {
     fighters: Fighter[];
@@ -31,7 +30,6 @@
     sudden?: number;
     slow?: number;
     hold?: boolean;
-    lite?: boolean;
     ondone?: () => void;
   } = $props();
 
@@ -168,7 +166,7 @@
   });
 </script>
 
-<div class="draw" class:hold class:lite bind:clientWidth={w} style:--k={slow} style:--out="{OUT}ms" style:--info="{INFO}ms">
+<div class="draw" class:hold bind:clientWidth={w} style:--k={slow} style:--out="{OUT}ms" style:--info="{INFO}ms">
   <div class="canvas" style:transform="scale({scale})">
     <div class="backdrop"></div>
     <div class="shake">
@@ -486,9 +484,6 @@
   }
 
   /* No filters for slow machines. */
-  .lite .big {
-    filter: none;
-  }
   /* Hold: everything comes in, nothing clears. */
   .hold .backdrop {
     animation: fade-in calc(200ms * var(--k)) ease-out both;

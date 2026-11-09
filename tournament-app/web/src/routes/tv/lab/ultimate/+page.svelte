@@ -16,7 +16,7 @@
   // real ones (lib/matchPoint.ts), so nothing here decides when a moment fires.
   //
   // URL: ?v=a|b|c  ?state=tension|slam|suddenDeath|saved  ?side=blue  ?f=<pair>
-  //      ?noimg  ?lite  ?clean  ?t=<ms> (freeze for a screenshot)
+  //      ?noimg  ?clean  ?t=<ms> (freeze for a screenshot)
   // Keys: H hides the controls, space or R replays, 1/2/3 pick a variant.
   const SF = "/starter-fighters/";
   const PAIRS = {
@@ -44,7 +44,6 @@
   const qf = q.get("f") as Pair;
   let pair = $state<Pair>(qf in PAIRS ? qf : "picture");
   let noImg = $state(q.has("noimg"));
-  let lite = $state(q.has("lite"));
   // ?slow=4: quarter speed.
   let slow = $state(Number(q.get("slow")) || 1);
   // ?side=blue: p2 is the one out in front.
@@ -344,7 +343,6 @@
       p2={fighters[1]}
       {score}
       {slow}
-      {lite}
       ondone={() => (event = null)}
     />
   </div>
@@ -387,7 +385,6 @@
       </span>
       <label><input type="checkbox" bind:checked={blueLeads} /> Blue leads</label>
       <label><input type="checkbox" bind:checked={noImg} /> No art</label>
-      <label><input type="checkbox" bind:checked={lite} /> Lite</label>
       <span class="group">
         Speed
         {#each [1, 2, 4] as k}

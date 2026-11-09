@@ -8,7 +8,7 @@
 
   // Lab page for the battle royale draw (shown when the heats are generated).
   // Not linked from anywhere.
-  // ?n=<players> ?spaces=<2–8> ?noimg ?noface ?lite ?clean ?t=<ms> freezes.
+  // ?n=<players> ?spaces=<2–8> ?noimg ?noface ?clean ?t=<ms> freezes.
   // The 12 starters, then walk-ins without a fighter (silhouettes).
   type Starter = { name: string; kana?: string; image?: string; face?: unknown };
   const STARTERS = starterList as Starter[];
@@ -17,7 +17,6 @@
   let spaces = $state(Math.min(8, Math.max(2, Number(page.url.searchParams.get("spaces") ?? 5))));
   let noImg = $state(page.url.searchParams.has("noimg"));
   let noFace = $state(page.url.searchParams.has("noface"));
-  let lite = $state(page.url.searchParams.has("lite"));
   let slow = $state(1);
   let hold = $state(true);
   let showControls = $state(!page.url.searchParams.has("clean"));
@@ -69,7 +68,7 @@
       <p class="err">{plan.error}</p>
     {:else}
       {#key run}
-        <RoyaleDraw {fighters} heats={plan.heats} finalSize={plan.finalSize} sudden={plan.sudden} {slow} {hold} {lite} />
+        <RoyaleDraw {fighters} heats={plan.heats} finalSize={plan.finalSize} sudden={plan.sudden} {slow} {hold} />
       {/key}
     {/if}
   </div>
@@ -98,7 +97,6 @@
       <label><input type="checkbox" bind:checked={hold} onchange={replay} /> Hold</label>
       <label><input type="checkbox" bind:checked={noImg} onchange={replay} /> No images</label>
       <label><input type="checkbox" bind:checked={noFace} onchange={replay} /> No face points</label>
-      <label><input type="checkbox" bind:checked={lite} onchange={replay} /> Lite</label>
       <span class="hint">R / space replays · H hides this</span>
     </div>
   {/if}
