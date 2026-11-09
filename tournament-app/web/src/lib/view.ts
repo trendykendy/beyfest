@@ -39,6 +39,7 @@ export interface PBMatch {
   startedAt: string; // when the organiser pressed Start match (ISO), "" if not
   stadium: string; // stadium key for the round about to be played (see stadia.ts), "" if none drawn
   stadiumAt: string; // when that stadium was drawn (ISO); a change cues the TV's draw animation
+  north: 0 | 1 | 2; // who stands north for that round (1 = p1, 2 = p2), 0 if not drawn
   walkover: boolean; // a no-show: stored as target–0, but a win with no points in the tables; shown as "W/O"
   winner: string;
   loser: string;
@@ -50,6 +51,7 @@ export interface LiveRound {
   who: 1 | 2;
   finish: string; // a key from FINISHES ("spin" | "knockout" | "dominant")
   stadium?: string; // where the round was played (a key from STADIA); missing on older logs
+  north?: 1 | 2; // who stood north that round; missing on older logs
 }
 
 export function ordinal(n: number): string {

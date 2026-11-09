@@ -1,6 +1,6 @@
 import type PocketBase from "pocketbase";
 import type { RecordModel } from "pocketbase";
-import { isStadiumKey, pickStadium } from "../stadia";
+import { isStadiumKey, pickNorth, pickStadium } from "../stadia";
 
 // Stadia the organiser has taken out of the draw.
 export const stadiaOff = (tournament: RecordModel): string[] =>
@@ -32,4 +32,16 @@ export async function drawStadium(
     if (m.matchStatus === "ready") add(m.stadium);
   }
   return pickStadium(counts, { off: stadiaOff(tournament), avoid });
+}
+
+// Draw everything for a match's next round: the arena (above) and who stands
+// north. The fields to write on the match; stadiumAt cues the TV's draw.
+export async function drawRound(
+  pb: PocketBase,
+  tournament: RecordModel,
+  matchId: string,
+  opts: { log?: { stadium?: string }[]; avoid?: string } = {},
+): Promise<{ stadium: string; north: 1 | 2; stadiumAt: string }> {
+  const stadium = await drawStadium(pb, tournament, matchId, opts);
+  return { stadium, north: pickNorth(), stadiumAt: new Date().toISOString() };
 }

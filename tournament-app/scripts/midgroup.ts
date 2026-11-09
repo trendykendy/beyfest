@@ -56,12 +56,13 @@ if (live) {
     liveP1: 3,
     liveP2: 2,
     liveLog: [
-      { who: 1, finish: "spin", stadium: "xtreme" }, // 1–0
-      { who: 2, finish: "knockout", stadium: "drop" }, // 1–2
-      { who: 1, finish: "knockout", stadium: "motor" }, // 3–2
+      { who: 1, finish: "spin", stadium: "xtreme", north: 1 }, // 1–0
+      { who: 2, finish: "knockout", stadium: "drop", north: 2 }, // 1–2
+      { who: 1, finish: "knockout", stadium: "motor", north: 2 }, // 3–2
     ],
     startedAt: now,
-    stadium: "drop",
+    stadium: "fourth",
+    north: 1,
     stadiumAt: now,
   });
 }

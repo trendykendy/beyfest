@@ -2,7 +2,7 @@
   import { untrack } from "svelte";
   import { enhance } from "$app/forms";
   import { FINISHES } from "$lib/finishes";
-  import { STADIA, stadiumOf } from "$lib/stadia";
+  import { STADIA, isNorth, southOf, stadiumOf } from "$lib/stadia";
   import type { PBMatch } from "$lib/view";
   import Trophy from "./Trophy.svelte";
 
@@ -176,6 +176,13 @@
         <button type="button" class="undo st-redraw" onclick={redraw}>Redraw</button>
       {/if}
     </div>
+    <!-- Which side of the arena each player stands on, drawn with it. -->
+    {#if !drawing && stadium && isNorth(match.north)}
+      <div class="sides">
+        <span>North <b>{nameOf(match.north)}</b></span>
+        <span>South <b>{nameOf(southOf(match.north))}</b></span>
+      </div>
+    {/if}
   {/if}
 
   <div class="rs-duel">
@@ -580,6 +587,17 @@
     padding: 10px 16px 12px;
     font-size: 2rem;
     white-space: nowrap;
+  }
+  .sides {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 24px;
+    margin: -8px 0 18px;
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+  }
+  .sides b {
+    color: var(--ink);
   }
   .st-wait {
     font-family: var(--font-text);
