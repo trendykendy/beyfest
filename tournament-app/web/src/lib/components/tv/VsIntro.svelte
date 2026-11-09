@@ -74,8 +74,9 @@
   // The same crack on the whole canvas, for the arcs.
   const crackOnCanvas = CRACK.map(([x, y]) => [x, y + BAND_TOP] as [number, number]);
 
-  // Runes round the medallion and the burst: the Elder Futhark, twice.
-  const RUNES = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".repeat(2);
+  // Runes round the medallion and the burst: the Elder Futhark, twice, each
+  // set at an equal step round the circle so the ring is always full.
+  const RUNES = [..."ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".repeat(2)];
 
   let w = $state(1920);
   const scale = $derived(w / 1920);
@@ -132,14 +133,15 @@
   </div>
 {/snippet}
 
-{#snippet ring(id: string, r: number, size: number, length: number, circles: number[])}
+{#snippet ring(r: number, size: number, circles: number[])}
   <g fill="none" stroke="currentColor">
     {#each circles as c, i}<circle cx="100" cy="100" r={c} stroke-width={i ? 1 : 1.3} />{/each}
   </g>
-  <path {id} d="M100,100 m-{r},0 a{r},{r} 0 1,1 {r * 2},0 a{r},{r} 0 1,1 -{r * 2},0" fill="none" />
-  <text class="runes" font-size={size} fill="currentColor">
-    <textPath href="#{id}" textLength={length} lengthAdjust="spacing">{RUNES}</textPath>
-  </text>
+  <g class="runes" font-size={size} fill="currentColor" text-anchor="middle" dominant-baseline="central">
+    {#each RUNES as rune, i}
+      <text x="100" y={100 - r} transform="rotate({(i * 360) / RUNES.length} 100 100)">{rune}</text>
+    {/each}
+  </g>
 {/snippet}
 
 <div class="vs" class:hold bind:clientWidth={w} style:--k={slow} style:--out="{OUT}ms">
@@ -184,12 +186,12 @@
             <circle {cx} {cy} r="20" stroke-width="1.2" />
           {/each}
         </g>
-        {@render ring("vs-flare-loop", 87, 13, 540, [97, 77])}
+        {@render ring(87, 13, [97, 77])}
       </svg>
 
       <div class="medallion">
         <svg class="band" viewBox="0 0 200 200" aria-hidden="true">
-          {@render ring("vs-band-loop", 86, 12, 536, [98, 80])}
+          {@render ring(89, 12, [98, 80])}
         </svg>
         <span>VS</span>
       </div>
