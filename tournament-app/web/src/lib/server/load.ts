@@ -158,8 +158,6 @@ export async function loadPeople(pb: PocketBase): Promise<PBPerson[]> {
 // the migrations have run it's just empty.
 //   people: everyone signed in, who all get a wallet on the phone page. Pass
 //           null for an archive, which lists only those who wagered on it.
-// The 2026 event's tournaments wagered as per-tournament "bettors"; they're
-// read too, so their archive downloads keep the betting leaderboard.
 export async function loadBetting(
   pb: PocketBase,
   tournamentId: string,
@@ -167,19 +165,17 @@ export async function loadBetting(
 ): Promise<{ bettors: PBBettor[]; bets: PBBet[] }> {
   const filter = pb.filter("tournament = {:id}", { id: tournamentId });
   try {
-    const [oldBettors, rows, everyone] = await Promise.all([
-      pb.collection("bettors").getFullList({ filter, sort: "name" }),
+    const [rows, everyone] = await Promise.all([
       pb.collection("bets").getFullList({ filter, sort: "created" }),
       people ?? loadPeople(pb),
     ]);
     const bettors = new Map<string, PBBettor>();
     for (const p of everyone) if (people) bettors.set(p.id, { id: p.id, name: p.name });
-    for (const b of oldBettors) bettors.set(b.id, { id: b.id, name: b.name });
     const signedIn = new Map(everyone.map((p) => [p.id, p.name]));
     const bets: PBBet[] = rows.map((r) => {
       // Who placed it: a person, still signed in or since cleared (then known
-      // by the name kept on the wager); or a 2026 bettor.
-      const bettor = r.person || r.bettor || `gone:${r.who}`;
+      // by the name kept on the wager, e.g. in an archived tournament).
+      const bettor = r.person || `gone:${r.who}`;
       if (!bettors.has(bettor)) bettors.set(bettor, { id: bettor, name: signedIn.get(r.person) ?? r.who ?? "?" });
       return { id: r.id, bettor, match: r.match, pick: r.pick, stake: r.stake, odds: r.odds, created: r.created || "" };
     });

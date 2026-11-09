@@ -16,9 +16,9 @@
 // and remove people; phones sign in through the web server's bookie login.
 //
 // Wagers now point at a person (bets.person, plus their name in bets.who).
-// The old bets.bettor and the
-// bettors collection stay, so the 2026 event's bets still show in its
-// archive download; nothing new is written there.
+// The 2026 event's wagers aren't kept: every existing bet is deleted, then
+// bets.bettor and the per-tournament bettors collection are dropped. (The
+// 2026 event itself lives on in the beyfest-2026-final tag and its zip.)
 migrate(
   (app) => {
     const authed = '@request.auth.collectionName = "organisers"';
@@ -46,21 +46,39 @@ migrate(
     // keep the archived tournaments' wagers. `who` keeps the name they were
     // placed under, for once the person is gone. (A reset still clears a
     // tournament's wagers, through bets.tournament.)
+    // All existing bets are 2026 wagers, placed as bettors.
+    for (const old of app.findAllRecords("bets")) app.delete(old);
     const bets = app.findCollectionByNameOrId("bets");
-    bets.fields.getByName("bettor").required = false;
+    bets.fields.removeByName("bettor");
     bets.fields.add(new Field({ name: "person", type: "relation", collectionId: people.id, maxSelect: 1, cascadeDelete: false }));
     bets.fields.add(new Field({ name: "who", type: "text", max: 16 }));
     app.save(bets);
+    app.delete(app.findCollectionByNameOrId("bettors"));
   },
+  // Undo puts the old shape back (empty: the 2026 wagers are gone for good).
   (app) => {
+    const tournaments = app.findCollectionByNameOrId("tournaments");
+    const bettors = new Collection({
+      type: "base",
+      name: "bettors",
+      listRule: "",
+      viewRule: "",
+      fields: [
+        { name: "tournament", type: "relation", required: true, collectionId: tournaments.id, maxSelect: 1, cascadeDelete: true },
+        { name: "name", type: "text", required: true, max: 16 },
+        { name: "token", type: "text", required: true, hidden: true },
+        { name: "created", type: "autodate", onCreate: true, onUpdate: false },
+      ],
+      indexes: ["CREATE UNIQUE INDEX idx_bettors_name ON bettors (tournament, name COLLATE NOCASE)"],
+    });
+    app.save(bettors);
+
+    for (const b of app.findAllRecords("bets")) app.delete(b);
     const bets = app.findCollectionByNameOrId("bets");
     bets.fields.removeByName("person");
     bets.fields.removeByName("who");
+    bets.fields.add(new Field({ name: "bettor", type: "relation", required: true, collectionId: bettors.id, maxSelect: 1, cascadeDelete: true }));
     app.save(bets);
-    try {
-      app.delete(app.findCollectionByNameOrId("people"));
-    } catch (_) {
-      /* already gone */
-    }
+    app.delete(app.findCollectionByNameOrId("people"));
   },
 );

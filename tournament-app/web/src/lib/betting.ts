@@ -5,8 +5,8 @@ import type { PBMatch } from "./view";
 // worked out from the bets and the match results every time, so entering,
 // correcting or walking over a result settles bets with nothing else to run.
 
-// Whoever placed a bet: a signed-in person (lib/people.ts), or for the 2026
-// event's archived tournaments, one of the old per-tournament bettors.
+// Whoever placed a bet: a signed-in person (lib/people.ts), or one since
+// cleared, known by the name kept on the wager.
 export interface PBBettor {
   id: string;
   name: string;
