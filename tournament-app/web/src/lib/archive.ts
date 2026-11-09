@@ -1,4 +1,5 @@
 import { books, gold, leaderboard, type PBBet, type PBBettor } from "./betting";
+import type { PBLoan } from "./loans";
 import { fighterFor, type PBFighter } from "./fighters";
 import { royaleView, type PBRoyale } from "./royale";
 import {
@@ -28,6 +29,7 @@ export type ArchiveData = {
   royale: PBRoyale | null;
   bettors: PBBettor[];
   bets: PBBet[];
+  loans?: PBLoan[]; // missing in downloads made before loans existed
 };
 
 const esc = (s: string) =>
@@ -135,7 +137,7 @@ export function exportHtml(d: ArchiveData): string {
 
   // ── Betting ──
   if (d.bettors.length) {
-    const board = leaderboard(books(d.bettors, d.bets, d.matches));
+    const board = leaderboard(books(d.bettors, d.bets, d.matches, d.loans ?? []));
     parts.push(`<section><h3>Betting</h3><table><thead><tr><th>#</th><th class=l>Bettor</th><th>Finished with</th></tr></thead><tbody>${board
       .map((r) => `<tr><td>${r.rank}</td><td class=l>${esc(r.bettor.name)}</td><td>${gold(r.worth)}</td></tr>`)
       .join("")}</tbody></table></section>`);

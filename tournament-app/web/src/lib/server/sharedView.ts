@@ -2,6 +2,7 @@ import type PocketBase from "pocketbase";
 import { loadBetting, loadPeople, loadTournamentView, loadTvState, type TournamentView } from "./load";
 import type { PBBet, PBBettor } from "$lib/betting";
 import type { PBPerson } from "$lib/people";
+import type { PBLoan } from "$lib/loans";
 
 // Every phone on /live refreshes the moment a score is tapped, so 40 phones
 // means 40 identical full loads hitting the Pi at once. Instead, at most one
@@ -44,7 +45,7 @@ export function sharedLoader<A extends unknown[], T>(
   };
 }
 
-export type LiveView = TournamentView & { next: string; people: PBPerson[]; bettors: PBBettor[]; bets: PBBet[] };
+export type LiveView = TournamentView & { next: string; people: PBPerson[]; bettors: PBBettor[]; bets: PBBet[]; loans: PBLoan[] };
 
 // What /live shows: the tournament plus the organiser's "Score this" pick, so
 // Up next lists matches in the same order as the TV, who's signed in, and the
@@ -52,6 +53,6 @@ export type LiveView = TournamentView & { next: string; people: PBPerson[]; bett
 // it reads is public, so whose request starts the load doesn't matter.
 export const loadLiveView = sharedLoader(async (pb: PocketBase): Promise<LiveView> => {
   const [view, tv, people] = await Promise.all([loadTournamentView(pb), loadTvState(pb), loadPeople(pb)]);
-  const betting = view.tournament ? await loadBetting(pb, view.tournament.id, people) : { bettors: [], bets: [] };
+  const betting = view.tournament ? await loadBetting(pb, view.tournament.id, people) : { bettors: [], bets: [], loans: [] };
   return { ...view, next: tv.next, people, ...betting };
 });

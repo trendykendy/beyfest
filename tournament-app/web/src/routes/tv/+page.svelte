@@ -130,7 +130,7 @@
 
   // For the Respite and the Lord of Gold: the wagerers, richest first.
   const wagerers = $derived(
-    leaderboard(books(data.bettors, data.bets, data.matches)).map((r) => ({ rank: r.rank, name: r.bettor.name, worth: r.worth })),
+    leaderboard(books(data.bettors, data.bets, data.matches, data.loans)).map((r) => ({ rank: r.rank, name: r.bettor.name, worth: r.worth })),
   );
   // For the Respite: each circle's final table and the path each place leads to.
   const PATH_NAME: Record<string, string> = { wb: STAGES.winners, mb: STAGES.mid, lb: STAGES.losers };

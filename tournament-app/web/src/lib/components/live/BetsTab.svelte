@@ -14,6 +14,9 @@
     respiteStanding,
   } from "$lib/outrightMarket";
   import type { PBPlayer } from "$lib/view";
+  import { lenderName, type PBLoan } from "$lib/loans";
+  import { WAGERS } from "$lib/terms";
+  import LoanPanel from "./LoanPanel.svelte";
   import { isLive, liveMatches, matchContext, tierOf, upNext, type PBMatch } from "$lib/view";
   import type { Me, PBPerson } from "$lib/people";
   import SignIn from "./SignIn.svelte";
@@ -27,6 +30,7 @@
     names,
     bettors,
     bets,
+    loans,
     people,
     me,
     enabled,
@@ -39,6 +43,7 @@
     names: Map<string, string>;
     bettors: PBBettor[];
     bets: PBBet[];
+    loans: PBLoan[];
     people: PBPerson[];
     me: Me | null;
     enabled: boolean; // false when the server has no betting login
@@ -50,7 +55,7 @@
   const money = gold;
   const oddsText = (o: number) => `×${o.toFixed(2)}`;
 
-  const all = $derived(books(bettors, bets, matches));
+  const all = $derived(books(bettors, bets, matches, loans));
   const mine = $derived(me ? all.find((b) => b.bettor.id === me.id) : undefined);
   const board = $derived(leaderboard(all));
   const myRow = $derived(board.find((r) => r.bettor.id === me?.id));
@@ -193,9 +198,17 @@
       <span class="w-cash">{money(mine.balance)}</span>
     </div>
     {#if mine.atStake}<span class="w-riding">{money(mine.atStake)} riding</span>{/if}
+    {#if mine.loan && mine.loan.remaining > 0}
+      <span class="w-debt" class:pact={mine.loan.pact}>
+        Debt remaining {money(mine.loan.remaining)} to {lenderName(mine.loan.loan)}
+      </span>
+    {/if}
   </section>
 
   {#if say}<p class="say" class:good={say.good} role="status">{say.text}</p>{/if}
+
+  <!-- Loans: requests sent to you, and borrowing when you're broke. -->
+  <LoanPanel {me} {mine} {all} {loans} {onlost} />
 
   <!-- The stake chips and Bet button, under whatever was picked. -->
   {#snippet slipBox()}
@@ -314,7 +327,7 @@
             </span>
             <span class="b-state">
               {#if b.state === "open"}Win {money(Math.round(b.stake * b.odds))}
-              {:else if b.state === "won"}+{money(b.returns - b.stake)}
+              {:else if b.state === "won"}+{money(b.returns - b.stake - b.cut)}{#if b.cut}<span class="b-cut">−{money(b.cut)} repaid</span>{/if}
               {:else if b.state === "lost"}Lost
               {:else}Refunded{/if}
             </span>
@@ -329,7 +342,7 @@
     <div class="lv-slab">
       {#each board.slice(0, 10) as r (r.bettor.id)}
         <div class="lb" class:me={r.bettor.id === me.id}>
-          <span class="lb-rank">{r.rank}</span><span class="lb-name">{r.bettor.name}</span><span>{money(r.worth)}</span>
+          <span class="lb-rank">{r.rank}</span><span class="lb-name">{r.bettor.name}{#if r.pact}<span class="pact-tag" title="In a {WAGERS.demonLoan} with {WAGERS.demonLender}">{WAGERS.demonLoan}</span>{/if}</span><span>{money(r.worth)}</span>
         </div>
       {/each}
       {#if myRow && myRow.rank > 10}
@@ -345,6 +358,7 @@
   /* ── Wallet: the black-and-gold slab, like the champion card ─────── */
   .wallet {
     display: flex;
+    flex-wrap: wrap;
     align-items: flex-end;
     justify-content: space-between;
     gap: 12px;
@@ -693,6 +707,35 @@
     width: 2ch;
     text-align: right;
     color: var(--ink-soft);
+  }
+  /* The demon's mark on the leaderboard: in a Pact, still owing. */
+  .pact-tag {
+    margin-left: 6px;
+    padding: 0 5px;
+    font-size: 0.75rem;
+    font-stretch: 75%;
+    letter-spacing: 0.06em;
+    background: var(--red);
+    color: var(--paper);
+    vertical-align: middle;
+  }
+  .b-cut {
+    display: block;
+    font-size: 0.75rem;
+  }
+  /* Its own full-width line under the balance (the wallet wraps). */
+  .w-debt {
+    flex: 1 0 100%;
+    display: block;
+    margin-top: 2px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--gold);
+  }
+  .w-debt.pact {
+    color: var(--paper);
+    background: var(--red);
+    padding: 4px 8px;
   }
   .lb-name {
     flex: 1;
