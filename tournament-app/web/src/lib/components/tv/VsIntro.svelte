@@ -2,34 +2,41 @@
   import { onMount } from "svelte";
   import { artFor } from "$lib/fighters";
   import FighterSilhouette from "./FighterSilhouette.svelte";
-  import VsArc from "./VsArc.svelte";
+  import VsCrackArcs from "./VsCrackArcs.svelte";
 
-  // The fighter intro before a match: two half-banners (red p1, blue p2) slam
-  // together on a lightning seam and VS lands on the join. EXPERIMENT: only the
-  // lab page (/tv/lab/vs) shows it for now; later it plays before the stadium
-  // draw on Start match.
+  // The fighter intro on Start match, in the Tetrafatalis look (locked style
+  // frame: fighter-art/style-frames/vs-slam on tetrafatalis/art). A ruby half
+  // (left) and a sapphire half (right) slam together on a jagged molten-gold
+  // crack between full-width gold bars; a rune circle bursts on impact, VS
+  // stamps down on a dark gold medallion ringed with turning runes, and gold
+  // arcs crawl along the crack over a slow, uneven throb until the halves
+  // split apart again. The slam, shake, flash and stamp keep 2026's timing.
   //
   // Everything is laid out on a fixed 1920×1080 canvas, scaled to fit, so the
-  // seam's coordinates are the same at any screen size. Every duration and
+  // crack's coordinates are the same at any screen size. Every duration and
   // delay in the CSS is multiplied by --k (the `slow` prop).
+  //
+  // p1 is the left (ruby) fighter, p2 the right (sapphire). The TV puts round
+  // one's North player on the left; `sides` labels them North and South.
   // img: the cut-out's URL ("" for the silhouette). Cut-outs face left;
   // mirror flips one that faces the other way. imgMirrored: a hand-made
   // mirror image, shown instead of flipping (artFor).
-  type Fighter = { name: string; kana: string; img: string; imgMirrored?: string; mirror?: boolean };
+  type Fighter = { name: string; kana?: string; img: string; imgMirrored?: string; mirror?: boolean };
   let {
     p1,
     p2,
-    title = "", // where the match sits, e.g. matchContext(): "Group 1, match 4 of 6"
-    tier = "group", // bracket tier (view.ts tierOf), colours the title's end caps
+    title = "", // where the match sits, e.g. matchContext(): "Circle II, match 3 of 6"
+    sides = false, // label the left fighter North and the right South
     slow = 1, // timing multiplier: 2 = half speed (lab only)
     hold = false, // stay on the held frame instead of leaving (lab only)
-    out = 4200, // ms: when the banners split apart (later while the announcer talks)
+    out = 4200, // ms: when the halves split apart (later while the announcer talks)
     ondone,
   }: {
     p1: Fighter;
     p2: Fighter;
     title?: string;
-    tier?: "wb" | "mb" | "lb" | "gf" | "group";
+    tier?: string; // (unused: the Tetrafatalis title has one style for every path)
+    sides?: boolean;
     slow?: number;
     hold?: boolean;
     out?: number;
@@ -39,158 +46,159 @@
   // Timeline (ms at normal speed). Keep in step with the CSS delays below.
   // Fixed for the intro's life: it's timed once, when it starts.
   // svelte-ignore state_referenced_locally
-  const OUT = out; // banners split apart
+  const OUT = out; // halves split apart
   const END = OUT + 600; // gone; ondone fires
+  const ENERGY = 650; // arcs and throb start, just after the slam
 
-  // The banners fill a band across the middle of the screen (BAND_TOP to
-  // BAND_BOT), with a border on its top and bottom edges.
-  const BAND_TOP = 150;
-  const BAND_BOT = 930;
-  const EDGE = 20; // border thickness; the bolt's glow stops inside it
+  // The halves fill a band across the screen, edged by the gold bars.
+  const BAND_TOP = 134;
+  const BAND_BOT = 888;
+  const BAND_H = BAND_BOT - BAND_TOP;
 
-  // The lightning seam, top to bottom of the band. Both banners are clipped to
-  // it, so they interlock exactly. One diagonal shaped like an angular S (a ⚡):
-  // down and left, a long jog back right whose corners stick out past the VS
-  // burst, then down and left again at the same slope.
-  const SEAM: [number, number][] = [
-    [1150, BAND_TOP],
-    [735, 465],
-    [1195, 615],
-    [780, BAND_BOT],
+  // The crack, top to bottom of the band, in band coordinates (y from the
+  // band's top). Both halves are clipped to it, so they interlock exactly.
+  const CRACK: [number, number][] = [
+    [1032, 0],
+    [960, 118],
+    [1002, 217],
+    [924, 335],
+    [996, 436],
+    [912, 570],
+    [960, 653],
+    [888, BAND_H],
   ];
-  const pts = SEAM.map(([x, y]) => `${x}px ${y}px`).join(", ");
-  const clipRed = `polygon(0 ${BAND_TOP}px, ${pts}, 0 ${BAND_BOT}px)`;
-  const clipBlue = `polygon(1920px ${BAND_TOP}px, ${pts}, 1920px ${BAND_BOT}px)`;
+  const pts = CRACK.map(([x, y]) => `${x}px ${y}px`).join(", ");
+  const clipLeft = `polygon(0 0, ${pts}, 0 ${BAND_H}px)`;
+  const clipRight = `polygon(1920px 0, ${pts}, 1920px ${BAND_H}px)`;
+  const crackPath = "M" + CRACK.map(([x, y]) => `${x} ${y}`).join(" L");
+  // The same crack on the whole canvas, for the arcs.
+  const crackOnCanvas = CRACK.map(([x, y]) => [x, y + BAND_TOP] as [number, number]);
 
-  const seamPath = "M" + SEAM.map(([x, y]) => `${x} ${y}`).join(" L");
-
-  // Impact burst behind VS: a 16-point star with uneven spikes.
-  const burst = (() => {
-    const out: string[] = [];
-    const n = 16;
-    for (let i = 0; i < n * 2; i++) {
-      const a = (i / (n * 2)) * Math.PI * 2;
-      const r = i % 2 ? 22 + (i % 3) * 3 : 46 + ((i * 7) % 5);
-      out.push(`${(50 + Math.cos(a) * r).toFixed(1)}% ${(50 + Math.sin(a) * r).toFixed(1)}%`);
-    }
-    return `polygon(${out.join(", ")})`;
-  })();
-
-  // Light streaks racing across each banner towards the seam. Random once per
-  // mount; transform-only loops.
-  function streaks(n: number) {
-    return Array.from({ length: n }, () => ({
-      top: Math.round(Math.random() * 1080),
-      len: Math.round(150 + Math.random() * 550),
-      thick: Math.round(2 + Math.random() * 7),
-      dur: Math.round(350 + Math.random() * 550),
-      delay: -Math.round(Math.random() * 900),
-      alpha: (0.35 + Math.random() * 0.65).toFixed(2),
-      tint: Math.random() < 0.35, // some take the banner's light colour
-    }));
-  }
-  const redStreaks = streaks(26);
-  const blueStreaks = streaks(26);
+  // Runes round the medallion and the burst: the Elder Futhark, twice.
+  const RUNES = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".repeat(2);
 
   let w = $state(1920);
   const scale = $derived(w / 1920);
 
+  // The throb: the crack swells and fades unevenly (each swell 1.2–2.3s,
+  // each peak a little different), so it never settles into a beat.
+  let throbGlow: SVGPathElement;
+  let throbCore: SVGPathElement;
+
   onMount(() => {
-    if (hold) return;
-    const t = setTimeout(() => ondone?.(), END * slow);
-    return () => clearTimeout(t);
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const swell = () => {
+      const dur = (1200 + Math.random() * 1100) * slow;
+      const peak = 0.5 + Math.random() * 0.25;
+      const width = 48 + Math.random() * 12;
+      throbGlow?.animate(
+        [
+          { opacity: 0.2, strokeWidth: 34 },
+          { opacity: peak, strokeWidth: width, offset: 0.4 + Math.random() * 0.2 },
+          { opacity: 0.2, strokeWidth: 34 },
+        ],
+        { duration: dur, easing: "ease-in-out" },
+      );
+      throbCore?.animate([{ opacity: 0.08 }, { opacity: peak * 0.75, offset: 0.5 }, { opacity: 0.08 }], {
+        duration: dur,
+        easing: "ease-in-out",
+      });
+      timers.push(setTimeout(swell, dur + Math.random() * 250 * slow));
+    };
+    timers.push(setTimeout(swell, 900 * slow));
+    if (!hold) timers.push(setTimeout(() => ondone?.(), END * slow));
+    return () => timers.forEach(clearTimeout);
   });
 </script>
 
-{#snippet banner(side: "red" | "blue", f: Fighter, list: ReturnType<typeof streaks>)}
-  <div class="banner {side}" style:clip-path={side === "red" ? clipRed : clipBlue}>
-    <div class="focus"></div>
-    <div class="streaks">
-      {#each list as s}
-        <i
-          class:tint={s.tint}
-          style:top="{s.top}px"
-          style:width="{s.len}px"
-          style:height="{s.thick}px"
-          style:opacity={s.alpha}
-          style:--dur="{s.dur}ms"
-          style:--delay="{s.delay}ms"
-        ></i>
-      {/each}
-    </div>
-    <!-- p1 (left) is turned to face right; a fighter's mirror flag flips that. -->
-    <div class="fighter">
-      {#if f.img}
-        {@const art = artFor(f, (side === "red") !== !!f.mirror)}
-        <img class="art" class:flip={art.flip} src={art.src} alt="" />
-      {:else}
-        <div class="art"><FighterSilhouette flip={side === "red"} /></div>
-      {/if}
-    </div>
-    <div class="edge top"></div>
-    <div class="edge bot"></div>
+{#snippet half(side: "l" | "r", f: Fighter)}
+  <div class="half {side}" style:clip-path={side === "l" ? clipLeft : clipRight}>
+    <div class="dust"></div>
+    <!-- The left fighter is turned to face right; a fighter's mirror flag flips that. -->
+    {#if f.img}
+      {@const art = artFor(f, (side === "l") !== !!f.mirror)}
+      <img class="art" class:flip={art.flip} src={art.src} alt="" />
+    {:else}
+      <div class="art sil"><FighterSilhouette flip={side === "l"} /></div>
+    {/if}
   </div>
 {/snippet}
 
-<!-- Name tags sit outside the banners' clip so they can overlap the bottom
-     border and the fighters. -->
-{#snippet tag(side: "l" | "r", f: Fighter)}
-  <div class="nametag {side}">
-    {#if f.kana}<div class="kana"><span>{f.kana}</span></div>{/if}
-    <div class="name" class:long={f.name.length > 10}><span>{f.name}</span></div>
+<!-- Name plates sit outside the halves' clip, under the bottom bar. -->
+{#snippet plate(side: "l" | "r", f: Fighter)}
+  <div class="plate {side}" class:long={f.name.length > 16}>
+    {f.name}
+    {#if sides}<small>{side === "l" ? "North" : "South"}</small>{/if}
   </div>
+{/snippet}
+
+{#snippet ring(id: string, r: number, size: number, length: number, circles: number[])}
+  <g fill="none" stroke="currentColor">
+    {#each circles as c, i}<circle cx="100" cy="100" r={c} stroke-width={i ? 1 : 1.3} />{/each}
+  </g>
+  <path {id} d="M100,100 m-{r},0 a{r},{r} 0 1,1 {r * 2},0 a{r},{r} 0 1,1 -{r * 2},0" fill="none" />
+  <text class="runes" font-size={size} fill="currentColor">
+    <textPath href="#{id}" textLength={length} lengthAdjust="spacing">{RUNES}</textPath>
+  </text>
 {/snippet}
 
 <div class="vs" class:hold bind:clientWidth={w} style:--k={slow} style:--out="{OUT}ms">
   <div class="canvas" style:transform="scale({scale})">
     <div class="backdrop"></div>
-    <div class="shake">
-      {@render banner("red", p1, redStreaks)}
-      {@render banner("blue", p2, blueStreaks)}
+    <div class="cam">
+      {@render half("l", p1)}
+      {@render half("r", p2)}
 
-      <svg class="seam" viewBox="0 0 1920 1080" aria-hidden="true">
+      <svg class="crack" viewBox="0 0 1920 {BAND_H}" aria-hidden="true">
         <defs>
-          <linearGradient id="vs-seam-glow" gradientUnits="userSpaceOnUse" x1="650" y1="0" x2="1280" y2="0">
-            <stop offset="0" stop-color="#ff5a4a" />
-            <stop offset="0.5" stop-color="#e9d8ff" />
-            <stop offset="1" stop-color="#4ab8ff" />
+          <linearGradient id="vs-gold" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff3c4" />
+            <stop offset=".5" stop-color="#f0b84a" />
+            <stop offset="1" stop-color="#b8731f" />
           </linearGradient>
-          <filter id="vs-blur" filterUnits="userSpaceOnUse" x="-100" y="-100" width="2120" height="1280">
-            <feGaussianBlur stdDeviation="16" />
+          <filter id="vs-soft" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="8" />
           </filter>
-          <!-- The bolt and its glow stop at the inner edge of the white borders. -->
-          <clipPath id="vs-band">
-            <rect x="-100" y={BAND_TOP + EDGE} width="2120" height={BAND_BOT - BAND_TOP - 2 * EDGE} />
-          </clipPath>
         </defs>
-        <g class="bolt" clip-path="url(#vs-band)">
-          <path class="glow" d={seamPath} pathLength="1" />
-          <path class="mid" d={seamPath} pathLength="1" />
-          <path class="core" d={seamPath} pathLength="1" />
+        <path class="glow draw" d={crackPath} pathLength="1" />
+        <path class="gold draw" d={crackPath} pathLength="1" />
+        <path class="core draw" d={crackPath} pathLength="1" />
+        <g class="energy">
+          <path class="throb" d={crackPath} bind:this={throbGlow} />
+          <path class="throb inner" d={crackPath} bind:this={throbCore} />
         </g>
       </svg>
-      <VsArc seam={SEAM} top={BAND_TOP + EDGE} bottom={BAND_BOT - EDGE} {slow} />
-
-      <div class="ring r1"></div>
-      <div class="ring r2"></div>
-
-      <div class="mark">
-        <div class="burst" style:clip-path={burst}></div>
-        <div class="burst inner" style:clip-path={burst}></div>
-        {#each ["v", "s"] as c}
-          <span class="ch {c}">
-            <i class="ghost red-g">{c.toUpperCase()}</i>
-            <i class="ghost blue-g">{c.toUpperCase()}</i>
-            <b>{c.toUpperCase()}</b>
-          </span>
-        {/each}
+      <div class="energy arcs">
+        <VsCrackArcs crack={crackOnCanvas} top={BAND_TOP} bottom={BAND_BOT} start={ENERGY} {slow} />
       </div>
 
-      {@render tag("l", p1)}
-      {@render tag("r", p2)}
+      <div class="bar top"></div>
+      <div class="bar bot"></div>
+
+      <!-- One rune-circle burst on impact. -->
+      <svg class="flare" viewBox="0 0 200 200" aria-hidden="true">
+        <g fill="none" stroke="currentColor">
+          <polygon points="100,24 176,100 100,176 24,100" stroke-width="1" />
+          <polygon points="46,46 154,46 154,154 46,154" stroke-width="1" />
+          {#each [[84, 100], [116, 100], [100, 84], [100, 116]] as [cx, cy]}
+            <circle {cx} {cy} r="20" stroke-width="1.2" />
+          {/each}
+        </g>
+        {@render ring("vs-flare-loop", 87, 13, 540, [97, 77])}
+      </svg>
+
+      <div class="medallion">
+        <svg class="band" viewBox="0 0 200 200" aria-hidden="true">
+          {@render ring("vs-band-loop", 86, 12, 536, [98, 80])}
+        </svg>
+        <span>VS</span>
+      </div>
+
+      {@render plate("l", p1)}
+      {@render plate("r", p2)}
 
       {#if title}
-        <div class="title tier-{tier}"><span>{title}</span></div>
+        <div class="title">{title}</div>
       {/if}
     </div>
     <div class="flash"></div>
@@ -202,6 +210,8 @@
     position: absolute;
     inset: 0;
     overflow: hidden;
+    /* Mottled stone over the halves: one tile as big as a half, so no seams. */
+    --mottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='760'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.9 0 0 0 -0.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
   }
   .canvas {
     position: absolute;
@@ -210,15 +220,19 @@
     width: 1920px;
     height: 1080px;
     transform-origin: 0 0;
+    font-family: var(--tf-font-text);
+    color: #f3e6c4;
+  }
+  .cam {
+    position: absolute;
+    inset: 0;
   }
 
-  /* Behind the band: the dark stage, fading in and out with the intro. */
+  /* Behind everything: night-blue stone, fading in and out with the intro. */
   .backdrop {
     position: absolute;
     inset: 0;
-    background:
-      repeating-linear-gradient(-60deg, rgb(255 255 255 / 0.035) 0 2px, transparent 2px 16px),
-      var(--field-deep);
+    background: radial-gradient(ellipse 70% 80% at 50% 55%, #1d2235, #0a0c13 75%);
     animation: fade-in calc(160ms * var(--k)) linear both;
   }
   .vs:not(.hold) .backdrop {
@@ -226,245 +240,271 @@
       fade-in calc(160ms * var(--k)) linear both,
       fade-out calc(250ms * var(--k)) linear calc(var(--out) * var(--k) + 350ms * var(--k)) forwards;
   }
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-  }
 
-  /* ── Banners ─────────────────────────────────────────────── */
-  .banner {
+  /* ── The halves ─────────────────────────────────────────── */
+  .half {
+    --lite: #e9b75a; /* the silhouette's rim light: gold */
     position: absolute;
-    inset: 0;
+    left: 0;
+    top: 134px;
+    width: 1920px;
+    height: 754px;
     overflow: hidden;
   }
-  .red {
-    --lite: #ffb199;
-    background: linear-gradient(105deg, #5a0309 0%, #b5121b 45%, var(--red) 75%, #ff7a3d 100%);
+  .half.l {
+    background: var(--mottle), linear-gradient(100deg, rgb(150 24 40 / 0.75), rgb(26 16 28 / 0.96) 54%);
     animation:
-      in-left calc(450ms * var(--k)) cubic-bezier(0.2, 0.9, 0.25, 1.05) both,
-      out-left calc(450ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
+      slam-l calc(450ms * var(--k)) cubic-bezier(0.3, 1.25, 0.55, 1) both,
+      out-l calc(450ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
   }
-  .blue {
-    --lite: #9fe6ff;
-    background: linear-gradient(255deg, #020a4a 0%, #0b2fb8 45%, #1f6bff 75%, #3fd0ff 100%);
+  .half.r {
+    background: var(--mottle), linear-gradient(260deg, rgb(34 74 175 / 0.75), rgb(14 18 36 / 0.96) 54%);
     animation:
-      in-right calc(450ms * var(--k)) cubic-bezier(0.2, 0.9, 0.25, 1.05) both,
-      out-right calc(450ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
+      slam-r calc(450ms * var(--k)) cubic-bezier(0.3, 1.25, 0.55, 1) both,
+      out-r calc(450ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
   }
-  .hold .banner {
-    animation-name: in-left;
+  .hold .half.l {
+    animation: slam-l calc(450ms * var(--k)) cubic-bezier(0.3, 1.25, 0.55, 1) both;
   }
-  .hold .blue {
-    animation-name: in-right;
+  .hold .half.r {
+    animation: slam-r calc(450ms * var(--k)) cubic-bezier(0.3, 1.25, 0.55, 1) both;
   }
-  @keyframes in-left {
-    0% {
-      transform: translateX(-1150px) skewX(-14deg);
-    }
-    75% {
-      transform: translateX(28px) skewX(3deg);
-    }
-    100% {
-      transform: none;
-    }
-  }
-  @keyframes in-right {
-    0% {
-      transform: translateX(1150px) skewX(-14deg);
-    }
-    75% {
-      transform: translateX(-28px) skewX(3deg);
-    }
-    100% {
-      transform: none;
-    }
-  }
-  @keyframes out-left {
-    to {
-      transform: translateX(-1250px) skewX(-10deg);
-    }
-  }
-  @keyframes out-right {
-    to {
-      transform: translateX(1250px) skewX(-10deg);
-    }
-  }
-
-  /* The band's top and bottom borders: an ink line outside, white inside.
-     Each banner carries its half, so they meet under the bolt. */
-  .edge {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 20px;
-  }
-  .edge.top {
-    top: 150px;
-    background: linear-gradient(var(--ink) 0 7px, var(--paper) 7px 100%);
-  }
-  .edge.bot {
-    top: 910px;
-    background: linear-gradient(var(--paper) 0 13px, var(--ink) 13px 100%);
-  }
-
-  /* Manga focus lines (集中線) radiating from behind the fighter, flickering
-     between a few angles like hand-drawn frames. */
-  .focus {
-    position: absolute;
-    width: 2400px;
-    height: 2400px;
-    top: -660px;
-    background: repeating-conic-gradient(rgb(255 255 255 / 0.13) 0deg 1.2deg, transparent 1.2deg 6deg);
-    mask-image: radial-gradient(circle, transparent 0 260px, #000 520px);
-    animation: focus-flicker calc(240ms * var(--k)) steps(1) infinite;
-  }
-  .red .focus {
-    left: -720px;
-  }
-  .blue .focus {
-    left: 240px;
-  }
-  @keyframes focus-flicker {
-    0% {
-      transform: rotate(0deg);
-    }
-    33% {
-      transform: rotate(2.1deg);
-    }
-    66% {
-      transform: rotate(4.3deg);
-    }
-  }
-
-  /* Streaks: a slight downhill tilt reads as speed. */
-  .streaks {
-    position: absolute;
-    inset: -200px;
-    transform: rotate(-7deg);
-  }
-  .streaks i {
-    position: absolute;
-    left: 0;
-    border-radius: 99px;
-    animation: streak-in calc(var(--dur) * var(--k)) linear calc(var(--delay) * var(--k)) infinite;
-  }
-  .red .streaks i {
-    background: linear-gradient(90deg, transparent, #fff);
-  }
-  .blue .streaks i {
-    background: linear-gradient(270deg, transparent, #fff);
-    animation-name: streak-in-rev;
-  }
-  .red .streaks i.tint {
-    background: linear-gradient(90deg, transparent, var(--lite));
-  }
-  .blue .streaks i.tint {
-    background: linear-gradient(270deg, transparent, var(--lite));
-  }
-  @keyframes streak-in {
+  @keyframes slam-l {
     from {
-      transform: translateX(-800px);
-    }
-    to {
-      transform: translateX(2400px);
+      transform: translateX(-105%);
     }
   }
-  @keyframes streak-in-rev {
+  @keyframes slam-r {
     from {
-      transform: translateX(2400px);
+      transform: translateX(105%);
     }
+  }
+  @keyframes out-l {
     to {
-      transform: translateX(-800px);
+      transform: translateX(-105%);
+    }
+  }
+  @keyframes out-r {
+    to {
+      transform: translateX(105%);
     }
   }
 
-  /* ── Slam: shake, lightning seam, shockwave, flash ─────────── */
-  /* The banners land at ~430ms; the bolt strikes down the seam and everything
-     hits at 450ms. */
-  .shake {
+  /* Floating gold dust behind the fighters, drifting up. */
+  .dust {
     position: absolute;
     inset: 0;
-    animation: shake calc(220ms * var(--k)) linear calc(450ms * var(--k));
+    opacity: 0.55;
+    mix-blend-mode: screen;
+    background-image:
+      radial-gradient(circle, rgb(255 220 160 / 0.9) 0 2.3px, transparent 3.8px),
+      radial-gradient(circle, rgb(255 220 160 / 0.6) 0 1.5px, transparent 2.7px);
+    background-size:
+      172px 212px,
+      116px 134px;
+    animation: dust calc(18s * var(--k)) linear infinite;
   }
-  @keyframes shake {
-    0% { transform: translate(0, 0); }
-    15% { transform: translate(-16px, 9px); }
-    30% { transform: translate(14px, -11px); }
-    45% { transform: translate(-10px, -6px); }
-    60% { transform: translate(9px, 8px); }
-    75% { transform: translate(-5px, 3px); }
-    90% { transform: translate(3px, -2px); }
-    100% { transform: translate(0, 0); }
+  @keyframes dust {
+    from {
+      background-position:
+        0 0,
+        58px 77px;
+    }
+    to {
+      background-position:
+        172px -848px,
+        174px -459px;
+    }
   }
 
-  .seam {
+  /* The fighters: big action shots that zoom out slowly from the slam on. */
+  .art {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
+    bottom: -173px;
+    height: 1037px;
+    width: auto;
+    transform-origin: 50% 70%;
+    animation: drift calc(6s * var(--k)) cubic-bezier(0.2, 0.6, 0.4, 1) calc(300ms * var(--k)) both;
+  }
+  .l .art {
+    left: -269px;
+  }
+  .r .art {
+    right: -77px;
+  }
+  .art.flip {
+    transform: scaleX(-1);
+  }
+  .art.sil {
+    height: auto;
+    width: 1150px;
+    bottom: -60px;
+  }
+  .l .art.sil {
+    left: -120px;
+  }
+  .r .art.sil {
+    right: -60px;
+  }
+  @keyframes drift {
+    from {
+      scale: 1.1;
+    }
+    to {
+      scale: 1;
+    }
+  }
+
+  /* ── The crack ──────────────────────────────────────────── */
+  /* Clipped to the band, so its ends tuck under the gold bars. */
+  .crack {
+    position: absolute;
+    left: 0;
+    top: 134px;
+    width: 1920px;
+    height: 754px;
+    overflow: hidden;
     pointer-events: none;
   }
-  .seam path {
+  .crack path {
     fill: none;
-    stroke-linejoin: miter;
-    stroke-linecap: round;
+    stroke-linejoin: bevel;
   }
-  .bolt .glow {
-    stroke: url(#vs-seam-glow);
-    stroke-width: 80;
-    filter: url(#vs-blur);
+  .crack .glow {
+    stroke: #ff9426;
+    stroke-width: 26;
+    opacity: 0.55;
+    filter: url(#vs-soft);
   }
-  .bolt .mid {
-    stroke: #d8f4ff;
-    stroke-width: 22;
+  .crack .gold {
+    stroke: url(#vs-gold);
+    stroke-width: 8;
   }
-  .bolt .core {
-    stroke: #fff;
-    stroke-width: 9;
+  .crack .core {
+    stroke: #fffbe8;
+    stroke-width: 2.4;
   }
-  /* Strike: the bolt draws top to bottom just before the slam. */
-  .bolt .glow,
-  .bolt .mid,
-  .bolt .core {
+  /* It tears down the band just before the halves land. */
+  .crack .draw {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    animation: strike calc(130ms * var(--k)) cubic-bezier(0.5, 0, 1, 1) calc(330ms * var(--k)) forwards;
+    animation: draw calc(130ms * var(--k)) ease-out calc(330ms * var(--k)) forwards;
   }
-  @keyframes strike {
+  @keyframes draw {
     to {
       stroke-dashoffset: 0;
     }
   }
-  .ring {
-    position: absolute;
-    left: 965px;
-    top: 540px;
-    width: 300px;
-    height: 300px;
-    margin: -150px 0 0 -150px;
-    border-radius: 50%;
+  .crack .throb {
+    stroke: #ffb347;
+    stroke-width: 34;
+    opacity: 0.2;
+    filter: url(#vs-soft);
+  }
+  .crack .throb.inner {
+    stroke: #fff1c4;
+    stroke-width: 12;
+    opacity: 0.08;
+  }
+  /* The arcs and the throb: hidden until just after the hit. */
+  .energy {
     opacity: 0;
-    animation: ring calc(520ms * var(--k)) cubic-bezier(0.1, 0.7, 0.3, 1) calc(450ms * var(--k)) forwards;
+    animation: fade-in calc(300ms * var(--k)) calc(600ms * var(--k)) forwards;
   }
-  .r1 {
-    border: 16px solid #fff;
-    box-shadow:
-      0 0 40px #fff,
-      inset 0 0 30px #fff;
+  .arcs {
+    position: absolute;
+    inset: 0;
   }
-  .r2 {
-    border: 8px solid #cfe8ff;
-    animation-delay: calc(540ms * var(--k));
+  .vs:not(.hold) .crack,
+  .vs:not(.hold) .arcs {
+    animation: fade-out calc(200ms * var(--k)) linear calc(var(--out) * var(--k)) forwards;
   }
-  @keyframes ring {
+  .vs:not(.hold) .arcs {
+    animation:
+      fade-in calc(300ms * var(--k)) calc(600ms * var(--k)) forwards,
+      fade-out calc(200ms * var(--k)) linear calc(var(--out) * var(--k)) forwards;
+  }
+
+  /* ── The hit: bars, shake, burst, flash ─────────────────── */
+  .bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: #f0c366;
+    box-shadow: 0 0 23px #ffad3d;
+    transform: scaleX(0);
+    animation: bar calc(250ms * var(--k)) ease-out calc(450ms * var(--k)) forwards;
+  }
+  .bar.top {
+    top: 129px;
+  }
+  .bar.bot {
+    top: 883px;
+  }
+  @keyframes bar {
+    to {
+      transform: none;
+    }
+  }
+  .vs:not(.hold) .bar {
+    animation:
+      bar calc(250ms * var(--k)) ease-out calc(450ms * var(--k)) forwards,
+      bar-out calc(300ms * var(--k)) ease-in calc(var(--out) * var(--k) + 150ms * var(--k)) forwards;
+  }
+  @keyframes bar-out {
+    from {
+      transform: none;
+    }
+    to {
+      transform: scaleX(0);
+    }
+  }
+
+  .cam {
+    animation: shake calc(450ms * var(--k)) linear calc(450ms * var(--k));
+  }
+  @keyframes shake {
+    15% {
+      transform: translate(-23px, 12px);
+    }
+    30% {
+      transform: translate(19px, -10px);
+    }
+    45% {
+      transform: translate(-13px, 6px);
+    }
+    62% {
+      transform: translate(9px, -4px);
+    }
+    80% {
+      transform: translate(-4px, 0);
+    }
+  }
+
+  .flare {
+    position: absolute;
+    left: 960px;
+    top: 511px;
+    width: 653px;
+    height: 653px;
+    margin: -326px 0 0 -326px;
+    color: #ffd98a;
+    opacity: 0;
+    filter: drop-shadow(0 0 19px #ff9d2e);
+    pointer-events: none;
+    animation: burst calc(900ms * var(--k)) ease-out calc(450ms * var(--k)) both;
+  }
+  @keyframes burst {
     0% {
-      transform: scale(0.15);
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    20% {
       opacity: 1;
     }
     100% {
-      transform: scale(4.2);
+      transform: scale(1.6);
       opacity: 0;
     }
   }
@@ -472,408 +512,210 @@
   .flash {
     position: absolute;
     inset: 0;
-    background: #fff;
+    background: #fff6dc;
     opacity: 0;
     pointer-events: none;
-    animation: flash calc(340ms * var(--k)) ease-out calc(450ms * var(--k)) forwards;
+    animation: flash calc(500ms * var(--k)) calc(450ms * var(--k)) both;
   }
   @keyframes flash {
     0% {
-      opacity: 0.92;
+      opacity: 0;
+    }
+    12% {
+      opacity: 0.8;
     }
     100% {
       opacity: 0;
     }
   }
 
-  /* ── VS ─────────────────────────────────────────────────── */
-  /* V then S slam down from oversize onto the seam, each with a red/blue
-     ghost split that snaps together; then the mark breathes with a glow. */
-  .mark {
+  /* ── VS on its medallion ────────────────────────────────── */
+  .medallion {
     position: absolute;
-    left: 965px;
-    top: 552px;
-    width: 0;
-    height: 0;
-  }
-  .burst {
-    position: absolute;
-    left: -235px;
-    top: -235px;
-    width: 470px;
-    height: 470px;
-    background: radial-gradient(circle, #fff 0 30%, #ffe27a 55%, #ff9d2e 80%);
-    transform: scale(0);
-    animation:
-      burst-in calc(300ms * var(--k)) cubic-bezier(0.2, 1.4, 0.4, 1) calc(600ms * var(--k)) forwards,
-      burst-spin calc(9000ms * var(--k)) linear calc(900ms * var(--k)) infinite;
-  }
-  .burst.inner {
-    background: var(--ink);
-    transform: scale(0) rotate(11deg);
-    animation:
-      burst-in-inner calc(300ms * var(--k)) cubic-bezier(0.2, 1.4, 0.4, 1) calc(640ms * var(--k)) forwards,
-      burst-spin-rev calc(12000ms * var(--k)) linear calc(940ms * var(--k)) infinite;
-  }
-  @keyframes burst-in {
-    to {
-      transform: scale(1);
-    }
-  }
-  @keyframes burst-in-inner {
-    to {
-      transform: scale(0.8) rotate(11deg);
-    }
-  }
-  @keyframes burst-spin {
-    from {
-      transform: scale(1) rotate(0deg);
-    }
-    to {
-      transform: scale(1) rotate(360deg);
-    }
-  }
-  @keyframes burst-spin-rev {
-    from {
-      transform: scale(0.8) rotate(11deg);
-    }
-    to {
-      transform: scale(0.8) rotate(-349deg);
-    }
-  }
-
-  .ch {
-    position: absolute;
-    font-family: var(--font-display);
-    font-stretch: 85%;
-    font-size: 300px;
-    line-height: 1;
+    left: 960px;
+    top: 511px;
+    width: 480px;
+    height: 480px;
+    display: grid;
+    place-items: center;
+    transform: translate(-50%, -50%) scale(0);
     opacity: 0;
+    animation: stamp calc(360ms * var(--k)) cubic-bezier(0.2, 1.6, 0.4, 1) calc(600ms * var(--k)) forwards;
+  }
+  .vs:not(.hold) .medallion {
     animation:
-      ch-slam calc(210ms * var(--k)) cubic-bezier(0.55, 0, 1, 0.6) var(--at) forwards,
-      ch-glow calc(1400ms * var(--k)) ease-in-out calc(1200ms * var(--k)) infinite alternate;
+      stamp calc(360ms * var(--k)) cubic-bezier(0.2, 1.6, 0.4, 1) calc(600ms * var(--k)) forwards,
+      medallion-out calc(260ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
   }
-  .ch i,
-  .ch b {
-    font: inherit;
+  @keyframes stamp {
+    0% {
+      transform: translate(-50%, -50%) scale(2.8);
+      opacity: 0;
+    }
+    55% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
   }
-  /* The letter: metallic fill over a heavy ink outline. The italic glyphs lean
-     out past their box, and a background-clip fill only paints inside the
-     box (the outline doesn't care), so pad the box to cover the lean and pull
-     it back with negative margins so the letter doesn't move. */
-  .ch b {
+  @keyframes medallion-out {
+    from {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    to {
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+    }
+  }
+  /* The rune band round it, turning slowly. */
+  .band {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: #e9b75a;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 10px rgb(255 157 46 / 0.7));
+    animation: spin calc(24s * var(--k)) linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .runes {
+    font-family: var(--tf-font-runic);
+  }
+  /* The dark disc, rimmed in gold. */
+  .medallion::before {
+    content: "";
+    position: absolute;
+    inset: 17%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 40%, #241a12, #07060a 75%);
+    box-shadow:
+      0 0 0 9px #e5b452,
+      0 0 0 14px #5a3a12,
+      0 0 58px 19px rgb(0 0 0 / 0.85),
+      0 0 77px rgb(255 150 40 / 0.45);
+  }
+  .medallion span {
     position: relative;
-    display: block;
-    padding: 0.1em 0.3em;
-    margin: -0.1em -0.3em;
-    background: linear-gradient(180deg, #fff 0%, #fff 38%, #ffe27a 58%, #ff8a1f 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    -webkit-text-stroke: 12px var(--ink);
-    paint-order: stroke fill;
-  }
-  .ch.v {
-    --at: calc(620ms * var(--k));
-    --from: translate(-260px, -200px) rotate(-22deg) scale(3.4);
-    left: -200px;
-    top: -200px;
-  }
-  .ch.s {
-    --at: calc(740ms * var(--k));
-    --from: translate(260px, 200px) rotate(18deg) scale(3.4);
-    left: -12px;
-    top: -128px;
-  }
-  @keyframes ch-slam {
-    0% {
-      opacity: 0;
-      transform: var(--from);
-    }
-    60% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  @keyframes ch-glow {
-    from {
-      filter: drop-shadow(0 0 10px rgb(255 255 255 / 0.6)) drop-shadow(0 0 24px rgb(255 200 80 / 0.5));
-    }
-    to {
-      filter: drop-shadow(0 0 18px #fff) drop-shadow(0 0 48px rgb(255 200 80 / 0.9));
-    }
-  }
-  /* Ghost split: red and blue copies behind the letter, offset either side,
-     snapping in and fading just after it lands. */
-  .ghost {
-    position: absolute;
-    left: 0;
-    top: 0;
-    font-style: normal;
-    opacity: 0;
-    animation: ghost calc(320ms * var(--k)) ease-out calc(var(--at) + 150ms * var(--k)) forwards;
-  }
-  .red-g {
-    color: var(--red);
-    --dx: -46px;
-  }
-  .blue-g {
-    color: #1f8bff;
-    --dx: 46px;
-  }
-  @keyframes ghost {
-    0% {
-      opacity: 0.95;
-      transform: translateX(var(--dx));
-    }
-    100% {
-      opacity: 0;
-      transform: translateX(0);
-    }
+    font-family: var(--tf-font-display);
+    font-size: 161px;
+    line-height: 1;
+    margin-top: 12px;
+    color: #fff1cc;
+    text-shadow:
+      0 0 15px #ffb347,
+      0 5px 0 #3a1d05;
   }
 
-  /* Leaving: the bolt and arcs go with the banners. */
-  .vs:not(.hold) .mark {
-    animation: mark-out calc(260ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
+  /* ── Names ──────────────────────────────────────────────── */
+  .plate {
+    position: absolute;
+    bottom: 46px;
+    font-family: var(--tf-font-display);
+    font-size: 84px;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    white-space: nowrap;
+    color: #ffe6ad;
+    animation: rise calc(350ms * var(--k)) ease-out calc(860ms * var(--k)) both;
   }
-  @keyframes mark-out {
-    to {
-      transform: scale(0);
+  .plate.long {
+    font-size: 66px;
+  }
+  .plate.l {
+    left: 77px;
+  }
+  .plate.r {
+    right: 77px;
+    text-align: right;
+    animation-delay: calc(920ms * var(--k));
+  }
+  .plate small {
+    display: block;
+    font-family: var(--tf-font-text);
+    font-size: 33px;
+    letter-spacing: 0.2em;
+    font-variant: small-caps;
+    margin-top: 12px;
+  }
+  .plate.l small {
+    color: #d98a8a;
+  }
+  .plate.r small {
+    color: #8aa6d9;
+  }
+  /* The side's gem: a ruby (North) or a sapphire (South). */
+  .plate small::before {
+    content: "";
+    display: inline-block;
+    width: 21px;
+    height: 21px;
+    margin-right: 15px;
+    transform: rotate(45deg) translateY(-3px);
+  }
+  .plate.l small::before {
+    background: linear-gradient(135deg, #ff9a9a, #c1121f 50%, #5c0610);
+    box-shadow: 0 0 15px rgb(220 30 40 / 0.8);
+  }
+  .plate.r small::before {
+    background: linear-gradient(135deg, #9ac0ff, #1f4fc1 50%, #0a1d5c);
+    box-shadow: 0 0 15px rgb(40 90 230 / 0.8);
+  }
+  @keyframes rise {
+    from {
       opacity: 0;
+      transform: translateY(38px);
     }
   }
-  .vs:not(.hold) .seam,
-  .vs:not(.hold) :global(.arc) {
-    animation: fade-out calc(200ms * var(--k)) linear calc(var(--out) * var(--k)) forwards;
+  /* Leaving: each name goes with its half. */
+  .vs:not(.hold) .plate.l {
+    animation:
+      rise calc(350ms * var(--k)) ease-out calc(860ms * var(--k)) both,
+      out-l calc(450ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
+  }
+  .vs:not(.hold) .plate.r {
+    animation:
+      rise calc(350ms * var(--k)) ease-out calc(920ms * var(--k)) both,
+      out-r calc(450ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
+  }
+
+  /* ── Match title ────────────────────────────────────────── */
+  .title {
+    position: absolute;
+    top: 36px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 40px;
+    letter-spacing: 0.22em;
+    font-variant: small-caps;
+    color: #e9cf8e;
+    animation: fade-in calc(400ms * var(--k)) calc(1150ms * var(--k)) both;
+  }
+  .vs:not(.hold) .title {
+    animation:
+      fade-in calc(400ms * var(--k)) calc(1150ms * var(--k)) both,
+      fade-out calc(300ms * var(--k)) linear calc(var(--out) * var(--k)) forwards;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   @keyframes fade-out {
     to {
       opacity: 0;
-    }
-  }
-
-  /* ── Match title ────────────────────────────────────────── */
-  /* A slanted telop slab centred in the dark strip above the band. Its end
-     caps take the bracket tier's colour (none for group games); the Grand
-     final is the inverted slab, black with gold, as everywhere on the TV. */
-  .title {
-    position: absolute;
-    left: 50%;
-    top: 34px;
-    translate: -50% 0;
-    transform: skewX(-12deg);
-    background: var(--paper);
-    border: 5px solid var(--ink);
-    box-shadow: 8px 8px 0 var(--ink);
-    padding: 2px 44px 6px;
-    font-family: var(--font-display);
-    font-stretch: 75%;
-    font-size: 58px;
-    line-height: 1.05;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--ink);
-    white-space: nowrap;
-    animation: title-in calc(380ms * var(--k)) cubic-bezier(0.2, 0.9, 0.3, 1.1) calc(1150ms * var(--k)) both;
-  }
-  .title span {
-    display: block;
-    transform: skewX(12deg);
-  }
-  .title.tier-wb,
-  .title.tier-mb,
-  .title.tier-lb {
-    border-left: 22px solid var(--cap);
-    border-right: 22px solid var(--cap);
-  }
-  .tier-wb {
-    --cap: var(--wb);
-  }
-  .tier-mb {
-    --cap: var(--mb);
-  }
-  .tier-lb {
-    --cap: var(--lb);
-  }
-  .title.tier-gf {
-    background: var(--ink);
-    color: var(--gold);
-    border-color: var(--gold);
-    box-shadow: 8px 8px 0 var(--gold);
-  }
-  /* Drops in from above, unfolding sideways. */
-  @keyframes title-in {
-    from {
-      transform: translateY(-150px) skewX(-12deg) scaleX(0.3);
-      opacity: 0;
-    }
-  }
-  .vs:not(.hold) .title {
-    animation:
-      title-in calc(380ms * var(--k)) cubic-bezier(0.2, 0.9, 0.3, 1.1) calc(1150ms * var(--k)) both,
-      title-out calc(300ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
-  }
-  @keyframes title-out {
-    to {
-      transform: translateY(-160px) skewX(-12deg);
-    }
-  }
-  /* The same intro without the expensive bits: no blur or drop-shadow
-     filters, and nothing that repaints big areas every frame. Wide
-     translucent strokes stand in for the bolt's glow; VS pulses in scale
-     instead of glow. */
-  @keyframes ch-pulse {
-    to {
-      transform: scale(1.04);
-    }
-  }
-
-  /* ── Name tags ──────────────────────────────────────────── */
-  /* Telop slabs at the outer bottom corner of each banner: the katakana on a
-     black tag, the name on a white slab with a side-colour stripe. Both are
-     slanted; the text inside is set upright again. */
-  .nametag {
-    position: absolute;
-    bottom: 80px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 760px;
-  }
-  .nametag.l {
-    left: 70px;
-    align-items: flex-start;
-  }
-  .nametag.r {
-    right: 70px;
-    align-items: flex-end;
-  }
-  .kana,
-  .name {
-    transform: skewX(-12deg);
-  }
-  .kana span,
-  .name span {
-    display: block;
-    transform: skewX(12deg);
-  }
-  .kana {
-    background: var(--ink);
-    padding: 6px 26px 10px;
-    font-family: var(--font-display);
-    font-size: 54px;
-    line-height: 1;
-    letter-spacing: 0.06em;
-    animation: tag-in calc(320ms * var(--k)) cubic-bezier(0.2, 0.9, 0.3, 1.15) calc(980ms * var(--k)) both;
-  }
-  .l .kana {
-    color: #ff6b5e;
-  }
-  .r .kana {
-    color: #5fc4ff;
-  }
-  .name {
-    background: var(--paper);
-    border: 5px solid var(--ink);
-    box-shadow: 10px 10px 0 var(--ink);
-    padding: 4px 40px 10px;
-    font-family: var(--font-display);
-    font-stretch: 85%;
-    font-size: 132px;
-    line-height: 1;
-    text-transform: uppercase;
-    color: var(--ink);
-    white-space: nowrap;
-    animation: tag-in calc(340ms * var(--k)) cubic-bezier(0.2, 0.9, 0.3, 1.15) calc(860ms * var(--k)) both;
-  }
-  .name.long {
-    font-stretch: 62%;
-    font-size: 110px;
-  }
-  .l .name {
-    border-left: 26px solid var(--red);
-  }
-  .r .name {
-    border-right: 26px solid #1f6bff;
-  }
-  .r .kana,
-  .r .name {
-    animation-name: tag-in-right;
-  }
-  .r .name {
-    animation-delay: calc(920ms * var(--k));
-  }
-  .r .kana {
-    animation-delay: calc(1040ms * var(--k));
-  }
-  /* Leaving: each tag goes with its banner. */
-  .vs:not(.hold) .nametag.l {
-    animation: out-left calc(450ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
-  }
-  .vs:not(.hold) .nametag.r {
-    animation: out-right calc(450ms * var(--k)) cubic-bezier(0.6, 0, 0.9, 0.5) calc(var(--out) * var(--k)) forwards;
-  }
-  @keyframes tag-in {
-    from {
-      transform: translateX(-900px) skewX(-12deg);
-    }
-  }
-  @keyframes tag-in-right {
-    from {
-      transform: translateX(900px) skewX(-12deg);
-    }
-  }
-
-  /* ── Fighters ───────────────────────────────────────────── */
-  /* The cut-outs face left, so p1 (left side) is mirrored to face p2. They
-     arrive a beat behind their banner (parallax), then push in slowly. */
-  /* The cut-outs are cropped flat at the top, so they sit with that edge
-     just off the top of the screen; the band below is for the names. */
-  .fighter {
-    position: absolute;
-    top: 140px;
-    width: 1200px;
-    transform-origin: 50% 100%;
-  }
-  .fighter img {
-    display: block;
-    width: 100%;
-  }
-  /* The cut-outs are also cropped flat on the fist side, which the seam's jog
-     can expose: fade that inner edge out. */
-  .red .fighter {
-    left: -360px;
-    mask-image: linear-gradient(to left, transparent 0, #000 9%);
-    animation:
-      fighter-left calc(650ms * var(--k)) cubic-bezier(0.15, 0.85, 0.3, 1) both,
-      push calc(3600ms * var(--k)) linear calc(650ms * var(--k)) forwards;
-  }
-  .art.flip {
-    transform: scaleX(-1);
-  }
-  .blue .fighter {
-    right: -350px;
-    mask-image: linear-gradient(to right, transparent 0, #000 9%);
-    animation:
-      fighter-right calc(650ms * var(--k)) cubic-bezier(0.15, 0.85, 0.3, 1) both,
-      push calc(3600ms * var(--k)) linear calc(650ms * var(--k)) forwards;
-  }
-  @keyframes fighter-left {
-    from {
-      transform: translateX(-420px);
-    }
-  }
-  @keyframes fighter-right {
-    from {
-      transform: translateX(420px);
-    }
-  }
-  @keyframes push {
-    to {
-      transform: scale(1.06);
     }
   }
 </style>

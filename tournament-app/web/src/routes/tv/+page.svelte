@@ -323,6 +323,13 @@
     if (!m || !d.north) return { north: "", south: "" };
     return { north: sideName(m, d.north), south: sideName(m, d.north === 1 ? 2 : 1) };
   }
+  // Which player (1 or 2) the VS intro puts on the left: round one's North
+  // player (from the first round's log once it's played, else the side drawn
+  // for the round about to start), or p1 if sides weren't drawn.
+  function leftSide(m: PBMatch): 1 | 2 {
+    const first = m.liveLog[0];
+    return (first ? first.north : m.north) || 1;
+  }
   function sideName(m: PBMatch, which: 1 | 2): string {
     const pid = which === 1 ? m.p1 : m.p2;
     if (pid) return names.get(pid) ?? "—";
@@ -595,6 +602,7 @@
     p2: IntroFighter;
     title: string;
     tier: ReturnType<typeof tierOf>;
+    sides: boolean; // label the left fighter North, the right South
     out: number; // when the banners split apart: after the announcer's last call
     then: DrawShow; // the launch draw that follows
   };
@@ -647,7 +655,7 @@
     winner: IntroFighter; // the cut-out, never the victory pose (the Champion scene's)
     loser: { name: string };
     score: [number, number];
-    side: "red" | "blue"; // the side the winner had in the intro: p1 red, p2 blue
+    side: "red" | "blue"; // the side the winner had in the VS intro: left red, right blue
     title: string;
     tier: ReturnType<typeof tierOf>;
     walkover: boolean;
@@ -659,6 +667,7 @@
   let winnerTimer: ReturnType<typeof setTimeout>;
   function showWinner(m: PBMatch) {
     const p1Won = m.winner === m.p1;
+    const wonOnLeft = leftSide(m) === (p1Won ? 1 : 2);
     winnerLeaving = false;
     react = null; // the final point's cut to Match centre mustn't show up after it
     clearTimeout(winnerTimer);
@@ -668,7 +677,7 @@
       winner: introFighter(names.get(m.winner) ?? ""),
       loser: { name: introFighter(names.get(m.loser) ?? "").name || "—" },
       score: p1Won ? [m.p1Score ?? 0, m.p2Score ?? 0] : [m.p2Score ?? 0, m.p1Score ?? 0],
-      side: p1Won ? "red" : "blue",
+      side: wonOnLeft ? "red" : "blue",
       title: matchContext(m, data.matches),
       tier: tierOf(m.stage),
       walkover: m.walkover,
@@ -1041,15 +1050,19 @@
     drawTimer = setTimeout(
       () => {
         if (ev.kind !== "launch") return void (drawShow = show);
+        // Round one's North player stands on the left (ruby) and is called first.
+        const left = leftSide(m);
+        const right = left === 1 ? 2 : 1;
         const voice = (side: 1 | 2) => fighterVoiceUrl(browserPbUrl(), fighterFor(sideName(m, side), data.fighters));
-        const out = announcer.intro([voice(1), announcer.nextVersus(), voice(2), titleClip(m)]);
+        const out = announcer.intro([voice(left), announcer.nextVersus(), voice(right), titleClip(m)]);
         musicFor = m.code;
         introShow = {
           id: key,
-          p1: introFighter(sideName(m, 1)),
-          p2: introFighter(sideName(m, 2)),
+          p1: introFighter(sideName(m, left)),
+          p2: introFighter(sideName(m, right)),
           title: matchContext(m, data.matches),
           tier: tierOf(m.stage),
+          sides: !!m.north,
           out,
           then: show,
         };
@@ -1734,7 +1747,7 @@
           p1={introShow.p1}
           p2={introShow.p2}
           title={introShow.title}
-          tier={introShow.tier}
+          sides={introShow.sides}
           out={introShow.out}
           ondone={endIntro}
         />

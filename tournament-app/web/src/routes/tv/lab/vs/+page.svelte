@@ -3,16 +3,16 @@
   import { page } from "$app/state";
   import { tick } from "svelte";
 
-  // Lab page for the VS intro experiment. Not linked from anywhere. The player
-  // images live in static/lab/ and are gitignored (real people, public repo).
-  let p1 = $state({ name: "Rush", kana: "ラッシュ", img: "/lab/p1.png" });
-  let p2 = $state({ name: "Storm", kana: "ストーム", img: "/lab/p2.png" });
+  // Lab page for the VS intro. Not linked from anywhere. Two starting
+  // fighters, as in the locked style frame.
+  let p1 = $state({ name: "The Buzzsaw", img: "/starter-fighters/buzzsaw.png" });
+  let p2 = $state({ name: "The Pugilist", img: "/starter-fighters/pugilist.png" });
 
   // Match titles as the TV words them (view.ts matchContext / roundName),
   // each with its bracket tier.
   type Tier = "wb" | "mb" | "lb" | "gf" | "group";
   const TITLES: [string, Tier][] = [
-    ["Group 1, match 4 of 6", "group"],
+    ["Circle II, match 3 of 6", "group"],
     ["Winners semi-final", "wb"],
     ["Mid bracket round 2", "mb"],
     ["Losers semi-final", "lb"],
@@ -25,6 +25,8 @@
   let run = $state(0); // bump to replay
   let slow = $state(1);
   let hold = $state(false);
+  // ?nosides: no North / South under the names (sides not drawn).
+  let sides = $state(!page.url.searchParams.has("nosides"));
   let loop = $state(false);
   // ?noimg: show both fighters as silhouettes.
   let noImg = $state(page.url.searchParams.has("noimg"));
@@ -77,7 +79,7 @@
 <div class="page">
   <div class="stage" style:transform="scale({zoom})" style:transform-origin={zoomAt.replace(",", " ")}>
     {#key run}
-      <VsIntro p1={shown(p1)} p2={shown(p2)} {title} {tier} {slow} {hold} ondone={done} />
+      <VsIntro p1={shown(p1)} p2={shown(p2)} {title} {sides} {slow} {hold} ondone={done} />
     {/key}
   </div>
 
@@ -94,12 +96,11 @@
       <label><input type="checkbox" bind:checked={hold} onchange={replay} /> Hold at end</label>
       <label><input type="checkbox" bind:checked={loop} /> Loop</label>
       <label><input type="checkbox" bind:checked={noImg} onchange={replay} /> No images</label>
+      <label><input type="checkbox" bind:checked={sides} onchange={replay} /> North / South</label>
       <span class="group">
         <input class="name" bind:value={p1.name} onchange={replay} />
-        <input class="kana" bind:value={p1.kana} onchange={replay} />
         vs
         <input class="name" bind:value={p2.name} onchange={replay} />
-        <input class="kana" bind:value={p2.kana} onchange={replay} />
       </span>
       <span class="group">
         <input class="title" bind:value={title} onchange={replay} />
@@ -162,9 +163,6 @@
   }
   input.name {
     width: 110px;
-  }
-  input.kana {
-    width: 90px;
   }
   input.title {
     width: 220px;
