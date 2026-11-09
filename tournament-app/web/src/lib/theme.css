@@ -69,20 +69,67 @@
   --border-strong: color-mix(in srgb, var(--paper) 28%, transparent);
   --accent: var(--gold);
   --radius: 4px;
+
+  /* Arena colours (lib/stadia.ts order). Kept separate from the bracket-tier
+     colours above, which they used to share. I–III match today's look until
+     the redesign; IV is a placeholder until the fourth arena is chosen. */
+  --arena-1: var(--gold);
+  --arena-2: var(--green);
+  --arena-3: var(--red);
+  --arena-4: #8a4fd6;
+
+  /* ── Tetrafatalis tokens (fantasy redesign) ──────────────────────────
+     Not used yet: each screen moves onto these as it is rebuilt (Phase 4),
+     so the old look stays intact until then. Palette from the planning doc:
+     gold for highlights and winners, slate stone for panels, torch-orange
+     glows, demon crimson ONLY for curse/danger moments (Death's Door, Pacts,
+     the Prologue). TV = carved stone and gold; phone = parchment; admin =
+     the light set. Fonts: Marcellus SC + EB Garamond (fonts.css). */
+  --tf-font-display: "Marcellus SC", Georgia, serif;
+  --tf-font-text: "EB Garamond", Georgia, serif;
+
+  /* Stone and gold (TV) */
+  --tf-stone: #1b1a1f;
+  --tf-stone-raised: #26242b;
+  --tf-stone-edge: #3a3640;
+  --tf-gold: #d9b45a;
+  --tf-gold-bright: #f3d98b;
+  --tf-torch: #e8873a;
+  --tf-demon: #a3242c;
+  --tf-ink: #ece6da; /* text on stone */
+  --tf-ink-quiet: #a49c8e;
+
+  /* Parchment (phone) */
+  --tf-parchment: #efe2c4;
+  --tf-parchment-edge: #c9b48a;
+  --tf-parchment-ink: #3a2a18;
+  --tf-parchment-quiet: #7a6447;
+
+  /* Light set (admin): plain and practical, gold as the accent */
+  --tf-admin-bg: #f7f3ea;
+  --tf-admin-panel: #ffffff;
+  --tf-admin-ink: #2a2420;
+  --tf-admin-quiet: #6f655a;
+  --tf-admin-accent: #9c7a2b;
+
+  /* The three Paths (bracket tiers) */
+  --tf-path-gilded: var(--tf-gold);
+  --tf-path-iron: #9aa3ad;
+  --tf-path-ashen: #8a5a4a;
 }
 
 /* Stadium colour for anything tagged data-stadium="<key>" (see lib/stadia.ts):
    --st fills the numeral block, --st-ink is the numeral on it. */
 [data-stadium="xtreme"] {
-  --st: var(--gold);
+  --st: var(--arena-1);
   --st-ink: var(--ink);
 }
 [data-stadium="motor"] {
-  --st: var(--green);
+  --st: var(--arena-2);
   --st-ink: var(--paper);
 }
 [data-stadium="drop"] {
-  --st: var(--red);
+  --st: var(--arena-3);
   --st-ink: var(--paper);
 }
 
