@@ -21,7 +21,7 @@ type StarterJson = { name: string; voice?: string } & Partial<Record<FighterCall
 
 // The 12 starter fighters' name calls (each one's `voice` file). Their names
 // haven't changed, so the files keep their 2026 names.
-function nameCalls(startersJson: string): ClipSection {
+export function nameCalls(startersJson: string): ClipSection {
   const starters = JSON.parse(startersJson) as StarterJson[];
   return {
     title: "Fighter name calls",
@@ -41,7 +41,7 @@ function nameCalls(startersJson: string): ClipSection {
 
 // Each starter's own whole calls (VICTORIOUS, Last One Standing, Hero of
 // Gyrondor), one file per fighter per moment, as named in fighters.json.
-function fighterCalls(startersJson: string): ClipSection {
+export function fighterCalls(startersJson: string): ClipSection {
   const starters = JSON.parse(startersJson) as StarterJson[];
   return {
     title: "Fighters' own calls",
