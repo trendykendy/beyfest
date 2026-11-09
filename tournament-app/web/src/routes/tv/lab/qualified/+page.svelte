@@ -9,7 +9,7 @@
 
   // Lab page for the battle royale's Qualified screen. Not linked from anywhere.
   // ?n=<1–4> through, ?sd (a runner-up to the sudden death), ?label=…,
-  // ?noimg, ?noface (the old centred crop), ?lite, ?clean, ?t=<ms> freezes.
+  // ?noimg, ?noface (the old centred crop), ?clean, ?t=<ms> freezes.
   const SF = "/starter-fighters/";
   const STARTERS = [
     ["The Cheatseeker", "ザ・チートシーカー", "cheatseeker", "the-cheatseeker"],
@@ -34,7 +34,6 @@
     const m = (starterOf(img) as { imageMirrored?: string } | undefined)?.imageMirrored;
     return m ? `/starter-fighters/${m}` : "";
   };
-  let lite = $state(q.has("lite"));
   let slow = $state(1);
   let leaving = $state(false);
   let gone = $state(false);
@@ -106,7 +105,6 @@
           {label}
           toSudden={toSudden ? "Tadhg" : ""}
           {slow}
-          {lite}
           {leaving}
           ondone={() => (gone = true)}
         />
@@ -139,7 +137,6 @@
       </span>
       <label><input type="checkbox" bind:checked={noImg} onchange={replay} /> No images</label>
       <label><input type="checkbox" bind:checked={noFace} onchange={replay} /> No face points</label>
-      <label><input type="checkbox" bind:checked={lite} onchange={replay} /> Lite (Pi)</label>
       <span class="hint">R / space replays · L leaves · H hides this</span>
     </div>
   {/if}

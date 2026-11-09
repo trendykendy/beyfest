@@ -32,7 +32,6 @@
     tier = "group", // bracket tier, colours the title's end caps
     walkover = false, // a no-show: WALKOVER instead of a score
     slow = 1, // timing multiplier: 2 = half speed (lab only)
-    lite = false, // Pi-safe: no blur or drop-shadow filters, fewer streaks and shards
     leaving = false, // set to play the exit; ondone fires when it's over
     next = null, // the next fixture, or null
     ondone,
@@ -45,7 +44,6 @@
     tier?: "wb" | "mb" | "lb" | "gf" | "group";
     walkover?: boolean;
     slow?: number;
-    lite?: boolean;
     leaving?: boolean;
     next?: Next | null;
     ondone?: () => void;
@@ -62,7 +60,7 @@
 
   // Light streaks across the banner. Random once per mount; transform-only loops.
   // svelte-ignore state_referenced_locally
-  const streaks = Array.from({ length: lite ? 10 : 20 }, () => ({
+  const streaks = Array.from({ length: 20 }, () => ({
     top: Math.round(Math.random() * 520),
     len: Math.round(150 + Math.random() * 550),
     thick: Math.round(2 + Math.random() * 6),
@@ -75,7 +73,7 @@
   // Gold shards bursting out of the slam, from the middle of the banner.
   const SHARD_COLOURS = ["var(--gold)", "var(--gold)", "var(--paper)", "#ffe27a", "var(--c4)"];
   // svelte-ignore state_referenced_locally
-  const shards = Array.from({ length: lite ? 12 : 30 }, (_, i) => {
+  const shards = Array.from({ length: 30 }, (_, i) => {
     const a = Math.random() * Math.PI * 2;
     const r = 420 + Math.random() * 600;
     return {
@@ -103,7 +101,6 @@
   class="win side-{side}"
   class:from-r={side === "blue"}
   class:leaving
-  class:lite
   bind:clientWidth={w}
   style:--k={slow}
 >
@@ -1024,24 +1021,9 @@
     opacity: 1; /* its fade-in held it there; fade out from it */
     animation-delay: 0ms;
   }
-
-  /* ── Lite (Pi-safe) ── */
   /* No blur or drop-shadow filters and nothing that repaints big areas every
      frame: the rays and focus lines stand still, WINNER pulses in scale
      instead of glowing, and there are half the streaks and shards. */
-  .lite .focus,
-  .lite .rays {
-    animation: none;
-  }
-  .lite .r1 {
-    box-shadow: none;
-  }
-  .lite .ch {
-    animation: ch-slam calc(200ms * var(--k)) cubic-bezier(0.55, 0, 1, 0.6) calc(var(--at) * var(--k)) forwards;
-  }
-  .lite .ch b {
-    animation: ch-pulse calc(1300ms * var(--k)) ease-in-out calc(1400ms * var(--k)) infinite alternate;
-  }
   @keyframes ch-pulse {
     to {
       transform: scale(1.04);

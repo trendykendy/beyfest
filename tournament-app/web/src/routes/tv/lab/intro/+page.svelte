@@ -6,12 +6,11 @@
 
   // Lab page for the Beyfest 2026 intro. Not linked from anywhere.
   // The scene is drawn from the narration's clock, so the scrub bar shows any
-  // moment exactly. ?t=<ms> opens frozen there, ?lite is the Pi version,
+  // moment exactly. ?t=<ms> opens frozen there,
   // ?clean hides the controls. Space plays and pauses, ←/→ step a second,
   // H hides the controls.
   let t = $state(Number(page.url.searchParams.get("t") ?? 0));
   let playing = $state(false);
-  let lite = $state(page.url.searchParams.has("lite"));
   let showControls = $state(!page.url.searchParams.has("clean"));
   let loaded = $state(0);
   const images = introImages();
@@ -66,7 +65,7 @@
 
 <div class="page">
   <div class="stage">
-    <IntroScene {t} {lite} />
+    <IntroScene {t} />
   </div>
 
   {#if showControls}
@@ -74,7 +73,6 @@
       <button onclick={toggle} disabled={loaded < images.length}>{playing ? "Pause" : "Play"}</button>
       <input type="range" min="0" max={DURATION} step="10" value={t} oninput={(e) => seek(Number(e.currentTarget.value))} />
       <span class="time">{fmt(t)} · {shotAt(t).shot}</span>
-      <label><input type="checkbox" bind:checked={lite} /> Lite (Pi)</label>
       {#if loaded < images.length}<span class="hint">Loading {loaded}/{images.length}…</span>{/if}
       <span class="hint">Space plays · ←/→ a second · H hides this</span>
     </div>

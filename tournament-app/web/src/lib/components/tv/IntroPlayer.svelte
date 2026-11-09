@@ -9,11 +9,10 @@
   // clicks, it plays muted too and calls `onblocked`, so the TV can show its
   // "Sound is blocked" button.
   let {
-    lite = false,
     muted = false,
     ondone,
     onblocked,
-  }: { lite?: boolean; muted?: boolean; ondone: () => void; onblocked?: () => void } = $props();
+  }: { muted?: boolean; ondone: () => void; onblocked?: () => void } = $props();
 
   let t = $state(0);
   let audio: HTMLAudioElement;
@@ -48,7 +47,7 @@
 
 <audio bind:this={audio} src={AUDIO} preload="auto"></audio>
 <div class="player">
-  <IntroScene {t} {lite} />
+  <IntroScene {t} />
 </div>
 
 <style>

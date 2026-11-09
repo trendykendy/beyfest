@@ -50,7 +50,6 @@
 
   let pick = $state<Pick>((page.url.searchParams.get("f") as Pick) ?? "picture");
   let logged = $state(!page.url.searchParams.has("unlogged"));
-  let lite = $state(page.url.searchParams.has("lite"));
   let run = $state(0); // bump to replay
   let showControls = $state(!page.url.searchParams.has("clean"));
 
@@ -99,7 +98,6 @@
           runnerUp={RUNNER_UP}
           run={logged ? LOGGED : UNLOGGED}
           awards={page.url.searchParams.has("noawards") ? [] : AWARDS}
-          {lite}
         />
       {/key}
     </div>
@@ -112,7 +110,6 @@
         <button class:on={pick === k} onclick={() => ((pick = k as Pick), replay())}>{k}</button>
       {/each}
       <label><input type="checkbox" bind:checked={logged} /> Scored round by round</label>
-      <label><input type="checkbox" bind:checked={lite} onchange={replay} /> Lite (Pi)</label>
       <span class="hint">R / space replays · H hides this</span>
     </div>
   {/if}

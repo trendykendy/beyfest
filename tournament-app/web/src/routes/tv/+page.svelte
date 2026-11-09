@@ -336,7 +336,7 @@
   // top ("KNOCKOUT +2"), then flies it down into a new pill under the scorer's
   // card. Every round won stays as a pill for the rest of the match. Undo (the
   // log shrinks) just drops the last pill — no animation. Only
-  // transform/opacity animate (Pi).
+  // transform/opacity animate.
   const FINISH_BY_KEY = new Map(FINISHES.map((f) => [f.key, f]));
   const CALLOUT_FRESH_MS = 6000; // don't replay a call-out the rotation lands on later
   const CALLOUT_MS = 1500; // the call-out's slam, hold and flight onto the pill
@@ -982,13 +982,8 @@
     return () => announcer.stopChampion();
   });
 
-  // The Pi gets the lite intro (no blur or drop-shadow filters): its Chromium
-  // reports an ARM Linux machine. ?fx=full or ?fx=lite on the TV URL overrides.
-  let fxLite = $state(false);
   let mounted = $state(false); // running in the browser
   onMount(() => {
-    const fx = new URLSearchParams(location.search).get("fx");
-    fxLite = fx ? fx === "lite" : /aarch64|armv7|armv8/i.test(navigator.userAgent);
     mounted = true;
     // The Beyfest intro's pictures, loaded now so none pops in when it plays.
     for (const src of introImages()) new Image().src = src;
@@ -998,7 +993,7 @@
   // The minute-long intro (IntroPlayer), over everything, when the organiser
   // presses "Play the intro" (tv_state.introAt changes) or I is pressed at the
   // TV. It reacts to a change, not to the time, so a reload never replays it
-  // and the Pi's clock doesn't matter. Escape at the TV stops it.
+  // and the clock doesn't matter. Escape at the TV stops it.
   let beyfestIntro = $state(0); // a new number plays it again; 0 is off
   let introSeen = untrack(() => data.tv.introAt);
   $effect(() => {
@@ -1297,7 +1292,7 @@
     {#if profileOn}
       <!-- A fighter's profile sheet, now and then in the rotation. -->
       {#key profileSrc}
-        <div class="profile" class:lite={fxLite}>
+        <div class="profile">
           <img src={profileSrc} alt="" />
         </div>
       {/key}
@@ -1314,17 +1309,6 @@
             <div class="signed-in-names">
               {#each data.signedIn as n (n)}<span>{n}</span>{/each}
             </div>
-          </div>
-        {/if}
-        {#if data.network}
-          {@const n = data.network}
-          <!-- Only on the Raspberry Pi: how to reach the app on the day. -->
-          <div class="join">
-            <span class="join-step"><span>
-              {#if n.mode === "ethernet"}On the venue network{:else}Join wifi <b>{n.ssid}</b>{/if}
-            </span></span>
-            <span class="join-step"><span>Live results <b>{n.host}</b>{#if n.ip}<span class="join-ip">({n.ip})</span>{/if}</span></span>
-            <span class="join-step"><span>Organiser <b>{n.host}/admin</b></span></span>
           </div>
         {/if}
       </div>
@@ -1563,7 +1547,7 @@
 
           {@const artA = slabArt(sideName(spotMatch, 1), "left")}
           {@const artB = slabArt(sideName(spotMatch, 2), "right")}
-          <div class="mc-duel tier-{tierOf(spotMatch.stage)}" class:lite={fxLite}>
+          <div class="mc-duel tier-{tierOf(spotMatch.stage)}">
             <div class="mc-side left" class:won={wonA} class:lost={wonB}>
               <div
                 class="mc-card"
@@ -1648,8 +1632,8 @@
       </div>
 
     {:else if scene === "champion"}
-      <!-- Browser only: the picture's address and the Pi's lite mode are
-           worked out from the browser, and the reveal plays on mount anyway. -->
+      <!-- Browser only: the picture's address is worked out from the
+           browser, and the reveal plays on mount anyway. -->
       {#if champ && champRun && mounted}
         <ChampionScene
           champion={sceneFighter(champ)}
@@ -1661,7 +1645,6 @@
             name: a.winners.map((id) => names.get(id)).join(" & "),
             detail: a.opponent ? `${a.detail} against ${names.get(a.opponent)}` : a.detail,
           }))}
-          lite={fxLite}
         />
       {/if}
 
@@ -1685,7 +1668,6 @@
           champion={royaleSceneFighter(royaleChamp)}
           runnerUp={royaleRunnerUp ? royaleSceneFighter(royaleRunnerUp) : null}
           kicker="Battle royale champion"
-          lite={fxLite}
         />
       {/if}
     {/if}
@@ -1703,7 +1685,6 @@
         p1={{ name: sideName(spotMatch, 1), img: "" }}
         p2={{ name: sideName(spotMatch, 2), img: "" }}
         score={[spotMatch.liveP1, spotMatch.liveP2]}
-        lite={fxLite}
         ondone={clearMoment}
       />
     </div>
@@ -1724,7 +1705,6 @@
           walkover={winnerShow.walkover}
           leaving={winnerLeaving}
           next={winnerNext}
-          lite={fxLite}
           ondone={() => (winnerShow = null)}
         />
       </div>
@@ -1740,7 +1720,6 @@
           label={qualifiedShow.label}
           toSudden={qualifiedShow.toSudden}
           leaving={qualifiedLeaving}
-          lite={fxLite}
           ondone={() => (qualifiedShow = null)}
         />
       </div>
@@ -1757,7 +1736,6 @@
           title={introShow.title}
           tier={introShow.tier}
           out={introShow.out}
-          lite={fxLite}
           ondone={endIntro}
         />
       </div>
@@ -1773,7 +1751,6 @@
           heats={royale.plan.heats}
           finalSize={royale.plan.finalSize}
           sudden={royale.plan.sudden}
-          lite={fxLite}
           ondone={() => (royaleDraw = null)}
         />
       </div>
@@ -1788,7 +1765,6 @@
           fighters={royaleIntro.fighters}
           label={royaleIntro.label}
           out={royaleIntro.out}
-          lite={fxLite}
           ondone={() => {
             royaleIntro = null;
             qualifiedShow = null; // it held under the intro until now
@@ -1803,7 +1779,6 @@
     {#key beyfestIntro}
       <div class="intro-layer">
         <IntroPlayer
-          lite={fxLite}
           muted={data.tv.soundOff}
           onblocked={() => (soundBlocked = true)}
           ondone={() => (beyfestIntro = 0)}
@@ -1846,7 +1821,7 @@
 
 <style>
   /* Ultramarine field with static diagonal speed lines — painted once, no
-     photo, blur or glow, so it stays smooth on a Raspberry Pi. */
+     photo, blur or glow, so it stays smooth. */
   .tv {
     position: fixed;
     inset: 0;
@@ -1958,9 +1933,6 @@
     box-shadow: 14px 14px 0 var(--ink);
     /* Pops in, then holds still. */
     animation: profile-in 0.6s cubic-bezier(0.2, 1.2, 0.4, 1) both;
-  }
-  .profile.lite img {
-    animation: profile-in 0.6s ease-out both;
   }
   @keyframes profile-in {
     from {
@@ -2592,14 +2564,12 @@
       transform: scale(1.06);
     }
   }
-  /* The loser's panel goes grey and still; lite mode keeps it still too. */
+  /* The loser's panel goes grey and still. */
   .mc-side.lost .mc-art-pic {
     filter: grayscale(1) brightness(0.8);
   }
   .mc-side.lost .mc-art-bg::before,
-  .mc-side.lost .mc-art-bg::after,
-  .mc-duel.lite .mc-art-bg::before,
-  .mc-duel.lite .mc-art-bg::after {
+  .mc-side.lost .mc-art-bg::after {
     animation: none;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -2875,34 +2845,6 @@
     font-weight: 700;
     font-size: 1.5rem;
   }
-  /* Standby only, on the Pi: which wifi to join and where to go. */
-  .join {
-    display: flex;
-    gap: 18px;
-    margin-top: 10px;
-  }
-  .join-step {
-    background: var(--ink);
-    color: var(--paper);
-    border: 3px solid var(--paper);
-    padding: 8px 22px;
-    font-family: var(--font-text);
-    font-weight: 500;
-    font-size: 1.6rem;
-    transform: skewX(-10deg);
-  }
-  .join-step > span {
-    display: block;
-    transform: skewX(10deg);
-  }
-  .join-step b {
-    color: var(--gold);
-    font-weight: 800;
-  }
-  .join-ip {
-    color: var(--on-field-soft);
-    margin-left: 0.4em;
-  }
   /* Standby: the title column with the phone-page QR card beside it. */
   .standby {
     display: flex;
@@ -2943,7 +2885,7 @@
   }
 
   /* Corner QR on the other scenes. Below the intro (40) and the operator's
-     marks (60); fixed, no animation, so it costs the Pi nothing. */
+     marks (60); fixed, no animation. */
   .corner-qr {
     position: fixed;
     right: 14px;

@@ -1,7 +1,6 @@
 // A QR code as one SVG path, for the TV's "scan for live results" codes.
-// Drawn on the server, so the TV just shows a static picture (light on the
-// Pi). `uqr` is a devDependency so the build bundles it: the Pi package only
-// ships web/build (see scripts/pi-package.sh).
+// Drawn on the server, so the TV just shows a static picture. `uqr` is a
+// devDependency so the build bundles it: the Mac package only ships web/build.
 
 import { encode } from "uqr";
 

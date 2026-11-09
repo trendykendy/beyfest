@@ -47,7 +47,6 @@
     p2,
     score,
     slow = 1,
-    lite = false, // Pi-safe: no filters, no shake
     ondone,
   }: {
     variant?: Variant;
@@ -59,7 +58,6 @@
     p2: Fighter;
     score: [number, number];
     slow?: number;
-    lite?: boolean;
     ondone?: () => void;
   } = $props();
 
@@ -142,7 +140,7 @@
   {/if}
 {/snippet}
 
-<div class="uf" class:lite bind:clientWidth={w} style:--k={slow}>
+<div class="uf" bind:clientWidth={w} style:--k={slow}>
   <div class="canvas" style:transform="scale({scale})">
     {#if tension}
       <div class="tension who-{mp}">
@@ -579,23 +577,6 @@
     position: absolute;
     inset: 12% 8%;
     --lite: #ffb199;
-  }
-
-  /* Pi-safe: no filters or shaking; the darker fighter just fades back. */
-  .lite .moment {
-    animation:
-      none,
-      fade-away calc(280ms * var(--k)) linear calc((var(--len) - 280ms) * var(--k)) forwards;
-  }
-  .lite .panel {
-    filter: none;
-    opacity: 0.55;
-  }
-  .lite .panel.hero {
-    opacity: 1;
-  }
-  .lite .m-rays {
-    animation: fade-in calc(260ms * var(--k)) linear calc(var(--land) * var(--k)) both;
   }
 
   @media (prefers-reduced-motion: reduce) {

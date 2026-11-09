@@ -7,7 +7,7 @@ export const PB_URL = env.PUBLIC_PB_URL || "http://127.0.0.1:8090";
 
 // Where a browser reaches PocketBase: port 8090 on whichever address served the
 // page. So the TV and phones follow the machine through any network change
-// (venue wifi, the Pi's own hotspot, beyfest.local) with nothing to configure.
+// (venue wifi, a phone hotspot, a cable) with nothing to configure.
 export function browserPbUrl(): string {
   return pbUrlFor(location);
 }

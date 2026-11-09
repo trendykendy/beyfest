@@ -9,7 +9,7 @@
   //   spin      — a bey-top disc twirls and winds down under a pointer
   // "launch" (Start match) ends on ゴーシュート / LET IT RIP; "next" (every
   // later round, and a redraw) is a ~3s shuffle then the name. Transform and
-  // opacity only, so it stays smooth on the Pi.
+  // opacity only, so it stays smooth.
   let {
     stadium,
     kind,

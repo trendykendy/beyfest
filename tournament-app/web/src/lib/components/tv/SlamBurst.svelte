@@ -2,12 +2,12 @@
   // The winner screen's slam, for the battle royale titles: a white ring and
   // a gold one blasting outwards, and gold shards flying off, from (x, y) at
   // `at` ms. Sits inside a 1920×1080 canvas whose --k is the timing multiplier.
-  let { x = 960, y = 200, at = 150, lite = false }: { x?: number; y?: number; at?: number; lite?: boolean } = $props();
+  let { x = 960, y = 200, at = 150 }: { x?: number; y?: number; at?: number } = $props();
 
   const SHARD_COLOURS = ["var(--gold)", "var(--gold)", "var(--paper)", "#ffe27a", "#ff7a1a"];
   // Random once per mount. Flatter than the winner's: the title is wide.
   // svelte-ignore state_referenced_locally
-  const shards = Array.from({ length: lite ? 12 : 30 }, (_, i) => {
+  const shards = Array.from({ length: 30 }, (_, i) => {
     const a = Math.random() * Math.PI * 2;
     const r = 420 + Math.random() * 600;
     return {
@@ -22,7 +22,7 @@
   });
 </script>
 
-<div class="sb" class:lite style:left="{x}px" style:top="{y}px" style:--at="{at}ms">
+<div class="sb" style:left="{x}px" style:top="{y}px" style:--at="{at}ms">
   <div class="ring r1"></div>
   <div class="ring r2"></div>
   {#each shards as s}
@@ -74,9 +74,6 @@
     background: var(--col);
     opacity: 0;
     animation: shard calc(var(--dur) * var(--k)) cubic-bezier(0.1, 0.8, 0.3, 1) calc(var(--at) * var(--k)) forwards;
-  }
-  .lite .r1 {
-    box-shadow: none;
   }
   @keyframes ring {
     0% {

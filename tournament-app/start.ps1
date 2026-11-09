@@ -32,8 +32,8 @@ foreach ($tool in @(@("bun", "https://bun.sh"), @("node", "https://nodejs.org (t
 }
 
 # ── PocketBase: download it if it's missing (it isn't kept in git) ────
-# The version comes from start.sh, which the Mac and the Pi package use too,
-# so all three stay on the same PocketBase. Needs internet: do the first run
+# The version comes from start.sh, which the Mac package uses too, so
+# they stay on the same PocketBase. Needs internet: do the first run
 # at home.
 if (-not (Test-Path $pbExe)) {
   $pbVersion = (Select-String -Path (Join-Path $root "start.sh") -Pattern '^pb_version="([^"]+)"').Matches[0].Groups[1].Value
@@ -297,7 +297,7 @@ if ($organiserPw) {
 }
 
 # ── Keep the PC and its screens awake while this runs ───────────────
-# Like the Pi's screen-blanking switch-off: no sleep, no screen going dark
+# No sleep, no screen going dark
 # mid-match. Windows drops it by itself when this window closes.
 Add-Type -Namespace Beyfest -Name Power -MemberDefinition @"
 [System.Runtime.InteropServices.DllImport("kernel32.dll")]

@@ -48,8 +48,6 @@
   let walkover = $state(q.has("wo"));
   let wins = $state(5);
   let losses = $state(3);
-  // ?lite: the Pi-safe version.
-  let lite = $state(q.has("lite"));
 
   let run = $state(0); // bump to replay
   let slow = $state(1);
@@ -180,7 +178,6 @@
           {tier}
           {walkover}
           {slow}
-          {lite}
           {leaving}
           next={NEXTS[nextPick]}
           ondone={() => (gone = true)}
@@ -232,7 +229,6 @@
       </span>
       <label><input type="checkbox" bind:checked={walkover} onchange={replay} /> Walkover</label>
       <label><input type="checkbox" bind:checked={noImg} onchange={replay} /> No images</label>
-      <label><input type="checkbox" bind:checked={lite} onchange={replay} /> Lite (Pi)</label>
       <span class="group">
         {#each TITLES as [t, tr]}
           <button class:on={title === t} onclick={() => ((title = t), (tier = tr), replay())}>{t}</button>

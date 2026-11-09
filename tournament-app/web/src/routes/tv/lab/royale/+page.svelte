@@ -6,7 +6,7 @@
   import { tick } from "svelte";
 
   // Lab page for the battle royale intro. Not linked from anywhere.
-  // ?n=<2–8> fighters, ?label=…, ?noimg, ?noface (the old centred crop), ?lite, ?clean, ?t=<ms> freezes.
+  // ?n=<2–8> fighters, ?label=…, ?noimg, ?noface (the old centred crop), ?clean, ?t=<ms> freezes.
   const STARTERS = [
     ["The Buzzsaw", "ザ・バズソー", "buzzsaw"],
     ["The Cheatseeker", "ザ・チートシーカー", "cheatseeker"],
@@ -32,7 +32,6 @@
     const m = (starterOf(img) as { imageMirrored?: string } | undefined)?.imageMirrored;
     return m ? `/starter-fighters/${m}` : "";
   };
-  let lite = $state(page.url.searchParams.has("lite"));
   let slow = $state(1);
   let hold = $state(false);
   let showControls = $state(!page.url.searchParams.has("clean"));
@@ -78,7 +77,7 @@
 <div class="page">
   <div class="stage">
     {#key run}
-      <RoyaleIntro {fighters} {label} {slow} {hold} {lite} />
+      <RoyaleIntro {fighters} {label} {slow} {hold} />
     {/key}
   </div>
 
@@ -105,7 +104,6 @@
       <label><input type="checkbox" bind:checked={hold} onchange={replay} /> Hold</label>
       <label><input type="checkbox" bind:checked={noImg} onchange={replay} /> No images</label>
       <label><input type="checkbox" bind:checked={noFace} onchange={replay} /> No face points</label>
-      <label><input type="checkbox" bind:checked={lite} onchange={replay} /> Lite (Pi)</label>
       <span class="hint">R / space replays · H hides this</span>
     </div>
   {/if}

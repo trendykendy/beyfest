@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────
-# Beyfest 2026 tournament app — one-command launcher for macOS and Linux
-# (including a Raspberry Pi). The Windows twin is start.ps1.
+# Beyfest tournament app — one-command launcher for macOS and Linux.
+# The Windows twin is start.ps1.
 #
 # Starts PocketBase (data + realtime API) and the built SvelteKit server,
 # both bound to 0.0.0.0 so the TV and phones on the venue wifi can reach
@@ -33,7 +33,7 @@ for arg in "$@"; do
 done
 
 root="$(cd "$(dirname "$0")" && pwd)"
-pb_version="0.40.4" # start.ps1 and the Pi package read this too
+pb_version="0.40.4" # start.ps1 and the Mac package read this too
 pb_bin="$root/pb/pocketbase"
 pb_data="$root/pb/pb_data"
 pb_mig="$root/pb/pb_migrations"
@@ -49,7 +49,7 @@ fail() {
 }
 
 # ── Tools ────────────────────────────────────────────────────────────
-# Bun is only needed to install and build (from a git checkout). The Pi
+# Bun is only needed to install and build (from a git checkout). The Mac
 # package comes ready-built, so there Node alone is enough.
 need_bun() {
   command -v bun >/dev/null 2>&1 ||
@@ -104,7 +104,6 @@ if [[ ! -x "$pb_bin" ]]; then
   case "$(uname -m)" in
     arm64 | aarch64) arch="arm64" ;;
     x86_64 | amd64) arch="amd64" ;;
-    armv7l) arch="armv7" ;; # 32-bit Raspberry Pi OS
     *) fail "Unsupported CPU $(uname -m)." ;;
   esac
   # The Mac package brings PocketBase for both kinds of Mac: use the right one.
@@ -132,7 +131,7 @@ fi
 # last build, so new code (from git pull or a copied folder) never runs as an
 # old build. Each build leaves a fingerprint of the files it was built from
 # (name, size and time of every file); timestamps alone would miss a copied
-# folder that kept older times. The Mac and Pi packages have no source code
+# folder that kept older times. The Mac package has no source code
 # (web/src), only the finished build, so they skip all this.
 
 # One line per file ("path|size|mtime"), sorted, then hashed. BSD (Mac) and

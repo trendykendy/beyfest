@@ -35,17 +35,15 @@ export function lanAddress(interfaces: Record<string, Iface[] | undefined>): str
   return found.sort((a, b) => rank(a) - rank(b))[0] ?? "";
 }
 
-// Picks, in order: the Pi's IP (from the network file), the address the TV
-// itself was opened on if that's already an IP, the machine's LAN address,
-// and failing all that the TV's own address. The port is always the TV's:
-// 80 on the Pi (left out), 3000 for the laptop launcher, 5173 in dev.
+// Picks, in order: the address the TV itself was opened on if that's already
+// an IP, the machine's LAN address, and failing all that the TV's own address.
+// The port is always the TV's (80 left out): 3000 for the launcher, 5173 in dev.
 export function liveUrl(
-  network: { ip: string } | null,
   interfaces: Record<string, Iface[] | undefined>,
   page: { hostname: string; port: string; origin: string },
 ): string {
   const port = page.port && page.port !== "80" ? `:${page.port}` : "";
   const fromPage = isIPv4(page.hostname) && !page.hostname.startsWith("127.") ? page.hostname : "";
-  const ip = network?.ip || fromPage || lanAddress(interfaces);
+  const ip = fromPage || lanAddress(interfaces);
   return ip ? `http://${ip}${port}/live` : `${page.origin}/live`;
 }

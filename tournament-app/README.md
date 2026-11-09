@@ -85,8 +85,6 @@ you start it: the TV window opens behind it.
      says so in the corner.
    - Anyone without a fighter, or without an image, gets a "?" silhouette. The page lists the
      current bladers who don't have a fighter yet.
-   - Slow machines (like a Raspberry Pi) get a lighter version of the intro automatically (no
-     blur effects). Add `?fx=full` or `?fx=lite` to the TV address to choose.
 1. **Enter bladers**: type the names (one per line, 8–15), then *Draw groups and build bracket*.
    The app randomly draws the groups and generates every group match.
 2. **Now playing** shows one match at a time.
@@ -118,7 +116,7 @@ you start it: the TV window opens behind it.
   1. Log in to the PocketBase console (`http://<PC address>:8090/_/`) with the superuser.
   2. Go to *Settings → Backups*.
   3. Pick a backup and choose *Restore*. PocketBase restarts with that data.
-- **Admin says it can't reach the database.** PocketBase has stopped. Run `start.ps1` (or `start.sh` on a Mac) again; on the Pi it restarts by itself within seconds, or `sudo systemctl restart beyfest-pb`. Your data is safe either way. On a Mac, PocketBase's own messages are in `pb/pocketbase.log`.
+- **Admin says it can't reach the database.** PocketBase has stopped. Run `start.ps1` (or `start.sh` on a Mac) again. Your data is safe. On a Mac, PocketBase's own messages are in `pb/pocketbase.log`.
 
 ## Other setups
 
@@ -168,97 +166,6 @@ Either way:
 If it prints the wrong address (e.g. the Mac is on both wifi and a cable), force it:
 `BEYFEST_IP=192.168.1.20 ./start.sh`.
 
-### On a Raspberry Pi (the earlier main setup)
-
-The Pi runs everything: the app, the database and the TV screen on its HDMI output.
-The organiser uses the admin page from the Mac, a phone or any other device, at
-**`http://beyfest.local/admin`**. Nothing needs the internet on the day.
-
-You need a Raspberry Pi 3 or newer with **64-bit Raspberry Pi OS (with desktop)**,
-connected to the TV and, for the install, to the internet. In a terminal on the Pi
-(or over SSH), run:
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/trendykendy/beyfest/main/tournament-app/install-pi.sh | bash
-```
-
-- It asks you to choose the **organiser** and **PocketBase admin** passwords. Write
-  them down.
-- It installs Node and Chromium, and downloads the ready-built app from GitHub, so
-  the Pi never builds anything.
-- It sets the app to start at boot and restart itself if it ever crashes.
-- It names the Pi `beyfest`, logs in to the desktop automatically, turns off screen
-  blanking, and opens the TV screen full-screen.
-- It offers to restart the Pi at the end. After the restart the TV comes up by itself.
-
-**To update**, run the same command again. It replaces only the app. The tournament
-data and backups (in `/opt/beyfest/data`) are kept, and the previous app is kept in
-`/opt/beyfest/app.previous`. Options go after `bash -s --`, e.g. `… | bash -s -- --passwords`:
-
-- `--passwords` sets new passwords.
-- `--wifi` adds wifi networks and sets a new hotspot password.
-- `--no-kiosk` runs the Pi as a server only, without the TV screen.
-
-#### Wifi, and the fallback hotspot
-
-On the first install (or with `--wifi`) the installer asks for every wifi network the
-Pi might need: home, the venue, a phone hotspot. The Pi joins whichever is in range,
-or uses a network cable if one is plugged in.
-
-**If nothing connects for about a minute, the Pi makes its own wifi called "Beyfest"**,
-with the password you chose. Join it from the Mac (and phones), then open
-`http://beyfest.local/admin`. Nothing needs the internet. The TV's waiting screen
-shows which wifi to join and the addresses, so nobody has to remember them.
-
-Once on its hotspot, the Pi stays on it until you run `beyfest-wifi auto` or restart it,
-so nobody gets dropped mid-event. On the Pi (a keyboard, or SSH):
-
-```sh
-beyfest-wifi status          # what it's connected to, and its address
-beyfest-wifi list            # the networks it knows
-beyfest-wifi add "Hall wifi" # add one (asks for the password)
-beyfest-wifi remove "Hall wifi"
-beyfest-wifi hotspot         # switch to the Beyfest hotspot now
-beyfest-wifi auto            # leave the hotspot and try the known networks again
-```
-
-A Pi 3 model B only sees 2.4 GHz networks (the 3B+ sees 5 GHz too). If the venue
-wifi is 5 GHz only, the hotspot takes over by itself. The installer sets the wifi
-country to Ireland if it isn't set, because Raspberry Pi OS keeps wifi off until it is.
-
-GitHub builds the package the installer downloads on every push (see
-`.github/workflows/pi-package.yml` and `scripts/pi-package.sh`).
-
-If `beyfest.local` doesn't open (some networks and older Android phones don't
-support `.local` names), use the Pi's IP address, which the installer prints.
-
-Useful on the Pi:
-
-```sh
-systemctl status beyfest-web beyfest-pb       # are they running?
-journalctl -u beyfest-web -u beyfest-pb -n 50 # recent messages
-sudo systemctl restart beyfest-web beyfest-pb
-```
-
-### The TV on a Raspberry Pi, with the app on the Mac
-
-If the Mac runs the app (above), the Pi can be just the TV's browser. Run
-`sudo raspi-config nonint do_blanking 1` once and reboot so the screen never goes blank,
-then:
-
-```sh
-./pi-kiosk.sh --install <mac>.local   # or the IP start.sh printed
-```
-
-- It opens `/tv` full-screen in Chromium, and `--install` makes it do that at every
-  login. Leave `--install` off to open it just once.
-- `<mac>` is the Mac's local hostname (System Settings → General → Sharing →
-  *Local hostname*). The hostname still works if the Mac's IP changes. The IP
-  works too, if `.local` names don't resolve on the venue network.
-- It waits until the Mac's app answers, so the order you switch things on doesn't matter.
-- Alt+F4 leaves the kiosk. To stop it starting at login: `rm ~/.config/autostart/beyfest-tv.desktop`.
-- `pi-kiosk.sh` is in `scripts/` in this repo; copy it to the Pi.
-
 ## Development
 
 ```sh
@@ -284,26 +191,21 @@ bun run build               # production build of the web app
 
 `pb/pb_data/` (gitignored) holds everything. To start again from nothing, stop the
 app, delete `pb/pb_data/`, and run `start.ps1` / `start.sh`: it recreates the database
-and asks for new passwords. (The Pi keeps its data in `/opt/beyfest/data`.)
+and asks for new passwords.
 
 The logins are `organiser@beyfest.local` (the admin page) and `admin@beyfest.local`
 (the PocketBase console, `http://127.0.0.1:8090/_/`). The migrations seed them with the
-development defaults in `.env.example`. The launchers and the Pi installer replace
+development defaults in `.env.example`. The launchers replace
 those with the passwords you choose; only a launcher run with nobody at the keyboard
-keeps them, and it says so. To change a password later, use the PocketBase console,
-or on the Pi re-run the installer with `--passwords`.
+keeps them, and it says so. To change a password later, use the PocketBase console.
 
 ## Layout
 
 ```
 tournament-app/
   start.ps1              the event launcher (Windows): rebuild, firewall check, servers, TV screen
-  start.sh               the same for macOS / Linux / Raspberry Pi (on a Mac it also opens the TV)
+  start.sh               the same for macOS / Linux (on a Mac it also opens the TV)
   start.command          double-click wrapper for start.sh on a Mac
-  install-pi.sh          Raspberry Pi: install or update everything (see above)
-  scripts/pi-kiosk.sh    Raspberry Pi: TV screen full-screen in Chromium
-  scripts/beyfest-wifi.sh  Raspberry Pi: wifi networks + fallback hotspot (the `beyfest-wifi` command)
-  scripts/pi-package.sh  builds the ready-to-run Pi package (GitHub runs it)
   scripts/mac-package.sh builds the ready-to-run Mac package (dist/beyfest-mac.zip)
   engine/                pure-TS tournament logic + tests
   pb/                    PocketBase migrations; the binary and pb_data appear at runtime

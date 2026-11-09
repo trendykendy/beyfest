@@ -10,11 +10,10 @@
     raysAt = 150, // ms: the rays fade in with the title's slam
     outAt = null,
     leaving = false,
-    lite = false,
-  }: { rayY?: number; raysAt?: number; outAt?: number | null; leaving?: boolean; lite?: boolean } = $props();
+  }: { rayY?: number; raysAt?: number; outAt?: number | null; leaving?: boolean } = $props();
 </script>
 
-<div class="rb" class:out={outAt != null} class:leaving class:lite style:--out="{outAt ?? 0}ms" style:--rays-at="{raysAt}ms">
+<div class="rb" class:out={outAt != null} class:leaving style:--out="{outAt ?? 0}ms" style:--rays-at="{raysAt}ms">
   <div class="back"></div>
   <div class="rays-wrap" style:top="{rayY}px"><div class="rays"></div></div>
 </div>
@@ -58,11 +57,6 @@
   }
   .leaving {
     animation: fade-out calc(300ms * var(--k)) ease-in calc(300ms * var(--k)) forwards;
-  }
-
-  /* Pi-safe: the rays stand still (a turning 2200px layer repaints a lot). */
-  .lite .rays {
-    animation: none;
   }
 
   @keyframes fade-in {

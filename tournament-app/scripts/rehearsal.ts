@@ -1,6 +1,6 @@
 // A full dress rehearsal: plays a whole tournament through the real server,
 // round by round at a watchable pace, exactly as the admin scorer would. Leave
-// the TV (and the Pi, and the projector…) running and watch it cope for an
+// the TV (and the projector…) running and watch it cope for an
 // entire event: call-outs, cuts to Match centre, rotation, the knockout
 // appearing, the champion.
 //

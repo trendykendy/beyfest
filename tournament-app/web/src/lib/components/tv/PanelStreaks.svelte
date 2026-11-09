@@ -5,11 +5,11 @@
   // edges. Goes in the panel's upright content, over the picture and under
   // the name tag; the panel clips it.
   // --k (the timing multiplier) is inherited from the screen.
-  let { rev = false, lite = false }: { rev?: boolean; lite?: boolean } = $props();
+  let { rev = false }: { rev?: boolean } = $props();
 
   // Random once per mount; transform-only loops.
   // svelte-ignore state_referenced_locally
-  const streaks = Array.from({ length: lite ? 4 : 9 }, () => ({
+  const streaks = Array.from({ length: 9 }, () => ({
     top: Math.round(Math.random() * 100),
     len: Math.round(120 + Math.random() * 300),
     thick: Math.round(2 + Math.random() * 5),

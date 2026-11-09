@@ -5,7 +5,7 @@ import type { PBPerson } from "$lib/people";
 import type { PBLoan } from "$lib/loans";
 
 // Every phone on /live refreshes the moment a score is tapped, so 40 phones
-// means 40 identical full loads hitting the Pi at once. Instead, at most one
+// means 40 identical full loads hitting the server at once. Instead, at most one
 // load runs at a time:
 // - nothing running: start a load.
 // - one running: it may have started before the change this request is

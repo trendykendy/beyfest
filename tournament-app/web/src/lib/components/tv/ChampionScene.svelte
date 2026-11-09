@@ -10,8 +10,7 @@
   // behind it, their combat name on the big gold slab, how their tournament
   // went, and the runner-up. It plays its reveal each time the scene comes up
   // (slam-in, flash, confetti), then idles with a shine, a bobbing trophy and
-  // falling confetti. Transform and opacity only, so it holds up on the Pi;
-  // `lite` drops the turning rays and most of the confetti.
+  // falling confetti.
   // victory: the fighter's victory pose, if they have one: shown in the frame
   // instead of the cut-out, and never flipped (it has writing on it).
   type Fighter = { name: string; player: string; kana: string; img: string; imgMirrored?: string; victory?: string; mirror?: boolean };
@@ -23,14 +22,12 @@
     run = null,
     kicker = TITLES.champion,
     awards = [],
-    lite = false,
   }: {
     champion: Fighter; // name: combat name (or the player's own); player: as typed for the tournament
     runnerUp?: Fighter | null;
     run?: ChampionRun | null; // their tournament, for the stat tiles (none: no tiles, e.g. the battle royale)
     kicker?: string;
     awards?: TickerAward[]; // the awards ticker along the bottom (none: no ticker)
-    lite?: boolean;
   } = $props();
 
   // The ticker scrolls at a steady speed whatever the number of awards: the
@@ -66,7 +63,7 @@
   // the second after the slam, so it reads as a burst; then they loop.
   const COLOURS = ["var(--gold)", "var(--gold)", "var(--paper)", "var(--red)", "#3fa0ff", "#ffe27a"];
   // svelte-ignore state_referenced_locally
-  const confetti = Array.from({ length: lite ? 16 : 46 }, () => ({
+  const confetti = Array.from({ length: 46 }, () => ({
     left: (Math.random() * 100).toFixed(1),
     w: Math.round(10 + Math.random() * 12),
     h: Math.round(6 + Math.random() * 8),
@@ -78,7 +75,7 @@
   }));
 </script>
 
-<div class="champ" class:lite>
+<div class="champ">
   <div class="watermark" lang="ja" aria-hidden="true">チャンピオン</div>
   <div class="rays-wrap" aria-hidden="true"><div class="rays"></div></div>
 
@@ -224,9 +221,6 @@
     mask-image: radial-gradient(circle, #000 0 22%, rgb(0 0 0 / 0.35) 34%, transparent 50%);
     will-change: transform;
     animation: spin 90s linear infinite;
-  }
-  .lite .rays {
-    animation: none;
   }
   @keyframes rays-in {
     from {

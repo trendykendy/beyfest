@@ -77,5 +77,5 @@ Re-make the package after any code change.
 
 ## More
 
-Troubleshooting, backups, the organiser workflow, the Raspberry Pi setup and
+Troubleshooting, backups, the organiser workflow and
 development notes are all in [`tournament-app/README.md`](tournament-app/README.md).
