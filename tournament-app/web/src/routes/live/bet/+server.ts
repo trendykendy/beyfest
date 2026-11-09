@@ -4,11 +4,13 @@ import type PocketBase from "pocketbase";
 import { bookie } from "$lib/server/bookie";
 import { oneAtATime } from "$lib/server/oneAtATime";
 import { loadBetting, loadPeople, loadTournamentView } from "$lib/server/load";
-import { books, gold } from "$lib/betting";
-import { bettingOpen, matchOdds } from "$lib/odds";
+import { books, gold, quoteWager } from "$lib/betting";
+import { bettingOpen } from "$lib/odds";
 
 // The phone page's betting (play money, see lib/odds.ts and lib/betting.ts).
-//   { action: "bet", id, token, match, pick, stake, odds } → { ok: true }
+//   { action: "bet", id, token, match, market, choice, stake, odds } → { ok: true }
+// market: "match" (choice = a player id), "finish" or "margin" (choice = a
+// selection key); a missing market is a match wager with `pick` as before.
 // id and token are the phone's sign-in (/live/me). Everything is checked
 // here against fresh data, never trusted from the phone. If the odds moved
 // since the phone showed them, nothing is placed and the reply (409) carries
@@ -24,7 +26,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 async function bet(
   pb: PocketBase,
-  body: { id?: unknown; token?: unknown; match?: unknown; pick?: unknown; stake?: unknown; odds?: unknown },
+  body: { id?: unknown; token?: unknown; match?: unknown; market?: unknown; choice?: unknown; pick?: unknown; stake?: unknown; odds?: unknown },
 ) {
   const id = String(body.id ?? "");
   const me = await pb
@@ -39,8 +41,10 @@ async function bet(
   if (!view.tournament) error(409, "Betting opens once the groups are drawn.");
   const m = view.matches.find((x) => x.id === body.match);
   if (!m || !bettingOpen(m)) error(409, "Betting on that match has closed.");
-  const pick = String(body.pick ?? "");
-  if (pick !== m.p1 && pick !== m.p2) error(400, "Pick one of the two bladers.");
+  const market = String(body.market ?? "match");
+  const choice = String(body.choice ?? body.pick ?? "");
+  const quote = quoteWager(market, m, view.matches, choice);
+  if ("error" in quote) error(400, quote.error);
 
   const people = await loadPeople(pb);
   const { bettors, bets } = await loadBetting(pb, view.tournament.id, people);
@@ -50,10 +54,20 @@ async function bet(
   if (!Number.isInteger(stake) || stake < 1) error(400, "Wager a whole number of gold.");
   if (stake > balance) error(400, `You only have ${gold(balance)}.`);
 
-  const odds = matchOdds(m, view.matches);
-  const now = pick === m.p1 ? odds.p1 : odds.p2;
+  const now = quote.odds;
   if (now !== Number(body.odds)) return json({ odds: now, message: "The odds just changed." }, { status: 409 });
 
-  await pb.collection("bets").create({ tournament: view.tournament.id, person: id, who: me.name, market: "match", match: m.id, pick, stake, odds: now });
+  const isMatch = market === "match";
+  await pb.collection("bets").create({
+    tournament: view.tournament.id,
+    person: id,
+    who: me.name,
+    market,
+    match: m.id,
+    pick: isMatch ? choice : "",
+    selection: isMatch ? "" : choice,
+    stake,
+    odds: now,
+  });
   return json({ ok: true });
 }

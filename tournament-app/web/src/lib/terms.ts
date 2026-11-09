@@ -65,6 +65,19 @@ export const FINISH_NAMES = {
   dominant: "Annihilation",
 } as const;
 
+/** Winning-margin bands for margin wagers. Keys match `MARGIN_BANDS` in odds.ts. */
+export const MARGIN_NAMES = {
+  nailbiter: "Nail-biter",
+  comfortable: "Comfortable",
+  whitewash: "Whitewash",
+} as const;
+
+/** The two extra match wagers (Phase 2d). */
+export const PROP_MARKETS = {
+  finish: "Finishing blow",
+  margin: "Winning margin",
+} as const;
+
 /** The phone page. */
 export const PHONE = {
   now: "The Herald",

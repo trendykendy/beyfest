@@ -1,14 +1,56 @@
-import { START_BALANCE } from "./odds";
+import { FINISH_KEYS, MARGIN_BANDS, START_BALANCE, marginBand, matchOdds, propOdds, type FinishKey, type MarginBand } from "./odds";
 import { WAGERS } from "./terms";
 import type { PBMatch } from "./view";
 
 // An amount of play money as every screen shows it: "12,760 gold".
 export const gold = (n: number) => `${n.toLocaleString("en-IE")} ${WAGERS.currency}`;
 
-// What a wager is on. Only "match" (who wins a match) can be placed so far;
-// the finishing-blow, margin and outright markets come next (Phase 2d).
-export type Market = "match";
-export const MARKETS: readonly Market[] = ["match"];
+// What a wager is on:
+//   match  — who wins a match (pick: the player)
+//   finish — the finishing blow: how the deciding round is won (selection:
+//            a FINISH_KEYS key)
+//   margin — the winning margin band (selection: a MARGIN_BANDS key)
+// Outrights come with Phase 2d's third part.
+export type Market = "match" | "finish" | "margin";
+export const MARKETS: readonly Market[] = ["match", "finish", "margin"];
+
+// The selections a market takes ("match" takes a player instead).
+export const SELECTIONS: Record<Exclude<Market, "match">, readonly string[]> = {
+  finish: FINISH_KEYS,
+  margin: MARGIN_BANDS,
+};
+
+// The odds a wager would get right now, or why it can't be placed. Shared
+// by the phone (to show them) and the server (which checks them again before
+// taking the wager), so both agree. Assumes betting on the match is open.
+//   match:          `choice` is a player id
+//   finish, margin: `choice` is a selection key
+export function quoteWager(market: string, m: PBMatch, matches: PBMatch[], choice: string): { odds: number } | { error: string } {
+  if (market === "match") {
+    if (choice !== m.p1 && choice !== m.p2) return { error: "Pick one of the two bladers." };
+    const o = matchOdds(m, matches);
+    return { odds: choice === m.p1 ? o.p1 : o.p2 };
+  }
+  if (market === "finish" || market === "margin") {
+    if (!SELECTIONS[market].includes(choice)) return { error: "Pick one of the options." };
+    const o = propOdds(m, matches);
+    const odds = market === "finish" ? o.finish[choice as FinishKey] : o.margin[choice as MarginBand];
+    return odds === null ? { error: "That can't happen now." } : { odds };
+  }
+  return { error: "Unknown wager." };
+}
+
+const ROUND_PTS: Record<string, number> = { spin: 1, knockout: 2, dominant: 3 };
+
+// The finish of a finished match's deciding round, from its round log; null
+// when the log doesn't add up to the result (a corrected result drops it).
+export function decidingFinish(m: PBMatch): string | null {
+  const log = m.liveLog ?? [];
+  if (!log.length) return null;
+  const pts = (who: 1 | 2) => log.filter((r) => r.who === who).reduce((a, r) => a + (ROUND_PTS[r.finish] ?? 0), 0);
+  if (pts(1) !== m.p1Score || pts(2) !== m.p2Score) return null;
+  return log[log.length - 1].finish;
+}
 
 // Bets as the phone page sees them. Balances are never stored: they're
 // worked out from the bets and the match results every time, so entering,
@@ -34,16 +76,29 @@ export interface PBBet {
 
 export type BetState = "open" | "won" | "lost" | "refund";
 
-// How a bet stands. A walkover refunds it (nobody played). So does a match
-// whose players changed under it (a corrected result upstream), since the
-// pick isn't in that match any more. A market this version doesn't know is
-// refunded rather than guessed at.
+// How a bet stands. A walkover refunds it (nobody played). A market this
+// version doesn't know is refunded rather than guessed at.
+//   match:  refunded if its players changed under it (a corrected result
+//           upstream), since the pick isn't in that match any more.
+//   finish: from the deciding round in the round log; refunded if the log
+//           doesn't add up to the result (it's dropped when a result is
+//           corrected).
+//   margin: from the final score.
+// Finish and margin wagers are on the match itself, so they ride on
+// whoever plays it.
 export function betState(bet: PBBet, match: PBMatch | undefined): BetState {
   if (!MARKETS.includes(bet.market)) return "refund";
   if (!match) return "refund";
-  if (bet.pick !== match.p1 && bet.pick !== match.p2) return "refund";
+  if (bet.market === "match" && bet.pick !== match.p1 && bet.pick !== match.p2) return "refund";
   if (match.matchStatus !== "done") return "open";
   if (match.walkover) return "refund";
+  if (bet.market === "finish") {
+    const f = decidingFinish(match);
+    return f === null ? "refund" : f === bet.selection ? "won" : "lost";
+  }
+  if (bet.market === "margin") {
+    return marginBand(match.p1Score ?? 0, match.p2Score ?? 0) === bet.selection ? "won" : "lost";
+  }
   return match.winner === bet.pick ? "won" : "lost";
 }
 

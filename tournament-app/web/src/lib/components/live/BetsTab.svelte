@@ -1,7 +1,8 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { books, gold, leaderboard, type PBBet, type PBBettor, type SettledBet } from "$lib/betting";
-  import { bettingOpen, matchOdds } from "$lib/odds";
+  import { books, gold, leaderboard, quoteWager, type Market, type PBBet, type PBBettor, type SettledBet } from "$lib/betting";
+  import { bettingOpen, FINISH_KEYS, MARGIN_BANDS, matchOdds, propOdds } from "$lib/odds";
+  import { FINISH_NAMES, MARGIN_NAMES, PROP_MARKETS } from "$lib/terms";
   import { isLive, liveMatches, matchContext, tierOf, upNext, type PBMatch } from "$lib/view";
   import type { Me, PBPerson } from "$lib/people";
   import SignIn from "./SignIn.svelte";
@@ -46,33 +47,47 @@
   const byId = $derived(new Map(matches.map((m) => [m.id, m])));
 
   // ── The bet slip: one open at a time ────────────────────────────────
-  let slip = $state<{ match: string; pick: string; stake: number; odds: number | null } | null>(null);
+  // market "match": choice is a player id; "finish"/"margin": a selection key.
+  type Slip = { match: string; market: Market; choice: string; stake: number; odds: number | null };
+  let slip = $state<Slip | null>(null);
   let busy = $state(false);
   let say = $state<{ text: string; good: boolean } | null>(null);
+  // Which match's finishing-blow and margin wagers are showing ("More wagers").
+  let more = $state<string | null>(null);
 
   // Betting closed on the slip's match (match point, or the result went in
-  // while it was open): put the slip away.
+  // while it was open), or what it backs can't happen any more: put it away.
   $effect(() => {
     if (!slip) return;
     const m = byId.get(slip.match);
-    if (!m || !bettingOpen(m)) slip = null;
+    if (!m || !bettingOpen(m) || "error" in quoteWager(slip.market, m, matches, slip.choice)) slip = null;
   });
 
-  function choose(m: PBMatch, pick: string) {
+  const chosen = (m: PBMatch, market: Market, choice: string) =>
+    slip?.match === m.id && slip.market === market && slip.choice === choice;
+
+  function choose(m: PBMatch, market: Market, choice: string) {
     say = null;
-    slip = slip?.match === m.id && slip.pick === pick ? null : { match: m.id, pick, stake: 0, odds: null };
+    slip = chosen(m, market, choice) ? null : { match: m.id, market, choice, stake: 0, odds: null };
   }
   function add(n: number) {
     if (!slip || !mine) return;
     slip.stake = Math.min(mine.balance, slip.stake + n);
   }
 
+  // What a wager backs, in words: "Kerbeus", "Banishment", "Nail-biter".
+  function choiceName(market: Market, choice: string): string {
+    if (market === "finish") return FINISH_NAMES[choice as keyof typeof FINISH_NAMES] ?? choice;
+    if (market === "margin") return MARGIN_NAMES[choice as keyof typeof MARGIN_NAMES] ?? choice;
+    return names.get(choice) ?? "?";
+  }
+
   // The odds the slip will bet at: the shown ones, or the new ones the server
   // offered after they moved.
   function slipOdds(m: PBMatch): number {
     if (slip?.odds) return slip.odds;
-    const o = matchOdds(m, matches);
-    return slip?.pick === m.p1 ? o.p1 : o.p2;
+    const q = slip ? quoteWager(slip.market, m, matches, slip.choice) : null;
+    return q && "odds" in q ? q.odds : 0;
   }
 
   async function place(m: PBMatch) {
@@ -84,11 +99,20 @@
       const res = await fetch("/live/bet", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "bet", id: me.id, token: me.token, match: m.id, pick: slip.pick, stake: slip.stake, odds }),
+        body: JSON.stringify({
+          action: "bet",
+          id: me.id,
+          token: me.token,
+          match: m.id,
+          market: slip.market,
+          choice: slip.choice,
+          stake: slip.stake,
+          odds,
+        }),
       });
       const body = await res.json().catch(() => ({}));
       if (res.ok) {
-        say = { text: `Bet placed: ${money(slip.stake)} on ${names.get(slip.pick)}.`, good: true };
+        say = { text: `Bet placed: ${money(slip.stake)} on ${choiceName(slip.market, slip.choice)}.`, good: true };
         slip = null;
         await invalidateAll();
       } else if (res.status === 409 && typeof body.odds === "number") {
@@ -106,10 +130,16 @@
     }
   }
 
+  // A wager in the "Your bets" list: "Kerbeus v Xcalius" for a match
+  // wager, "Banishment · Kerbeus v Xcalius" for the others.
   function betLine(b: SettledBet): string {
     const m = byId.get(b.match);
-    const other = m ? names.get(b.pick === m.p1 ? m.p2 : m.p1) : "";
-    return `${names.get(b.pick) ?? "?"}${other ? ` v ${other}` : ""}`;
+    if (b.market === "match") {
+      const other = m ? names.get(b.pick === m.p1 ? m.p2 : m.p1) : "";
+      return `${names.get(b.pick) ?? "?"}${other ? ` v ${other}` : ""}`;
+    }
+    const pair = m ? ` · ${names.get(m.p1) ?? "?"} v ${names.get(m.p2) ?? "?"}` : "";
+    return `${choiceName(b.market, b.selection)}${pair}`;
   }
 </script>
 
@@ -144,8 +174,8 @@
         </div>
         <div class="sides">
           {#each [{ id: m.p1, odds: o.p1 }, { id: m.p2, odds: o.p2 }] as s (s.id)}
-            {@const on = slip?.match === m.id && slip.pick === s.id}
-            <button class="side" class:on aria-pressed={on} disabled={closed} onclick={() => choose(m, s.id)}>
+            {@const on = chosen(m, "match", s.id)}
+            <button class="side" class:on aria-pressed={on} disabled={closed} onclick={() => choose(m, "match", s.id)}>
               <span class="nm">{names.get(s.id)}</span>
               {#if !closed}<span class="od">{oddsText(s.odds)}</span>{/if}
             </button>
@@ -153,6 +183,31 @@
         </div>
         {#if closed}
           <p class="shut" role="status">Betting closed · waiting for the result</p>
+        {:else}
+          <!-- Finishing blow and winning margin: tucked away until asked for. -->
+          <button class="more-toggle" aria-expanded={more === m.id} onclick={() => (more = more === m.id ? null : m.id)}>
+            {more === m.id ? "Fewer wagers" : "More wagers"}
+          </button>
+          {#if more === m.id}
+            {@const p = propOdds(m, matches)}
+            {#each [{ market: "finish" as const, keys: FINISH_KEYS, odds: p.finish }, { market: "margin" as const, keys: MARGIN_BANDS, odds: p.margin }] as row (row.market)}
+              <div class="prop">
+                <span class="prop-h">{PROP_MARKETS[row.market]}</span>
+                <div class="prop-opts">
+                  {#each row.keys as k (k)}
+                    {@const od = (row.odds as Record<string, number | null>)[k]}
+                    {#if od !== null}
+                      {@const on = chosen(m, row.market, k)}
+                      <button class="side small" class:on aria-pressed={on} onclick={() => choose(m, row.market, k)}>
+                        <span class="nm">{choiceName(row.market, k)}</span>
+                        <span class="od">{oddsText(od)}</span>
+                      </button>
+                    {/if}
+                  {/each}
+                </div>
+              </div>
+            {/each}
+          {/if}
         {/if}
         {#if slip?.match === m.id && !closed}
           {@const odds = slipOdds(m)}
@@ -361,6 +416,50 @@
     color: #8a90ad;
     border-color: #c5c9dc;
     min-height: 48px;
+  }
+  /* "More wagers": a quiet text toggle under the bladers. */
+  .more-toggle {
+    display: block;
+    margin: -4px 12px 10px auto;
+    min-height: 44px;
+    padding: 0 4px;
+    background: none;
+    border: 0;
+    color: var(--ink-soft);
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .prop {
+    padding: 0 12px 12px;
+  }
+  .prop-h {
+    display: block;
+    font-stretch: 75%;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+  }
+  /* Up to three options share a row (two once a Whitewash can't happen). */
+  .prop-opts {
+    display: flex;
+    gap: 6px;
+  }
+  .prop-opts .side {
+    flex: 1 1 0;
+  }
+  .side.small {
+    min-height: 56px;
+  }
+  .side.small .nm {
+    font-size: 1rem;
+  }
+  .side.small .od {
+    font-size: 1.15rem;
   }
   .shut {
     margin: 0 12px 12px;
