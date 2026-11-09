@@ -180,12 +180,20 @@ interface Job {
   environment?: string;
 }
 
-// Everything `generate` can make: the shared clips as written on the list
-// (their delivery is still to be settled), each starter's own calls as
-// battle cries, and with --names the name calls.
+// The shared lines and name calls in the same voice and room as the cries,
+// so nothing loses her accent: the accent tag, and "exclaiming" on a line
+// that ends in "!" ("and" is said plainly, between names).
+function announced(c: Clip): Job {
+  const text = spokenText(c.says);
+  const tags = text.endsWith("!") ? `${ACCENT} [exclaiming]` : ACCENT;
+  return { url: c.url, text: `${tags} ${text}`, settings: CRY, environment: CRY_ROOM };
+}
+
+// Everything `generate` can make: the shared clips, each starter's own calls
+// as battle cries, and with --names the name calls.
 function jobs(startersJson: string): Job[] {
   const starters = JSON.parse(startersJson) as ({ name: string } & Partial<Record<FighterCall, string>>)[];
-  const plain = (c: Clip): Job => ({ url: c.url, text: spokenText(c.says), settings: SETTINGS });
+  const plain = announced;
   return [
     ...ANNOUNCER.flatMap((s) => s.clips).map(plain),
     ...starters.flatMap((s) =>
