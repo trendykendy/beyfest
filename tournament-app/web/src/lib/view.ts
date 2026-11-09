@@ -275,7 +275,8 @@ const begun = (m: PBMatch) => m.matchStatus === "done" || isLive(m);
 // Nothing played or started yet (the Gathering, then the group overview).
 const beforeFirstMatch = (ms: PBMatch[]) => !ms.some(begun);
 // Every group match done, the knockout not generated yet (the Respite).
-const inRespite = (ms: PBMatch[]) => {
+// (Outright wagers are open exactly then: lib/outrightMarket.ts.)
+export const inRespite = (ms: PBMatch[]) => {
   const g = groupMatches(ms);
   return g.length > 0 && g.every((m) => m.matchStatus === "done") && knockoutMatches(ms).length === 0;
 };
