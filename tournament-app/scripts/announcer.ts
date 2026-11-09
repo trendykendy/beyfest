@@ -5,12 +5,14 @@
 //
 //   bun run announcer voices                  the voices in the ElevenLabs account
 //   bun run announcer audition <id>[,<id>…]   a few sample lines per voice, into audio/audition/
-//   bun run announcer try <variants.json> --voice <id>   delivery experiments, with a listening page
-//   bun run announcer generate --voice <id>   every clip that isn't there yet
-//       --force        remake clips that are already there
-//       --names        include the 12 name calls (those start as the 2026 files)
-//       --only <text>  just the clips whose file name contains <text>
-//       --dry-run      list what would be made, without calling ElevenLabs
+//   bun run announcer try <variants.json>     delivery experiments, with a listening page
+//   bun run announcer generate                every clip that isn't there yet
+//       --force        remake clips that are already there (the old ones go into the history)
+//   bun run announcer candidates              variants of every line marked Redo on /admin/voices
+//       --set <file>   the variants to make, per line, instead of the default three
+//   Any command: --only <text> (just clips whose file name contains it),
+//   --dry-run (list, without calling ElevenLabs), --voice <id> (default: the
+//   Tetrafatalis Announcer, lib/voiceDirection.ts).
 //
 // The API key comes from ../.env.local (written by the ElevenLabs CLI's
 // onboarding; `bun run announcer` loads it). It's never in the code.
@@ -20,17 +22,17 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
-import { ANNOUNCER, type Clip } from "../web/src/lib/clips.ts";
-import { nameCalls } from "./clips.ts";
-import { FIGHTER_CALLS, type FighterCall } from "../web/src/lib/fighters.ts";
+import { voiceSections, type StarterVoices } from "../web/src/lib/clips.ts";
+import { defaultDirections, variantsOf, VOICE_ID, type Direction } from "../web/src/lib/voiceDirection.ts";
+import { voiceStore } from "../web/src/lib/server/voiceStore.ts";
 
 const ROOT = join(import.meta.dir, "..");
 const STATIC = join(ROOT, "web/static");
 const STARTERS = join(STATIC, "starter-fighters/fighters.json");
 const AUDITION = join(ROOT, "audio/audition"); // audio/ is gitignored
 
-// Eleven v4: the highest-quality model. It takes only stability and
-// similarity; a lower stability gives an announcer more swing and energy.
+// For `audition` and `try` only (the clips use lib/voiceDirection.ts):
+// Eleven v4, which takes only stability and similarity.
 const MODEL = "eleven_v4";
 const SETTINGS = { stability: 0.35, similarityBoost: 0.75 };
 const FORMAT = "mp3_44100_128";
@@ -40,13 +42,6 @@ const AUDITION_LINES = [
   { file: "circle-one", text: "Circle One!" },
   { file: "hero", text: "The Breycist … Hero of Gyrondor!" },
 ];
-
-// What the voice actually reads. A line written "…Still Standing!" on the
-// list is said straight after a name, so the leading and trailing ellipses
-// go ("and", "Still Standing!"); one in the middle stays as a pause.
-export function spokenText(says: string): string {
-  return says.replace(/^[\s…]+/, "").replace(/[\s…]+$/, "");
-}
 
 const client = () => {
   if (!process.env.ELEVENLABS_API_KEY) {
@@ -158,100 +153,93 @@ async function tryVariants(file: string, voiceId: string) {
   console.log(`\nListen: ${join(dir, "index.html")}`);
 }
 
-// ── The battle cries ─────────────────────────────────────────────────
-// How each fighter's own calls are delivered, settled by ear on 2026-11-09
-// (audio/audition/battle-cry-3, take 09, then checked on three more names):
-// the accent tag holds her refined English accent; the pause after the name
-// gives an almost-growled name, then the cry. Eleven v4, stability 0.3,
-// voice match 0.95, hall reverb.
-const ACCENT = "[regal, commanding, in a refined English accent]";
-const CRY = { stability: 0.3, similarityBoost: 0.95 };
-const CRY_ROOM = "hall";
-const CRY_LINES: Record<FighterCall, (name: string) => string> = {
-  callVictorious: (name) => `${ACCENT} ${name}... [exclaiming triumphantly] is VICTORIOUS!!!`,
-  callRoyaleChampion: (name) => `${ACCENT} ${name}... [exclaiming triumphantly] Last One Standing!!!`,
-  callChampion: (name) => `${ACCENT} ${name}... [exclaiming triumphantly] Hero of Gyrondor!!!`,
-};
+// ── The clips themselves ─────────────────────────────────────────────
+// Each clip's direction (text, model, settings, room) is its own if it was
+// re-done on the review page (voice-review/directions.json), else the default
+// in web/src/lib/voiceDirection.ts.
 
-interface Job {
-  url: string;
-  text: string;
-  settings: { stability: number; similarityBoost: number };
-  environment?: string;
+const store = voiceStore(ROOT);
+const starters = () => JSON.parse(readFileSync(STARTERS, "utf8")) as StarterVoices[];
+const urls = (list: StarterVoices[]) => voiceSections(list).flatMap((s) => s.clips.map((c) => c.url));
+
+async function speakAs(voiceId: string, d: Direction): Promise<Buffer> {
+  const audio = await client().textToSpeech.convert(voiceId, {
+    text: d.text,
+    modelId: d.model,
+    outputFormat: FORMAT,
+    voiceSettings: { stability: d.stability, similarityBoost: d.similarity },
+    ...(d.environment ? { audioEffects: { environmentId: d.environment } } : {}),
+  });
+  return Buffer.from(await new Response(audio).arrayBuffer());
 }
 
-// The shared lines and name calls in the same voice and room as the cries,
-// so nothing loses her accent: the accent tag, and "exclaiming" on a line
-// that ends in "!" ("and" is said plainly, between names).
-function announced(c: Clip): Job {
-  const text = spokenText(c.says);
-  const tags = text.endsWith("!") ? `${ACCENT} [exclaiming]` : ACCENT;
-  return { url: c.url, text: `${tags} ${text}`, settings: CRY, environment: CRY_ROOM };
-}
+const voice = () => arg("--voice") ?? VOICE_ID;
 
-// Everything `generate` can make: the shared clips, each starter's own calls
-// as battle cries, and with --names the name calls.
-function jobs(startersJson: string): Job[] {
-  const starters = JSON.parse(startersJson) as ({ name: string } & Partial<Record<FighterCall, string>>)[];
-  const plain = announced;
-  return [
-    ...ANNOUNCER.flatMap((s) => s.clips).map(plain),
-    ...starters.flatMap((s) =>
-      FIGHTER_CALLS.filter((call) => s[call]).map((call) => ({
-        url: `/starter-fighters/${s[call]}`,
-        text: CRY_LINES[call](s.name),
-        settings: CRY,
-        environment: CRY_ROOM,
-      })),
-    ),
-    ...(flag("--names") ? nameCalls(startersJson).clips.map(plain) : []),
-  ];
-}
-
-async function generate(voiceId: string) {
+// Make every clip that isn't there yet (or, with --force, remake them; the
+// old one goes into its history on the review page first).
+async function generate() {
+  const list = starters();
+  const defaults = defaultDirections(list);
   const only = arg("--only");
-  const todo = jobs(readFileSync(STARTERS, "utf8"))
-    .filter((j) => !only || j.url.includes(only))
-    .filter((j) => flag("--force") || !existsSync(join(STATIC, j.url)));
-  console.log(`${todo.length} clip(s) to make with voice ${voiceId}${flag("--dry-run") ? " (dry run)" : ""}`);
-  const made: Job[] = [];
-  for (const j of todo) {
+  const todo = urls(list)
+    .filter((u) => !only || u.includes(only))
+    .filter((u) => flag("--force") || !existsSync(join(STATIC, u)));
+  console.log(`${todo.length} clip(s) to make with voice ${voice()}${flag("--dry-run") ? " (dry run)" : ""}`);
+  for (const url of todo) {
+    const d = store.directionFor(url, defaults);
+    if (!d) continue;
     if (flag("--dry-run")) {
-      console.log(`  ${j.url}  "${j.text}"`);
+      console.log(`  ${url}  "${d.text}"`);
       continue;
     }
-    const audio = await client().textToSpeech.convert(voiceId, {
-      text: j.text,
-      modelId: MODEL,
-      outputFormat: FORMAT,
-      voiceSettings: j.settings,
-      ...(j.environment ? { audioEffects: { environmentId: j.environment } } : {}),
-    });
-    trimTo(Buffer.from(await new Response(audio).arrayBuffer()), join(STATIC, j.url));
-    made.push(j);
-    console.log(`  made ${j.url}`);
+    const raw = await speakAs(voice(), d);
+    store.archive(url, "Regenerated", d); // only if there was one already
+    trimTo(raw, join(STATIC, url));
+    console.log(`  made ${url}`);
   }
-  if (made.length) {
-    // A page to listen to this run's clips where they now sit in web/static.
-    const page = join(AUDITION, "generated.html");
-    const rows = made.map((j) => `<li><code>${j.url}</code><br><audio controls src="../../web/static${j.url}"></audio></li>`);
-    mkdirSync(AUDITION, { recursive: true });
-    writeFileSync(
-      page,
-      `<!doctype html><meta charset="utf-8"><title>Generated clips</title><style>body{font:16px system-ui;max-width:760px;margin:2em auto;padding:0 16px}li{margin:0 0 1.2em}audio{width:100%}</style><h1>Generated clips</h1><ol>${rows.join("\n")}</ol>`,
-    );
-    console.log(`\nListen: ${page}`);
+}
+
+// Candidates for every line marked Redo on the review page (or just those
+// matching --only): three variants by default (voiceDirection.ts variantsOf),
+// or the ones written for it in a --set file: { "<clip url>": [ { text?,
+// stability?, similarity?, model?, environment? }, … ] }, each laid over the
+// line's current direction. They appear under the line on the page.
+async function candidates() {
+  const list = starters();
+  const defaults = defaultDirections(list);
+  const marks = store.marks();
+  const only = arg("--only");
+  const set: Record<string, Partial<Direction>[]> = arg("--set") ? JSON.parse(readFileSync(arg("--set")!, "utf8")) : {};
+  const todo = urls(list).filter((u) => (only ? u.includes(only) : marks[u]?.status === "redo"));
+  console.log(`${todo.length} line(s) to make candidates for${flag("--dry-run") ? " (dry run)" : ""}`);
+  for (const url of todo) {
+    const base = store.directionFor(url, defaults);
+    if (!base) continue;
+    const variants = set[url]?.map((v) => ({ ...base, ...v })) ?? variantsOf(base);
+    console.log(`  ${url}${marks[url]?.note ? `  (note: ${marks[url].note})` : ""}`);
+    for (const d of variants) {
+      if (flag("--dry-run")) {
+        console.log(`    "${d.text}"`);
+        continue;
+      }
+      const tmp = join(tmpdir(), `candidate-${process.pid}-${Date.now()}.mp3`);
+      trimTo(await speakAs(voice(), d), tmp);
+      store.addCandidate(url, tmp, d);
+      console.log(`    made "${d.text}"`);
+    }
   }
+  if (todo.length && !flag("--dry-run")) console.log("\nListen and pick on the review page: /admin/voices (Candidates to hear)");
 }
 
 if (import.meta.main) {
   const [command, rest] = [process.argv[2], process.argv[3]];
   if (command === "voices") await listVoices();
   else if (command === "audition" && rest) await audition(rest.split(","));
-  else if (command === "generate" && arg("--voice")) await generate(arg("--voice")!);
-  else if (command === "try" && rest && arg("--voice")) await tryVariants(rest, arg("--voice")!);
+  else if (command === "generate") await generate();
+  else if (command === "candidates") await candidates();
+  else if (command === "try" && rest) await tryVariants(rest, voice());
   else {
-    console.log("Usage: bun run announcer voices | audition <id>[,<id>…] | generate --voice <id> [--force] [--names] [--only <text>] [--dry-run]");
+    console.log("Usage: bun run announcer voices | audition <id>[,<id>…] | try <variants.json> | generate [--force] [--only <text>] | candidates [--set <file.json>] [--only <text>]  (--voice <id>, --dry-run)");
     process.exit(1);
   }
 }
