@@ -315,7 +315,7 @@
     gap: 4px;
     font-size: 0.9rem;
     color: var(--on-field-soft);
-    min-width: 200px;
+    min-width: min(200px, 100%);
     flex: 1;
   }
   .fields label.check {
@@ -348,15 +348,18 @@
   }
   .fighter .fields {
     flex: 1;
-    min-width: 300px;
+    min-width: min(300px, 100%);
   }
   /* Previews on the intro's banner colours. */
   .previews {
     display: flex;
+    flex-wrap: wrap;
     gap: 6px;
+    max-width: 100%;
   }
   .preview {
     width: 150px;
+    max-width: calc(50% - 3px); /* two to a row on a phone */
     height: 100px;
     display: grid;
     place-items: center;
