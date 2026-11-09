@@ -1,5 +1,14 @@
 import { START_BALANCE } from "./odds";
+import { WAGERS } from "./terms";
 import type { PBMatch } from "./view";
+
+// An amount of play money as every screen shows it: "12,760 gold".
+export const gold = (n: number) => `${n.toLocaleString("en-IE")} ${WAGERS.currency}`;
+
+// What a wager is on. Only "match" (who wins a match) can be placed so far;
+// the finishing-blow, margin and outright markets come next (Phase 2d).
+export type Market = "match";
+export const MARKETS: readonly Market[] = ["match"];
 
 // Bets as the phone page sees them. Balances are never stored: they're
 // worked out from the bets and the match results every time, so entering,
@@ -14,9 +23,11 @@ export interface PBBettor {
 export interface PBBet {
   id: string;
   bettor: string; // PBBettor id
+  market: Market;
   match: string;
   pick: string; // player id
-  stake: number; // whole dollars
+  selection: string; // what was backed, for markets that aren't a player ("" for "match")
+  stake: number; // whole gold
   odds: number; // decimal odds, fixed when the bet was placed
   created: string; // ISO
 }
@@ -25,8 +36,10 @@ export type BetState = "open" | "won" | "lost" | "refund";
 
 // How a bet stands. A walkover refunds it (nobody played). So does a match
 // whose players changed under it (a corrected result upstream), since the
-// pick isn't in that match any more.
+// pick isn't in that match any more. A market this version doesn't know is
+// refunded rather than guessed at.
 export function betState(bet: PBBet, match: PBMatch | undefined): BetState {
+  if (!MARKETS.includes(bet.market)) return "refund";
   if (!match) return "refund";
   if (bet.pick !== match.p1 && bet.pick !== match.p2) return "refund";
   if (match.matchStatus !== "done") return "open";
