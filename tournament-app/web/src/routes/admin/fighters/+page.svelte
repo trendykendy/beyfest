@@ -98,7 +98,8 @@
     <button class="btn" type="submit">Add starting fighters</button>
     <span class="hint">
       Adds the fighters that come with the app. Ones already here only get missing details filled in,
-      so nothing you've changed is overwritten.
+      plus any of the app's voice clips that have been re-recorded since, so nothing you've changed or
+      uploaded yourself is overwritten.
     </span>
   </form>
 
