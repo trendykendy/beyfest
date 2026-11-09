@@ -1,4 +1,14 @@
-import { FINISH_KEYS, MARGIN_BANDS, START_BALANCE, marginBand, matchOdds, propOdds, type FinishKey, type MarginBand } from "./odds";
+import {
+  FINISH_KEYS,
+  MARGIN_BANDS,
+  START_BALANCE,
+  marginBand,
+  marginOpen,
+  matchOdds,
+  propOdds,
+  type FinishKey,
+  type MarginBand,
+} from "./odds";
 import { WAGERS } from "./terms";
 import type { PBMatch } from "./view";
 
@@ -33,6 +43,7 @@ export function quoteWager(market: string, m: PBMatch, matches: PBMatch[], choic
   }
   if (market === "finish" || market === "margin") {
     if (!SELECTIONS[market].includes(choice)) return { error: "Pick one of the options." };
+    if (market === "margin" && !marginOpen(m)) return { error: "Margin wagers close once the first point is scored." };
     const o = propOdds(m, matches);
     const odds = market === "finish" ? o.finish[choice as FinishKey] : o.margin[choice as MarginBand];
     return odds === null ? { error: "That can't happen now." } : { odds };

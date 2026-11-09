@@ -106,8 +106,13 @@ describe("propOdds", () => {
     expect(Object.values(o.finish).every((x) => x !== null)).toBe(true);
     expect(Object.values(o.margin).every((x) => x !== null)).toBe(true);
   });
-  test("once both have scored, a Whitewash isn't offered", () => {
-    expect(propOdds(match({ liveP1: 1, liveP2: 2 }), []).margin.whitewash).toBeNull();
+  test("margin wagers close once the first point is scored; finishing blow stays open", () => {
+    const o = propOdds(match({ liveP1: 2, liveP2: 0 }), []);
+    expect(Object.values(o.margin).every((x) => x === null)).toBe(true);
+    expect(Object.values(o.finish).every((x) => x !== null)).toBe(true);
+  });
+  test("at 4–0 in a first to 5 any finish can still decide it, so all three stay on offer", () => {
+    expect(Object.values(propOdds(match({ liveP1: 4, liveP2: 0 }), []).finish).every((x) => x !== null)).toBe(true);
   });
   test("bigger finishes decide more matches than their share of rounds", () => {
     // With the prior (40% spin, 40% knockout, 20% dominant rounds) about 19%
@@ -135,7 +140,9 @@ describe("quoteWager", () => {
   });
   test("an unknown option, an impossible one, or an unknown market is refused", () => {
     expect(quoteWager("finish", match(), [], "burst")).toHaveProperty("error");
-    expect(quoteWager("margin", match({ liveP1: 2, liveP2: 1 }), [], "whitewash")).toEqual({ error: "That can't happen now." });
+    expect(quoteWager("margin", match({ liveP1: 1, liveP2: 0 }), [], "comfortable")).toEqual({
+      error: "Margin wagers close once the first point is scored.",
+    });
     expect(quoteWager("exact", match(), [], "5-0")).toEqual({ error: "Unknown wager." });
   });
 });

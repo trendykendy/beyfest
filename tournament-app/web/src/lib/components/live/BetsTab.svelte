@@ -190,7 +190,8 @@
           </button>
           {#if more === m.id}
             {@const p = propOdds(m, matches)}
-            {#each [{ market: "finish" as const, keys: FINISH_KEYS, odds: p.finish }, { market: "margin" as const, keys: MARGIN_BANDS, odds: p.margin }] as row (row.market)}
+            <!-- A row with nothing to offer is left out (margin, once a point is scored). -->
+            {#each [{ market: "finish" as const, keys: FINISH_KEYS, odds: p.finish }, { market: "margin" as const, keys: MARGIN_BANDS, odds: p.margin }].filter((r) => Object.values(r.odds).some((v) => v !== null)) as row (row.market)}
               <div class="prop">
                 <span class="prop-h">{PROP_MARKETS[row.market]}</span>
                 <div class="prop-opts">

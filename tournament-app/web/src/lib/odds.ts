@@ -177,6 +177,11 @@ export const PROP_MIN_CHANCE = 0.005;
 // A finishing-blow or margin selection: its odds, or null if it isn't offered.
 export type PropOdds = { finish: Record<FinishKey, number | null>; margin: Record<MarginBand, number | null> };
 
+// Margin wagers close once the first point is scored (the organiser's call:
+// the margin is too easy to read after that). Finishing-blow wagers stay
+// open until match point, like match wagers.
+export const marginOpen = (m: PBMatch) => m.liveP1 === 0 && m.liveP2 === 0;
+
 // Live odds for a match's finishing-blow and margin wagers.
 export function propOdds(m: PBMatch, matches: PBMatch[]): PropOdds {
   const target = pointsToWin(m.stage, m.roundLabel);
@@ -192,6 +197,6 @@ export function propOdds(m: PBMatch, matches: PBMatch[]): PropOdds {
   const finish = {} as PropOdds["finish"];
   const margin = {} as PropOdds["margin"];
   for (const k of FINISH_KEYS) finish[k] = offer(finishP[k]);
-  for (const k of MARGIN_BANDS) margin[k] = offer(marginP[k]);
+  for (const k of MARGIN_BANDS) margin[k] = marginOpen(m) ? offer(marginP[k]) : null;
   return { finish, margin };
 }
