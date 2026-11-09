@@ -28,6 +28,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
     royale: view.royale,
     bettors: betting.bettors,
     bets: betting.bets,
+    loans: betting.loans,
   });
   return new Response(html, {
     headers: {

@@ -109,7 +109,7 @@
     const fromHash = location.hash.slice(1);
     if (TABS.some((t) => t.key === fromHash)) tab = fromHash as Tab;
     return liveUpdates(
-      ["tournaments", "groups", "players", "matches", "fighters", "tv_state", "people", "bets", "royales"],
+      ["tournaments", "groups", "players", "matches", "fighters", "tv_state", "people", "bets", "loans", "royales"],
       () => invalidateAll(),
       { everyMs: 30_000, onStatus: (up) => (online = up) },
     );
@@ -189,6 +189,7 @@
             {names}
             bettors={data.bettors}
             bets={data.bets}
+            loans={data.loans}
             people={data.people}
             me={meHere}
             enabled={data.betting}

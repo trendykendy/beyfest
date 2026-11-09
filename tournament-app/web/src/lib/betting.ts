@@ -12,6 +12,7 @@ import {
 import { WAGERS } from "./terms";
 import { OUTRIGHT_MARKETS, type OutrightMarket } from "./outrights";
 import { isOutright, outrightState } from "./outrightMarket";
+import { isPact, type PBLoan } from "./loans";
 import type { PBMatch } from "./view";
 
 // An amount of play money as every screen shows it: "12,760 gold".
@@ -127,19 +128,32 @@ export function payout(bet: PBBet, state: BetState): number {
   return 0;
 }
 
-export type SettledBet = PBBet & { state: BetState; returns: number };
+// cut: what a won wager gave up to a loan (0 otherwise).
+export type SettledBet = PBBet & { state: BetState; returns: number; cut: number };
+// A loan as its borrower's book sees it.
+export type LoanStanding = { loan: PBLoan; repaid: number; remaining: number; pact: boolean };
 export type BettorBook = {
   bettor: PBBettor;
   balance: number; // money to bet with now (open stakes are out of it)
   atStake: number; // in open bets
   bets: SettledBet[]; // newest first
+  loan: LoanStanding | null; // their active loan, if any
+  lent: number; // gold they've lent out to others (Pledges)
 };
 
-// Every bettor's balance and bets.
-export function books(bettors: PBBettor[], bets: PBBet[], matches: PBMatch[]): BettorBook[] {
+// PocketBase dates ("2026-11-09 10:40:11.481Z") and ISO both, as ms.
+const ms = (s: string) => Date.parse(s.replace(" ", "T")) || 0;
+
+// Every bettor's balance and bets, and their loans. Like balances, loan
+// repayments are never stored: an active loan pays the borrower its amount
+// (out of the lender's balance for a Pledge), and every wager the borrower
+// placed after it that wins gives up `rate` of its profit to the lender,
+// in the order placed, until amount × capMult has been repaid. A losing
+// wager costs nothing extra.
+export function books(bettors: PBBettor[], bets: PBBet[], matches: PBMatch[], loans: PBLoan[] = []): BettorBook[] {
   const byId = new Map(matches.map((m) => [m.id, m]));
   const out = new Map<string, BettorBook>(
-    bettors.map((b) => [b.id, { bettor: b, balance: START_BALANCE, atStake: 0, bets: [] }]),
+    bettors.map((b) => [b.id, { bettor: b, balance: START_BALANCE, atStake: 0, bets: [], loan: null, lent: 0 }]),
   );
   for (const bet of bets) {
     const book = out.get(bet.bettor);
@@ -148,17 +162,49 @@ export function books(bettors: PBBettor[], bets: PBBet[], matches: PBMatch[]): B
     const returns = payout(bet, state);
     book.balance += returns - bet.stake;
     if (state === "open") book.atStake += bet.stake;
-    book.bets.push({ ...bet, state, returns });
+    book.bets.push({ ...bet, state, returns, cut: 0 });
+  }
+  for (const loan of loans.filter((l) => l.status === "active")) {
+    const borrower = out.get(loan.borrower);
+    if (!borrower) continue;
+    const lender = loan.lender ? out.get(loan.lender) : undefined;
+    borrower.balance += loan.amount;
+    if (lender) {
+      lender.balance -= loan.amount;
+      lender.lent += loan.amount;
+    }
+    const cap = Math.round(loan.amount * loan.capMult);
+    let repaid = 0;
+    const after = borrower.bets
+      .filter((b) => b.state === "won" && ms(b.created) > ms(loan.activeAt))
+      .sort((a, b) => ms(a.created) - ms(b.created));
+    for (const b of after) {
+      if (repaid >= cap) break;
+      const cut = Math.min(Math.floor((b.returns - b.stake) * loan.rate), cap - repaid);
+      if (cut <= 0) continue;
+      b.cut = cut;
+      repaid += cut;
+      borrower.balance -= cut;
+      if (lender) lender.balance += cut;
+    }
+    borrower.loan = { loan, repaid, remaining: cap - repaid, pact: isPact(loan) };
   }
   for (const book of out.values()) book.bets.sort((a, b) => b.created.localeCompare(a.created));
   return [...out.values()];
 }
 
 // The leaderboard: what each bettor would have if every open bet were
-// refunded (balance + stakes still riding), richest first.
-export function leaderboard(all: BettorBook[]): { bettor: PBBettor; worth: number; rank: number }[] {
+// refunded (balance + stakes still riding), minus what they still owe on a
+// loan (so a loan never lifts anyone up the board), richest first. pact:
+// in debt to Beyelzebub (the board marks them).
+export function leaderboard(all: BettorBook[]): { bettor: PBBettor; worth: number; rank: number; pact: boolean }[] {
   const rows = all
-    .map((b) => ({ bettor: b.bettor, worth: b.balance + b.atStake, rank: 0 }))
+    .map((b) => ({
+      bettor: b.bettor,
+      worth: b.balance + b.atStake - (b.loan?.remaining ?? 0),
+      rank: 0,
+      pact: !!b.loan?.pact && b.loan.remaining > 0,
+    }))
     .sort((a, b) => b.worth - a.worth || a.bettor.name.localeCompare(b.bettor.name));
   // Equal worth shares a rank (1, 2, 2, 4).
   rows.forEach((r, i) => (r.rank = i > 0 && rows[i - 1].worth === r.worth ? rows[i - 1].rank : i + 1));

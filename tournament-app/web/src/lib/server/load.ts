@@ -5,6 +5,7 @@ import { toFace, type PBFighter } from "$lib/fighters";
 import type { PBBet, PBBettor } from "$lib/betting";
 import type { PBRoyale } from "$lib/royale";
 import type { PBPerson } from "$lib/people";
+import type { PBLoan } from "$lib/loans";
 
 export interface TournamentView {
   tournament: {
@@ -161,21 +162,46 @@ export async function loadPeople(pb: PocketBase): Promise<PBPerson[]> {
   }
 }
 
-// The wagers on a tournament and who placed them (see migrations
-// 1710001500_betting and 1710002400_people). Never breaks the page: before
-// the migrations have run it's just empty.
+// The loans on a tournament (migration 1710002700_loans). Empty before the
+// migration has run. Like wagers, a party whose sign-in was cleared is
+// known by the name kept on the loan.
+async function loadLoans(pb: PocketBase, filter: string): Promise<PBLoan[]> {
+  try {
+    const rows = await pb.collection("loans").getFullList({ filter, sort: "created" });
+    return rows.map((r) => ({
+      id: r.id,
+      borrower: r.borrower || `gone:${r.borrowerName}`,
+      lender: r.lender || (r.lenderName ? `gone:${r.lenderName}` : ""),
+      borrowerName: r.borrowerName || "",
+      lenderName: r.lenderName || "",
+      amount: r.amount,
+      rate: r.rate,
+      capMult: r.capMult,
+      status: r.status,
+      activeAt: r.activeAt || "",
+      created: isoDate(r.created),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+// The wagers and loans on a tournament and who placed them (see migrations
+// 1710001500_betting, 1710002400_people and 1710002700_loans). Never breaks
+// the page: before the migrations have run it's just empty.
 //   people: everyone signed in, who all get a wallet on the phone page. Pass
-//           null for an archive, which lists only those who wagered on it.
+//           null for an archive, which lists only those who wagered or lent.
 export async function loadBetting(
   pb: PocketBase,
   tournamentId: string,
   people: PBPerson[] | null,
-): Promise<{ bettors: PBBettor[]; bets: PBBet[] }> {
+): Promise<{ bettors: PBBettor[]; bets: PBBet[]; loans: PBLoan[] }> {
   const filter = pb.filter("tournament = {:id}", { id: tournamentId });
   try {
-    const [rows, everyone] = await Promise.all([
+    const [rows, everyone, loans] = await Promise.all([
       pb.collection("bets").getFullList({ filter, sort: "created" }),
       people ?? loadPeople(pb),
+      loadLoans(pb, filter),
     ]);
     const bettors = new Map<string, PBBettor>();
     for (const p of everyone) if (people) bettors.set(p.id, { id: p.id, name: p.name });
@@ -197,9 +223,14 @@ export async function loadBetting(
         created: r.created || "",
       };
     });
-    return { bettors: [...bettors.values()].sort((a, b) => a.name.localeCompare(b.name)), bets };
+    // Both sides of a loan get a wallet, even a lender who never wagered.
+    for (const l of loans.filter((x) => x.status === "active")) {
+      if (!bettors.has(l.borrower)) bettors.set(l.borrower, { id: l.borrower, name: signedIn.get(l.borrower) ?? l.borrowerName });
+      if (l.lender && !bettors.has(l.lender)) bettors.set(l.lender, { id: l.lender, name: signedIn.get(l.lender) ?? l.lenderName });
+    }
+    return { bettors: [...bettors.values()].sort((a, b) => a.name.localeCompare(b.name)), bets, loans };
   } catch {
-    return { bettors: [], bets: [] };
+    return { bettors: [], bets: [], loans: [] };
   }
 }
 

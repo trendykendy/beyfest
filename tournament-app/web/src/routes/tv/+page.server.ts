@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const people = await loadPeople(locals.pb);
   const signedIn = view.tournament ? view.players.map((p) => p.name) : playersOf(people).map((p) => p.name);
   // The wagers, for the Respite's and the Lord of Gold's leaderboards.
-  const betting = view.tournament ? await loadBetting(locals.pb, view.tournament.id, people) : { bettors: [], bets: [] };
+  const betting = view.tournament ? await loadBetting(locals.pb, view.tournament.id, people) : { bettors: [], bets: [], loans: [] };
   // PocketBase's address for file links, worked out here so server-rendered
   // parts (Match centre's art panels) can use it; browserPbUrl() needs `location`.
   return { ...view, ...betting, tv, network, signedIn, liveQr: { url: live, ...qrPath(live) }, pbUrl: pbUrlFor(url) };

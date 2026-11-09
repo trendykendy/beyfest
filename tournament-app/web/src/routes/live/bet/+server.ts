@@ -52,8 +52,8 @@ async function bet(
   if ("error" in quote) error(outright ? 409 : 400, quote.error);
 
   const people = await loadPeople(pb);
-  const { bettors, bets } = await loadBetting(pb, view.tournament.id, people);
-  const mine = books(bettors, bets, view.matches).find((b) => b.bettor.id === id);
+  const { bettors, bets, loans } = await loadBetting(pb, view.tournament.id, people);
+  const mine = books(bettors, bets, view.matches, loans).find((b) => b.bettor.id === id);
   const balance = mine?.balance ?? 0;
   const stake = Number(body.stake);
   if (!Number.isInteger(stake) || stake < 1) error(400, "Wager a whole number of gold.");
