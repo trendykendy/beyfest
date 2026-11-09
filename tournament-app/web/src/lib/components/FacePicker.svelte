@@ -67,6 +67,7 @@
   }
   .fp-row {
     display: flex;
+    flex-wrap: wrap; /* the round preview drops under the picture on a phone */
     align-items: flex-end;
     gap: 10px;
   }

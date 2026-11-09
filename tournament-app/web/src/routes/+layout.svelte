@@ -92,4 +92,17 @@
   main {
     padding: 32px 0 80px;
   }
+  /* On a phone the subtitle won't fit beside the links. */
+  @media (max-width: 520px) {
+    .brand-sub {
+      display: none;
+    }
+    .nav {
+      gap: 2px;
+    }
+    .nav a {
+      padding: 8px 10px;
+      letter-spacing: 0.08em;
+    }
+  }
 </style>

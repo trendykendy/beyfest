@@ -761,15 +761,17 @@
       font-size: 4rem;
       text-align: right;
     }
+    /* Scales with the screen so the longest finish (Annihilation) fits
+       its half of the duel on a narrow phone. */
     .fin {
       min-height: 64px;
-      font-size: 1.25rem;
+      font-size: clamp(0.9rem, 5vw - 0.1rem, 1.25rem);
     }
     .fin-label {
-      padding: 0 8px;
+      padding: 0 6px;
     }
     .fin-pts {
-      padding: 0 8px;
+      padding: 0 6px;
     }
     .pill {
       font-size: 0.9rem;
