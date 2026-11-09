@@ -116,11 +116,11 @@ describe("exportHtml", () => {
           { id: "x", name: "Aoife" },
           { id: "y", name: "Ciara" },
         ],
-        bets: [{ id: "1", bettor: "y", match: "G1", pick: "a", stake: 1000, odds: 2, created: "2026-11-07T10:00:00Z" }],
+        bets: [{ id: "1", bettor: "y", market: "match", match: "G1", pick: "a", selection: "", stake: 1000, odds: 2, created: "2026-11-07T10:00:00Z" }],
       }),
     );
     expect(html.indexOf("Ciara")).toBeLessThan(html.indexOf("Aoife"));
-    expect(html).toContain("$11,000");
+    expect(html).toContain("11,000 gold");
   });
 });
 

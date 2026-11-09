@@ -1,5 +1,6 @@
 <script lang="ts">
   import { SCREENS, STAGES, TITLES } from "$lib/terms";
+  import { gold } from "$lib/betting";
 
   // Stand-in screens for the TV's new holds (Phase 2c). They show the right
   // information plainly; Phase 4 gives them the Tetrafatalis look.
@@ -20,8 +21,6 @@
     wagerers?: Wagerer[];
     finalists?: { name: string; fighter: string }[] | null;
   } = $props();
-
-  const gold = (n: number) => `${n.toLocaleString("en-IE")} gold`;
 </script>
 
 <div class="flow {kind}">

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { books, leaderboard, type PBBet, type PBBettor, type SettledBet } from "$lib/betting";
+  import { books, gold, leaderboard, type PBBet, type PBBettor, type SettledBet } from "$lib/betting";
   import { bettingOpen, matchOdds } from "$lib/odds";
   import { isLive, liveMatches, matchContext, tierOf, upNext, type PBMatch } from "$lib/view";
   import type { Me, PBPerson } from "$lib/people";
@@ -33,7 +33,7 @@
     onlost: () => void; // this phone's sign-in is gone (removed, or sign-ins cleared)
   } = $props();
 
-  const money = (n: number) => `$${n.toLocaleString("en-IE")}`;
+  const money = gold;
   const oddsText = (o: number) => `×${o.toFixed(2)}`;
 
   const all = $derived(books(bettors, bets, matches));
@@ -158,9 +158,9 @@
           {@const odds = slipOdds(m)}
           <div class="slip">
             <div class="chips">
-              <button onclick={() => add(100)}>+$100</button>
-              <button onclick={() => add(500)}>+$500</button>
-              <button onclick={() => add(1000)}>+$1k</button>
+              <button onclick={() => add(100)}>+100</button>
+              <button onclick={() => add(500)}>+500</button>
+              <button onclick={() => add(1000)}>+1k</button>
               <button onclick={() => slip && mine && (slip.stake = mine.balance)}>All in</button>
             </div>
             <div class="stake">

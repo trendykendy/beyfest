@@ -4,7 +4,7 @@ import type PocketBase from "pocketbase";
 import { bookie } from "$lib/server/bookie";
 import { oneAtATime } from "$lib/server/oneAtATime";
 import { loadBetting, loadPeople, loadTournamentView } from "$lib/server/load";
-import { books } from "$lib/betting";
+import { books, gold } from "$lib/betting";
 import { bettingOpen, matchOdds } from "$lib/odds";
 
 // The phone page's betting (play money, see lib/odds.ts and lib/betting.ts).
@@ -47,13 +47,13 @@ async function bet(
   const mine = books(bettors, bets, view.matches).find((b) => b.bettor.id === id);
   const balance = mine?.balance ?? 0;
   const stake = Number(body.stake);
-  if (!Number.isInteger(stake) || stake < 1) error(400, "Bet a whole number of dollars.");
-  if (stake > balance) error(400, `You only have $${balance.toLocaleString("en-IE")}.`);
+  if (!Number.isInteger(stake) || stake < 1) error(400, "Wager a whole number of gold.");
+  if (stake > balance) error(400, `You only have ${gold(balance)}.`);
 
   const odds = matchOdds(m, view.matches);
   const now = pick === m.p1 ? odds.p1 : odds.p2;
   if (now !== Number(body.odds)) return json({ odds: now, message: "The odds just changed." }, { status: 409 });
 
-  await pb.collection("bets").create({ tournament: view.tournament.id, person: id, who: me.name, match: m.id, pick, stake, odds: now });
+  await pb.collection("bets").create({ tournament: view.tournament.id, person: id, who: me.name, market: "match", match: m.id, pick, stake, odds: now });
   return json({ ok: true });
 }

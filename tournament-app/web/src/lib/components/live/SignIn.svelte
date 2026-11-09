@@ -1,6 +1,6 @@
 <script lang="ts">
   import { START_BALANCE } from "$lib/odds";
-  import { cleanName } from "$lib/betting";
+  import { cleanName, gold } from "$lib/betting";
   import type { Me, PBPerson, Role } from "$lib/people";
   import type { StarterPick } from "$lib/starters";
 
@@ -69,7 +69,7 @@
   {#if shown === "choose"}
     <p class="lv-note">
       Playing today? Sign in to get on the list. Watching? Sign in to wager: everyone starts with
-      ${START_BALANCE.toLocaleString("en-IE")} of play money.
+      {gold(START_BALANCE)}.
     </p>
     <div class="choose">
       <button class="big" onclick={() => choose("player")}>I'm playing</button>
@@ -99,7 +99,7 @@
   {:else}
     {#if drawn}
       <p class="lv-note">
-        Sign in to wager: everyone starts with ${START_BALANCE.toLocaleString("en-IE")} of play money. Back a blader to
+        Sign in to wager: everyone starts with {gold(START_BALANCE)}. Back a blader to
         win a match: the favourite pays less, the underdog pays more.
       </p>
     {/if}

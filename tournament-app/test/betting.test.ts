@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { bettingOpen, formOf, matchOdds, oddsFor, raceChance, START_BALANCE } from "../web/src/lib/odds";
-import { betState, books, cleanName, leaderboard, sameName, type PBBet } from "../web/src/lib/betting";
+import { betState, books, cleanName, gold, leaderboard, sameName, type PBBet } from "../web/src/lib/betting";
 import type { PBMatch } from "../web/src/lib/view";
 
 // A match with just the fields the betting helpers read.
@@ -31,7 +31,7 @@ const done = (code: string, p1: string, p2: string, s1: number, s2: number, extr
   match(code, p1, p2, { matchStatus: "done", p1Score: s1, p2Score: s2, winner: s1 > s2 ? p1 : p2, loser: s1 > s2 ? p2 : p1, ...extra });
 
 function bet(id: string, bettor: string, m: string, pick: string, stake: number, odds: number): PBBet {
-  return { id, bettor, match: m, pick, stake, odds, created: `2026-11-07T10:00:0${id.slice(-1)}Z` };
+  return { id, bettor, market: "match", match: m, pick, selection: "", stake, odds, created: `2026-11-07T10:00:0${id.slice(-1)}Z` };
 }
 
 describe("raceChance", () => {
@@ -106,6 +106,21 @@ describe("bettingOpen", () => {
   test("closed once done, or with a side still to be decided", () => {
     expect(bettingOpen(done("M", "A", "B", 5, 2))).toBe(false);
     expect(bettingOpen(match("M", "A", "", { matchStatus: "pending" }))).toBe(false);
+  });
+});
+
+describe("gold", () => {
+  test("amounts read as gold, with thousands separators", () => {
+    expect(gold(12760)).toBe("12,760 gold");
+    expect(gold(0)).toBe("0 gold");
+  });
+});
+
+describe("markets", () => {
+  test("a wager on a market this version doesn't know is refunded", () => {
+    const m = done("M", "A", "B", 5, 2);
+    expect(betState({ ...bet("b1", "x", "M", "A", 100, 2), market: "someday" as never }, m)).toBe("refund");
+    expect(betState(bet("b2", "x", "M", "A", 100, 2), m)).toBe("won");
   });
 });
 

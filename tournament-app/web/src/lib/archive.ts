@@ -1,4 +1,4 @@
-import { books, leaderboard, type PBBet, type PBBettor } from "./betting";
+import { books, gold, leaderboard, type PBBet, type PBBettor } from "./betting";
 import { fighterFor, type PBFighter } from "./fighters";
 import { royaleView, type PBRoyale } from "./royale";
 import {
@@ -137,7 +137,7 @@ export function exportHtml(d: ArchiveData): string {
   if (d.bettors.length) {
     const board = leaderboard(books(d.bettors, d.bets, d.matches));
     parts.push(`<section><h3>Betting</h3><table><thead><tr><th>#</th><th class=l>Bettor</th><th>Finished with</th></tr></thead><tbody>${board
-      .map((r) => `<tr><td>${r.rank}</td><td class=l>${esc(r.bettor.name)}</td><td>$${r.worth.toLocaleString("en-IE")}</td></tr>`)
+      .map((r) => `<tr><td>${r.rank}</td><td class=l>${esc(r.bettor.name)}</td><td>${gold(r.worth)}</td></tr>`)
       .join("")}</tbody></table></section>`);
   }
 

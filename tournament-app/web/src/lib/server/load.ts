@@ -185,7 +185,17 @@ export async function loadBetting(
       // by the name kept on the wager, e.g. in an archived tournament).
       const bettor = r.person || `gone:${r.who}`;
       if (!bettors.has(bettor)) bettors.set(bettor, { id: bettor, name: signedIn.get(r.person) ?? r.who ?? "?" });
-      return { id: r.id, bettor, match: r.match, pick: r.pick, stake: r.stake, odds: r.odds, created: r.created || "" };
+      return {
+        id: r.id,
+        bettor,
+        market: r.market || "match", // before migration 1710002600 every wager was a match wager
+        match: r.match,
+        pick: r.pick,
+        selection: r.selection || "",
+        stake: r.stake,
+        odds: r.odds,
+        created: r.created || "",
+      };
     });
     return { bettors: [...bettors.values()].sort((a, b) => a.name.localeCompare(b.name)), bets };
   } catch {
