@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import { EVENT_NAME } from "$lib/terms";
+  import { EVENT_NAME, SCREENS, TITLES } from "$lib/terms";
   import { invalidateAll } from "$app/navigation";
   import { onMount, untrack } from "svelte";
   import { liveUpdates } from "$lib/pbBrowser";
@@ -99,11 +99,24 @@
     complete: "Complete",
   };
 
+  // The TV flow (see tvHold in lib/view.ts): what the organiser's buttons
+  // have done so far, and which of them to offer now.
+  const flow = $derived({
+    groupsShownAt: data.tournament?.groupsShownAt ?? 0,
+    pathsBegunAt: data.tournament?.pathsBegunAt ?? 0,
+    crownedAt: data.tournament?.crownedAt ?? 0,
+    wagers: data.wagers,
+    now: Date.now(),
+  });
+  const nothingPlayed = $derived(!data.matches.some((m) => m.matchStatus === "done" || isLive(m)));
+  const canShowCircles = $derived(!!data.tournament && nothingPlayed && !flow.groupsShownAt);
+  const canCrown = $derived(!!champion && data.wagers);
+
   // Scenes the organiser can put on the TV right now.
-  const tvScenes = $derived(availableScenes(!!data.tournament, data.matches, data.royale).filter((s) => s !== "standby"));
+  const tvScenes = $derived(availableScenes(!!data.tournament, data.matches, data.royale, flow).filter((s) => s !== "standby"));
 
   // Realtime: any change made anywhere refreshes this page.
-  onMount(() => liveUpdates(["tournaments", "groups", "players", "matches", "tv_state", "royales", "people"], () => invalidateAll()));
+  onMount(() => liveUpdates(["tournaments", "groups", "players", "matches", "tv_state", "royales", "people", "bets"], () => invalidateAll()));
 </script>
 
 <div class="container">
@@ -116,10 +129,11 @@
       <span class="head-name">No tournament yet</span>
     {/if}
     <a class="btn fighters-link" href="/admin/fighters">Fighters</a>
-    <!-- The Beyfest intro on the TV: about a minute, over everything, with
-         sound. Up here so it's there before a tournament exists, too. -->
+    <!-- The Prologue on the TV: about a minute, over everything, with sound;
+         then the TV goes back to what it was holding. Up here so it's there
+         before a tournament exists, too. -->
     <form method="POST" action="?/intro" use:enhance>
-      <button class="btn" type="submit">Play the intro</button>
+      <button class="btn" type="submit">Play the {SCREENS.intro}</button>
     </form>
     <form method="POST" action="?/logout" use:enhance>
       <button class="btn" type="submit">Log out</button>
@@ -206,9 +220,12 @@
               />
             {/key}
           {:else if !hasKnockout && allGroupsComplete}
-            <p class="all-done">Every group match is in. Build the knockout bracket from the final group tables to carry on.</p>
+            <p class="all-done">
+              Every group match is in, and the TV is holding {SCREENS.break}. When you're ready, begin the paths: it
+              builds the knockout bracket from the final group tables and ends the break.
+            </p>
             <form method="POST" action="?/generateKnockout" use:enhance>
-              <button class="big-action" type="submit">Generate knockout bracket</button>
+              <button class="big-action" type="submit">Begin the Paths</button>
             </form>
           {:else}
             <p class="all-done">Waiting on earlier results.</p>
@@ -228,6 +245,18 @@
         <!-- What the venue TV shows. Auto rotates and cuts to live scores. -->
         <section class="tv">
           <h2 class="kicker">TV screen</h2>
+          <!-- The flow's one-off moments, offered when they're due. -->
+          {#if canShowCircles}
+            <p class="tv-now">The TV is holding {SCREENS.waiting}. Show the circles when everyone's ready.</p>
+            <form method="POST" action="?/showCircles" use:enhance class="tv-buttons">
+              <button class="tv-btn flow-btn">Show the Circles</button>
+            </form>
+          {/if}
+          {#if canCrown}
+            <form method="POST" action="?/crown" use:enhance class="tv-buttons">
+              <button class="tv-btn flow-btn">Crown the {TITLES.topBettor}</button>
+            </form>
+          {/if}
           <form method="POST" action="?/tv" use:enhance class="tv-buttons">
             <button class="tv-btn" class:on={data.tv.mode === "auto"} name="mode" value="auto">Auto</button>
             {#each tvScenes as sc (sc)}
@@ -505,6 +534,15 @@
     background: var(--gold);
     color: var(--ink);
     border-color: var(--ink);
+  }
+  /* The flow's one-off buttons (Show the Circles, Crown the Lord of Gold):
+     full width and gold, so they're hard to miss when they're due. */
+  .flow-btn {
+    grid-column: 1 / -1;
+    background: var(--gold);
+    color: var(--ink);
+    border-color: var(--ink);
+    margin-bottom: 10px;
   }
   .tv-now {
     color: var(--on-field-soft);

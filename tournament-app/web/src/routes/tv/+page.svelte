@@ -3,7 +3,9 @@
   import { invalidateAll } from "$app/navigation";
   import { liveUpdates } from "$lib/pbBrowser";
   import { EVENT, browserPbUrl } from "$lib/config";
-  import { EVENT_SUBTITLE } from "$lib/terms";
+  import { EVENT_SUBTITLE, STAGES, circleName } from "$lib/terms";
+  import { books, leaderboard } from "$lib/betting";
+  import FlowHold from "$lib/components/tv/FlowHold.svelte";
   import {
     artFor,
     faceCrop,
@@ -63,6 +65,7 @@
     SCENE_TITLE,
     type PBMatch,
     type Scene,
+    type TvFlow,
   } from "$lib/view";
   import { stadiumOf } from "$lib/stadia";
   import BroadcastBracket from "$lib/components/tv/BroadcastBracket.svelte";
@@ -102,15 +105,56 @@
     standby: "スタンバイ",
     groups: "グループステージ",
     rr: "ラウンドロビン",
+    respite: "ブレイク",
     bracket: "ノックアウト",
     spotlight: "マッチセンター",
     awards: "アワード",
+    eve: "ファイナル",
     champion: "チャンピオン",
+    lordOfGold: "ハイローラー",
     royale: "バトルロイヤル",
     royaleChampion: "チャンピオン",
   };
 
-  const scenes = $derived(availableScenes(!!data.tournament, data.matches, data.royale));
+  // The organiser's flow buttons and the clock, for the holds (tvHold).
+  // `now` ticks every second (tick() below), so the Lord of Gold ends on time.
+  let now = $state(Date.now());
+  const flow = $derived<TvFlow>({
+    groupsShownAt: data.tournament?.groupsShownAt ?? 0,
+    pathsBegunAt: data.tournament?.pathsBegunAt ?? 0,
+    crownedAt: data.tournament?.crownedAt ?? 0,
+    wagers: data.bets.length > 0,
+    now,
+  });
+  const scenes = $derived(availableScenes(!!data.tournament, data.matches, data.royale, flow));
+
+  // For the Respite and the Lord of Gold: the wagerers, richest first.
+  const wagerers = $derived(
+    leaderboard(books(data.bettors, data.bets, data.matches)).map((r) => ({ rank: r.rank, name: r.bettor.name, worth: r.worth })),
+  );
+  // For the Respite: each circle's final table and the path each place leads to.
+  const PATH_NAME: Record<string, string> = { wb: STAGES.winners, mb: STAGES.mid, lb: STAGES.losers };
+  const circles = $derived(
+    data.groups.map((g) => {
+      const rows = groupStandings(data.players, data.matches, g.index);
+      return {
+        name: circleName(g.index),
+        rows: rows.map((row, i) => {
+          const d = destinationOf(i + 1, rows.length, structure?.knockoutType ?? "");
+          return { name: names.get(row.playerId) ?? "?", path: d.label === "Seeded" ? "Seeded" : PATH_NAME[d.tier], tier: d.tier };
+        }),
+      };
+    }),
+  );
+  // For the Eve: the two finalists and their fighters.
+  const finalists = $derived.by(() => {
+    const gf = data.matches.find((m) => m.stage === "gf");
+    if (!gf?.p1 || !gf.p2) return null;
+    return [gf.p1, gf.p2].map((id) => {
+      const name = names.get(id) ?? "?";
+      return { name, fighter: fighterFor(name, data.fighters)?.name ?? "" };
+    });
+  });
   const awards = $derived(computeAwards(data.matches));
   const tournamentOver = $derived(data.matches.some((m) => m.stage === "gf" && m.matchStatus === "done"));
 
@@ -126,12 +170,24 @@
   //   6. auto rotation, each scene for its DWELL
   // A result doesn't cut to Match centre: the winner screen plays over
   // whatever is on (WINNER_SECONDS), then the rotation carries on.
-  const DWELL: Record<Scene, number> = { standby: 60, groups: 25, rr: 20, bracket: 25, spotlight: 15, awards: 20, champion: 30, royale: 25, royaleChampion: 30 };
+  const DWELL: Record<Scene, number> = {
+    standby: 60,
+    groups: 25,
+    rr: 20,
+    respite: 30,
+    bracket: 25,
+    spotlight: 15,
+    awards: 20,
+    eve: 30,
+    champion: 30,
+    lordOfGold: 30,
+    royale: 25,
+    royaleChampion: 30,
+  };
   const REACT_SECONDS = 20;
   const LOCAL_SECONDS = 60;
   const WINNER_SECONDS = 15;
 
-  let now = $state(Date.now());
   let autoScene = $state<Scene>("groups");
   let autoUntil = Date.now() + DWELL.groups * 1000;
   let react = $state<{ code: string; until: number } | null>(null);
@@ -139,7 +195,7 @@
 
   const localActive = $derived(!!local && local.until > now && scenes.includes(local.scene));
   const reacting = $derived(!!react && react.until > now && scenes.includes("spotlight"));
-  const hold = $derived(tvHold(data.matches, scenes, data.royale));
+  const hold = $derived(tvHold(data.matches, scenes, data.royale, flow));
   const scene = $derived.by<Scene>(() => {
     if (localActive) return local!.scene;
     if (!data.tournament) return "standby";
@@ -1181,7 +1237,11 @@
     if (hold === "royale") return "Holding on the battle royale";
     if (hold === "royaleChampion") return "Holding on the battle royale champion";
     if (hold === "champion") return "Holding on the champion: the tournament is over";
-    if (hold === "groups") return "Holding on the groups until the bracket is generated";
+    if (hold === "lordOfGold") return "Crowning the Lord of Gold, then back to the champion";
+    if (hold === "standby") return "Holding the Gathering until Show the Circles";
+    if (hold === "groups") return "Holding on the groups until the first match starts";
+    if (hold === "respite") return "Holding the Respite until Begin the Paths";
+    if (hold === "eve") return "Holding the Eve until the Reckoning starts";
     if (hold) return "Holding on the bracket until the first match starts";
     return "Auto rotation";
   });
@@ -1192,7 +1252,7 @@
 
   onMount(() => {
     poke();
-    const stopLive = liveUpdates(["tournaments", "groups", "players", "matches", "tv_state", "fighters", "royales", "people"], () => invalidateAll(), {
+    const stopLive = liveUpdates(["tournaments", "groups", "players", "matches", "tv_state", "fighters", "royales", "people", "bets"], () => invalidateAll(), {
       onStatus: (up) => (online = up),
       everyMs: 30_000,
     });
@@ -1227,11 +1287,11 @@
       <span class="bkana">{EVENT_SUBTITLE}</span>
     </div>
     <div class="scene-name">
-      <!-- Standby and Champion carry their own giant title; don't repeat it. -->
+      <!-- Standby, Champion and the flow holds carry their own giant title; don't repeat it. -->
       {#if profileOn}
         <span class="scene-kana" lang="ja">ブレーダープロフィール</span>
         <span class="scene-en">Blader profile</span>
-      {:else if scene !== "standby" && scene !== "champion"}
+      {:else if !["standby", "champion", "respite", "eve", "lordOfGold"].includes(scene)}
         <span class="scene-kana" lang="ja">{SCENE_KANA[scene]}</span>
         <span class="scene-en">{SCENE_TITLE[scene]}</span>
       {/if}
@@ -1610,6 +1670,15 @@
           lite={fxLite}
         />
       {/if}
+
+    {:else if scene === "respite"}
+      <FlowHold kind="respite" {circles} {wagerers} />
+
+    {:else if scene === "eve"}
+      <FlowHold kind="eve" {finalists} />
+
+    {:else if scene === "lordOfGold"}
+      <FlowHold kind="lordOfGold" {wagerers} />
 
     {:else if scene === "royale"}
       {#if data.royale && mounted}
