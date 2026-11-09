@@ -46,26 +46,68 @@ export type StarterFile =
 
 const key = (s: string | undefined) => (s ?? "").trim().toLowerCase();
 
-// PocketBase stores an upload as "<name>_<random>.<ext>", so "breycist.png"
-// comes back as e.g. "breycist_x8k2p9q1zz.png".
+// PocketBase stores an upload as "<name>_<random>.<ext>", with anything but
+// letters and digits in the name turned into underscores: "breycist.png"
+// comes back as e.g. "breycist_x8k2p9q1zz.png", "the-buzzsaw.mp3" as
+// "the_buzzsaw_up55yeb22o.mp3".
 function sameFile(stored: string, original: string | undefined): boolean {
   if (!original) return false;
   const dot = original.lastIndexOf(".");
-  const base = (dot < 0 ? original : original.slice(0, dot)).toLowerCase();
+  const base = (dot < 0 ? original : original.slice(0, dot)).toLowerCase().replace(/[^a-z0-9]+/g, "_");
   const ext = dot < 0 ? "" : original.slice(dot).toLowerCase();
   const s = stored.toLowerCase();
   return s === base + ext || (s.startsWith(base + "_") && s.endsWith(ext));
 }
 
+// The voice files a starter can bring up to date: the name call and the
+// three whole calls. (Art isn't refreshed yet: an edited picture could have
+// been re-uploaded under its original name.)
+export const REFRESHABLE: StarterFile[] = ["voice", "callVictorious", "callRoyaleChampion", "callChampion"];
+
+// A library voice file that came from a starter (it still has the starter's
+// file name), so it may be an older recording of it: these are the ones whose
+// bytes addStarters compares. A file uploaded by hand has another name, so
+// it's never touched.
+export interface StarterCopy {
+  fighterId: string;
+  field: StarterFile;
+  stored: string; // the file name in PocketBase
+  starterFile: string; // the starter's file name
+}
+
+export function starterCopies(starters: Starter[], library: PBFighter[]): StarterCopy[] {
+  const copies: StarterCopy[] = [];
+  for (const s of starters) {
+    const f = matchFighter(s, library);
+    if (!f) continue;
+    for (const field of REFRESHABLE) {
+      const stored = f[field];
+      const starterFile = s[field];
+      if (stored && starterFile && sameFile(stored, starterFile)) copies.push({ fighterId: f.id, field, stored, starterFile });
+    }
+  }
+  return copies;
+}
+
+// The library fighter a starter is: same combat name, else same player name.
+function matchFighter(s: Starter, library: PBFighter[]): PBFighter | undefined {
+  return library.find((x) => key(x.name) === key(s.name)) ?? (s.player ? library.find((x) => key(x.player) === key(s.player)) : undefined);
+}
+
 // `pictures`: fighters whose image is byte-for-byte a starter's picture,
 // fighter id → that picture's file name (the Fighters page works it out,
 // since a picture uploaded by hand keeps its own file name).
-export function planStarters(starters: Starter[], library: PBFighter[], pictures = new Map<string, string>()): StarterStep[] {
+// `outdated`: "<fighter id>:<field>" for each starter copy whose recording
+// has changed since it was loaded (see starterCopies); those are uploaded again.
+export function planStarters(
+  starters: Starter[],
+  library: PBFighter[],
+  pictures = new Map<string, string>(),
+  outdated = new Set<string>(),
+): StarterStep[] {
   const steps: StarterStep[] = [];
   for (const s of starters) {
-    const f =
-      library.find((x) => key(x.name) === key(s.name)) ??
-      (s.player ? library.find((x) => key(x.player) === key(s.player)) : undefined);
+    const f = matchFighter(s, library);
     if (!f) {
       steps.push({ kind: "add", starter: s });
       continue;
@@ -85,9 +127,10 @@ export function planStarters(starters: Starter[], library: PBFighter[], pictures
     if (!f.victory && s.victory) files.push("victory");
     if (!f.royaleVictory && s.royaleVictory) files.push("royaleVictory");
     if (!f.profile && s.profile) files.push("profile");
-    if (!f.voice && s.voice) files.push("voice");
-    for (const call of ["callVictorious", "callRoyaleChampion", "callChampion"] as const) {
-      if (!f[call] && s[call]) files.push(call);
+    // Voice files are filled when missing, and replaced when they're still the
+    // starter's file but it has been re-recorded since.
+    for (const field of REFRESHABLE) {
+      if (s[field] && (!f[field] || outdated.has(`${f.id}:${field}`))) files.push(field);
     }
     if (Object.keys(fields).length || files.length) steps.push({ kind: "fill", id: f.id, starter: s, fields, files });
   }

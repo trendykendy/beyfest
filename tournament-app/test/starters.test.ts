@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { planStarters, startersFor, type Starter } from "../web/src/lib/starters";
+import { planStarters, starterCopies, startersFor, type Starter } from "../web/src/lib/starters";
 import type { PBFighter } from "../web/src/lib/fighters";
 
 const fighter = (over: Partial<PBFighter>): PBFighter => ({
@@ -102,6 +102,24 @@ describe("planStarters", () => {
     ]);
     expect(planStarters([voiced], [{ ...loaded, callVictorious: "mine.mp3" }])).toEqual([
       { kind: "fill", id: "a", starter: voiced, fields: {}, files: ["callRoyaleChampion", "callChampion"] },
+    ]);
+  });
+
+  test("re-uploads a voice file that's still the starter's when it has been re-recorded", () => {
+    const loaded = fighter({ id: "a", name: "The Breycist", player: "Conor", kana: "k", image: "i.png", voice: "the_breycist_ab12cd34ef.mp3" });
+    expect(planStarters([breycist], [loaded])).toEqual([]);
+    expect(planStarters([breycist], [loaded], new Map(), new Set(["a:voice"]))).toEqual([
+      { kind: "fill", id: "a", starter: breycist, fields: {}, files: ["voice"] },
+    ]);
+  });
+
+  test("only voice files that came from a starter are compared; ones uploaded by hand are left alone", () => {
+    const fromStarter = fighter({ id: "a", name: "The Breycist", voice: "the_breycist_ab12cd34ef.mp3", callVictorious: "victorious_breycist_x1y2z3w4v5.mp3" });
+    const byHand = fighter({ id: "b", name: "The Buzzsaw", voice: "my-recording.mp3" });
+    const starters: Starter[] = [{ ...breycist, callVictorious: "victorious-breycist.mp3" }, buzzsaw];
+    expect(starterCopies(starters, [fromStarter, byHand])).toEqual([
+      { fighterId: "a", field: "voice", stored: "the_breycist_ab12cd34ef.mp3", starterFile: "the-breycist.mp3" },
+      { fighterId: "a", field: "callVictorious", stored: "victorious_breycist_x1y2z3w4v5.mp3", starterFile: "victorious-breycist.mp3" },
     ]);
   });
 

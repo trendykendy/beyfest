@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import { dev } from "$app/environment";
   import { EVENT_NAME, SCREENS, TITLES } from "$lib/terms";
   import { invalidateAll } from "$app/navigation";
   import { onMount, untrack } from "svelte";
@@ -129,6 +130,8 @@
       <span class="head-name">No tournament yet</span>
     {/if}
     <a class="btn fighters-link" href="/admin/fighters">Fighters</a>
+    <!-- Dev server only: it reads and writes files in the project. -->
+    {#if dev}<a class="btn" href="/admin/voices">Voices</a>{/if}
     <!-- The Prologue on the TV: about a minute, over everything, with sound;
          then the TV goes back to what it was holding. Up here so it's there
          before a tournament exists, too. -->

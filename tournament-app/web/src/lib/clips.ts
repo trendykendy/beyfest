@@ -11,6 +11,7 @@
 // the script lists them from the starter fighters (fighters.json).
 
 import { circleName } from "./terms";
+import { FIGHTER_CALLS, type FighterCall } from "./fighters";
 
 export interface Clip {
   url: string; // where the TV fetches it (under web/static)
@@ -97,6 +98,50 @@ export const ANNOUNCER: ClipSection[] = [
     clips: [MELEE_CLIPS.title, ...MELEE_CLIPS.skirmishes, MELEE_CLIPS.lastStand, MELEE_CLIPS.final, MELEE_CLIPS.and, MELEE_CLIPS.stillStanding],
   },
 ];
+
+// ── Per fighter ──────────────────────────────────────────────────────
+// The starter fighters' name calls and own calls, from fighters.json.
+
+export type StarterVoices = { name: string; voice?: string } & Partial<Record<FighterCall, string>>;
+
+// The 12 starter fighters' name calls (each one's `voice` file). Their names
+// haven't changed, so the files keep their 2026 names.
+export function nameCallSection(starters: StarterVoices[]): ClipSection {
+  return {
+    title: "Fighter name calls",
+    note:
+      "The 12 starter fighters' names, said as a call (\"The Beanblader!\"), under these names in " +
+      "`tournament-app/web/static/starter-fighters/`. The library picks up a re-recorded one the next time starters are loaded " +
+      "(Add starting fighters on the admin Fighters page, or creating a tournament); a clip uploaded by hand is kept.",
+    clips: starters
+      .filter((s) => s.voice)
+      .map((s) => ({ url: `/starter-fighters/${s.voice}`, says: `${s.name}!`, when: "VS intro, and the Still Standing screen" })),
+  };
+}
+
+// Each starter's own whole calls (VICTORIOUS, Last One Standing, Hero of
+// Gyrondor), one file per fighter per moment, as named in fighters.json.
+export function fighterCallSection(starters: StarterVoices[]): ClipSection {
+  return {
+    title: "Fighters' own calls",
+    note:
+      "One whole line per fighter per moment, said in one go (not a name clip joined to a shared line). They go in " +
+      "`tournament-app/web/static/starter-fighters/`; the library picks up a new or re-recorded one the next time starters are loaded " +
+      "(Add starting fighters on the admin Fighters page, or creating a tournament). A fighter without one gets no call at that moment.",
+    clips: starters.flatMap((s) =>
+      FIGHTER_CALLS.filter((call) => s[call]).map((call) => ({
+        url: `/starter-fighters/${s[call]}`,
+        says: FIGHTER_CALL_LINES[call].says.replace("{name}", s.name),
+        when: FIGHTER_CALL_LINES[call].when,
+      })),
+    ),
+  };
+}
+
+/** Every voice clip, section by section: the shared lines, then each starter's. */
+export function voiceSections(starters: StarterVoices[]): ClipSection[] {
+  return [...ANNOUNCER, nameCallSection(starters), fighterCallSection(starters)];
+}
 
 /** Every shared announcer clip's URL (not the fighters' own calls). */
 export const ANNOUNCER_URLS: string[] = ANNOUNCER.flatMap((s) => s.clips.map((c) => c.url));

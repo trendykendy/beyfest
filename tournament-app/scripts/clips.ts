@@ -9,55 +9,16 @@
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { ANNOUNCER, FIGHTER_CALL_LINES, MUSIC_AND_EFFECTS, type Clip, type ClipSection } from "../web/src/lib/clips.ts";
-import { FIGHTER_CALLS, type FighterCall } from "../web/src/lib/fighters.ts";
+import { ANNOUNCER, MUSIC_AND_EFFECTS, fighterCallSection, nameCallSection, type Clip, type ClipSection } from "../web/src/lib/clips.ts";
 
 const ROOT = join(import.meta.dir, "..");
 const STATIC = join(ROOT, "web/static");
 const STARTERS = join(STATIC, "starter-fighters/fighters.json");
 const OUT = join(ROOT, "../fighter-art/prompts/announcer-clips.md");
 
-type StarterJson = { name: string; voice?: string } & Partial<Record<FighterCall, string>>;
-
-// The 12 starter fighters' name calls (each one's `voice` file). Their names
-// haven't changed, so the files keep their 2026 names.
-export function nameCalls(startersJson: string): ClipSection {
-  const starters = JSON.parse(startersJson) as StarterJson[];
-  return {
-    title: "Fighter name calls",
-    note:
-      "The 12 starter fighters' names, said as a call (\"The Beanblader!\"). The new files replace the 2026 ones under the same names in " +
-      "`tournament-app/web/static/starter-fighters/`. A fighter already in the library keeps its old clip until the new one is uploaded with " +
-      "Replace voice on the admin Fighters page.",
-    clips: starters
-      .filter((s) => s.voice)
-      .map((s) => ({
-        url: `/starter-fighters/${s.voice}`,
-        says: `${s.name}!`,
-        when: "VS intro, and the Still Standing screen",
-      })),
-  };
-}
-
-// Each starter's own whole calls (VICTORIOUS, Last One Standing, Hero of
-// Gyrondor), one file per fighter per moment, as named in fighters.json.
-export function fighterCalls(startersJson: string): ClipSection {
-  const starters = JSON.parse(startersJson) as StarterJson[];
-  return {
-    title: "Fighters' own calls",
-    note:
-      "One whole line per fighter per moment, said in one go (not a name clip joined to a shared line). They go in " +
-      "`tournament-app/web/static/starter-fighters/`; the library picks up a new one the next time starters are loaded (Add starting " +
-      "fighters on the admin Fighters page, or creating a tournament). A fighter without one gets no call at that moment.",
-    clips: starters.flatMap((s) =>
-      FIGHTER_CALLS.filter((call) => s[call]).map((call) => ({
-        url: `/starter-fighters/${s[call]}`,
-        says: FIGHTER_CALL_LINES[call].says.replace("{name}", s.name),
-        when: FIGHTER_CALL_LINES[call].when,
-      })),
-    ),
-  };
-}
+// The two per-fighter sections (lib/clips.ts), from fighters.json's text.
+export const nameCalls = (startersJson: string): ClipSection => nameCallSection(JSON.parse(startersJson));
+export const fighterCalls = (startersJson: string): ClipSection => fighterCallSection(JSON.parse(startersJson));
 
 const cell = (s: string) => s.replace(/\|/g, "\\|");
 

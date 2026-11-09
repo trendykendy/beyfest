@@ -5,7 +5,7 @@
 
 import { loadFighters } from "$lib/server/load";
 import { readStarters } from "$lib/server/starterFiles";
-import { planStarters, type Starter } from "$lib/starters";
+import { planStarters, starterCopies, type Starter } from "$lib/starters";
 import type { PBFighter } from "$lib/fighters";
 
 // Which fighters still missing a face point or mirror image have a starter's
@@ -43,6 +43,30 @@ async function starterPictures(
   return found;
 }
 
+// Which voice files in the library are copies of a starter's file that has
+// since been re-recorded (same original name, different bytes): returned as
+// "<fighter id>:<field>" for planStarters to upload again.
+async function outdatedCopies(
+  pb: App.Locals["pb"],
+  library: PBFighter[],
+  starters: Starter[],
+  file: (name: string) => Promise<File>,
+): Promise<Set<string>> {
+  const outdated = new Set<string>();
+  for (const c of starterCopies(starters, library)) {
+    try {
+      const res = await fetch(pb.files.getURL({ id: c.fighterId, collectionName: "fighters" }, c.stored));
+      if (!res.ok) continue;
+      const stored = new Uint8Array(await res.arrayBuffer());
+      const fresh = new Uint8Array(await (await file(c.starterFile)).arrayBuffer());
+      if (!equal(stored, fresh)) outdated.add(`${c.fighterId}:${c.field}`);
+    } catch {
+      // Can't read one of them: leave the library's file as it is.
+    }
+  }
+  return outdated;
+}
+
 function equal(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
@@ -60,10 +84,11 @@ export async function addStarters(
   const starters = pick(all);
   const library = await loadFighters(pb);
   const pictures = await starterPictures(pb, library, starters, file);
+  const outdated = await outdatedCopies(pb, library, starters, file);
   let added = 0;
   let filled = 0;
   const problems: string[] = [];
-  for (const step of planStarters(starters, library, pictures)) {
+  for (const step of planStarters(starters, library, pictures, outdated)) {
     const s = step.starter;
     try {
       if (step.kind === "add") {
