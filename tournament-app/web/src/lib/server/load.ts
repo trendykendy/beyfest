@@ -14,6 +14,11 @@ export interface TournamentView {
     structureKey: number;
     status: "setup" | "group_stage" | "knockout" | "complete";
     stadiaOff: string[]; // stadia taken out of the draw
+    // The organiser's TV flow buttons, when pressed (ms; 0 if not yet). See
+    // migration 1710002500_tv_flow and tvHold in lib/view.ts.
+    groupsShownAt: number;
+    pathsBegunAt: number;
+    crownedAt: number;
   } | null;
   groups: PBGroup[];
   players: PBPlayer[];
@@ -126,6 +131,9 @@ export async function loadTournamentRecords(pb: PocketBase, t: RecordModel): Pro
       structureKey: t.structureKey,
       status: t.status,
       stadiaOff: Array.isArray(t.stadiaOff) ? t.stadiaOff : [],
+      groupsShownAt: t.groupsShownAt || 0,
+      pathsBegunAt: t.pathsBegunAt || 0,
+      crownedAt: t.crownedAt || 0,
     },
     groups: groups.map(toGroup),
     players: players.map(toPlayer),

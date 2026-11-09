@@ -18,7 +18,7 @@ import { starterPicks } from "$lib/server/starterFiles";
 import { addStarters } from "$lib/server/addStarters";
 import { createRoyale, recordBattle, resetRoyale, RoyaleError, startBattle } from "$lib/server/royale";
 import { startersFor } from "$lib/starters";
-import { loadPeople } from "$lib/server/load";
+import { loadBetting, loadPeople } from "$lib/server/load";
 import { checkRename, checkRole, checkSignIn, playersOf, type Role } from "$lib/people";
 
 // Archived tournaments, newest first, for the download list. Its own request
@@ -38,7 +38,9 @@ export const load: PageServerLoad = async ({ locals }) => {
     archivedList(locals.pb),
     loadPeople(locals.pb),
   ]);
-  return { ...view, tv, archived, people, starters: view.tournament ? [] : await starterPicks() };
+  // Whether anyone has wagered: the Lord of Gold needs someone to crown.
+  const wagers = view.tournament ? (await loadBetting(locals.pb, view.tournament.id, people)).bets.length > 0 : false;
+  return { ...view, tv, archived, people, wagers, starters: view.tournament ? [] : await starterPicks() };
 };
 
 // A check-in change before the draw; a broken rule comes back as the page's error.
@@ -254,6 +256,8 @@ export const actions: Actions = {
     return { renamed: player };
   },
 
+  // "Begin the Paths": generates the knockout, which ends the TV's Respite,
+  // and remembers when (outright wagers close then).
   generateKnockout: async ({ locals }) => {
     const t = await getActiveTournament(locals.pb);
     if (!t) return fail(400, { error: "No active tournament." });
@@ -262,7 +266,25 @@ export const actions: Actions = {
     } catch (e) {
       return fail(400, { error: (e as Error).message });
     }
+    await locals.pb.collection("tournaments").update(t.id, { pathsBegunAt: Date.now() });
     return { knockout: true };
+  },
+
+  // "Show the Circles": the TV leaves the Gathering for the group overview.
+  showCircles: async ({ locals }) => {
+    const t = await getActiveTournament(locals.pb);
+    if (!t) return fail(400, { error: "No active tournament." });
+    await locals.pb.collection("tournaments").update(t.id, { groupsShownAt: Date.now() });
+    return { tv: true };
+  },
+
+  // "Crown the Lord of Gold": the TV shows the richest wagerers for a short
+  // while (LORD_OF_GOLD_SECONDS), then goes back to the champion.
+  crown: async ({ locals }) => {
+    const t = await getActiveTournament(locals.pb);
+    if (!t) return fail(400, { error: "No active tournament." });
+    await locals.pb.collection("tournaments").update(t.id, { crownedAt: Date.now() });
+    return { tv: true };
   },
 
   // What the venue TV shows: "Auto" (rotate + cut to live scores) or lock it

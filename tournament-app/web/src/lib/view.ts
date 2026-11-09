@@ -222,14 +222,18 @@ export function hasStage(matches: PBMatch[], stage: string): boolean {
 // ── TV scenes ─────────────────────────────────────────────────────────────
 // Shared by the TV (what it can show) and the admin page (what it can pick).
 
+// "standby" is the Gathering (its key is from 2026 and stays).
 export type Scene =
   | "standby"
   | "groups"
   | "rr"
+  | "respite"
   | "bracket"
   | "spotlight"
   | "awards"
+  | "eve"
   | "champion"
+  | "lordOfGold"
   | "royale"
   | "royaleChampion";
 
@@ -239,13 +243,45 @@ export const SCENE_TITLE: Record<Scene, string> = {
   standby: SCREENS.waiting,
   groups: STAGES.groups,
   rr: STAGES.pathRoundRobins,
+  respite: SCREENS.break,
   bracket: STAGES.paths,
   spotlight: SCREENS.matchCentre,
   awards: SCREENS.awards,
+  eve: STAGES.grandFinalBuildUp,
   champion: TITLES.champion,
+  lordOfGold: TITLES.topBettor,
   royale: TITLES.royale,
   royaleChampion: TITLES.royaleChampion,
 };
+
+// The organiser's TV flow buttons (stored on the tournament, ms; 0 if not
+// pressed yet), whether anyone has wagered, and the time now.
+export interface TvFlow {
+  groupsShownAt: number; // "Show the Circles"
+  pathsBegunAt: number; // "Begin the Paths"
+  crownedAt: number; // "Crown the Lord of Gold"
+  wagers: boolean; // any wagers on this tournament (else no Lord of Gold)
+  now: number;
+}
+export const NO_FLOW: TvFlow = { groupsShownAt: 0, pathsBegunAt: 0, crownedAt: 0, wagers: false, now: 0 };
+
+// How long the Lord of Gold stays up after "Crown the Lord of Gold".
+export const LORD_OF_GOLD_SECONDS = 30;
+
+// The flow's stage, worked out from the matches (the buttons only add to it):
+const groupMatches = (ms: PBMatch[]) => ms.filter((m) => m.stage === "group");
+const knockoutMatches = (ms: PBMatch[]) => ms.filter((m) => m.stage !== "group");
+const begun = (m: PBMatch) => m.matchStatus === "done" || isLive(m);
+// Nothing played or started yet (the Gathering, then the group overview).
+const beforeFirstMatch = (ms: PBMatch[]) => !ms.some(begun);
+// Every group match done, the knockout not generated yet (the Respite).
+const inRespite = (ms: PBMatch[]) => {
+  const g = groupMatches(ms);
+  return g.length > 0 && g.every((m) => m.matchStatus === "done") && knockoutMatches(ms).length === 0;
+};
+// The grand final has both players and hasn't started (Eve of the Reckoning).
+const onEve = (ms: PBMatch[]) => ms.some((m) => m.stage === "gf" && m.matchStatus === "ready" && !isLive(m) && !!m.p1 && !!m.p2);
+const championCrowned = (ms: PBMatch[]) => ms.some((m) => m.stage === "gf" && m.matchStatus === "done");
 
 // What the venue TV should be doing, as set from the admin page.
 export interface TvState {
@@ -266,15 +302,30 @@ export const MUSIC_LEVELS = [
   { label: "High", value: 100 },
 ];
 
-// Scenes that have something to show right now, in rotation order.
-export function availableScenes(hasTournament: boolean, matches: PBMatch[], royale: PBRoyale | null = null): Scene[] {
+// Scenes that have something to show right now, in rotation order (also what
+// the organiser can pick). The Gathering, the Respite and the Eve are only
+// there in their own stage; the Lord of Gold once there's a champion and
+// someone wagered.
+export function availableScenes(
+  hasTournament: boolean,
+  matches: PBMatch[],
+  royale: PBRoyale | null = null,
+  flow: TvFlow = NO_FLOW,
+): Scene[] {
   if (!hasTournament) return ["standby"];
-  const s: Scene[] = ["groups"];
+  const s: Scene[] = [];
+  if (beforeFirstMatch(matches)) s.push("standby");
+  s.push("groups");
   if (hasStage(matches, "wb_rr") || hasStage(matches, "lb_rr")) s.push("rr");
+  if (inRespite(matches)) s.push("respite");
   if (matches.some((m) => m.stage !== "group" && m.stage !== "wb_rr" && m.stage !== "lb_rr")) s.push("bracket");
   s.push("spotlight");
   if (loggedResults(matches).length >= AWARDS_AFTER) s.push("awards");
-  if (matches.some((m) => m.stage === "gf" && m.matchStatus === "done")) s.push("champion");
+  if (onEve(matches)) s.push("eve");
+  if (championCrowned(matches)) {
+    s.push("champion");
+    if (flow.wagers) s.push("lordOfGold");
+  }
   if (royale) {
     s.push("royale");
     if (royaleView(royale)?.champion) s.push("royaleChampion");
@@ -282,25 +333,32 @@ export function availableScenes(hasTournament: boolean, matches: PBMatch[], roya
   return s;
 }
 
-// Between stages the TV holds one scene instead of rotating:
-// - every group match is done but the knockout isn't generated yet → Groups
-//   (the final tables, while the organiser checks them and generates it);
-// - the knockout is generated but none of it has been played → the Bracket
-//   (or the mini round-robins, if there's no bracket scene), until a match is
-//   started (Start match cuts to Match centre as usual, which ends the hold);
-// - the grand final is done → the Champion, for good (the tournament's over);
+// Between stages the TV holds one scene instead of rotating. In order:
+// - nothing played yet: the Gathering, until the organiser presses "Show the
+//   Circles"; then the group overview, until the first match starts (Start
+//   match cuts to Match centre as usual, which ends the hold);
+// - every group match done, the knockout not generated: the Respite, until
+//   "Begin the Paths" generates it;
+// - the knockout generated, none of it played: the Bracket (or the mini
+//   round-robins, if there's no bracket scene), until a match starts;
+// - the grand final ready and not started: Eve of the Reckoning;
+// - the grand final done: the Champion, for good, except for the Lord of
+//   Gold for LORD_OF_GOLD_SECONDS after "Crown the Lord of Gold";
 // - then the battle royale takes over: its board while it's played, then
 //   its champion.
 // null the rest of the time.
-export function tvHold(matches: PBMatch[], scenes: Scene[], royale: PBRoyale | null = null): Scene | null {
+export function tvHold(matches: PBMatch[], scenes: Scene[], royale: PBRoyale | null = null, flow: TvFlow = NO_FLOW): Scene | null {
   if (royale && scenes.includes("royale")) return scenes.includes("royaleChampion") ? "royaleChampion" : "royale";
-  if (scenes.includes("champion") && matches.some((m) => m.stage === "gf" && m.matchStatus === "done")) return "champion";
-  const groups = matches.filter((m) => m.stage === "group");
-  const knockout = matches.filter((m) => m.stage !== "group");
-  if (!knockout.length) {
-    return groups.length && groups.every((m) => m.matchStatus === "done") ? "groups" : null;
+  if (scenes.includes("champion") && championCrowned(matches)) {
+    const crowned = flow.crownedAt > 0 && flow.now < flow.crownedAt + LORD_OF_GOLD_SECONDS * 1000;
+    return crowned && scenes.includes("lordOfGold") ? "lordOfGold" : "champion";
   }
-  if (knockout.some((m) => m.matchStatus === "done" || isLive(m))) return null;
+  if (!matches.length) return null;
+  if (beforeFirstMatch(matches)) return flow.groupsShownAt ? "groups" : "standby";
+  if (inRespite(matches)) return "respite";
+  const knockout = knockoutMatches(matches);
+  if (!knockout.length) return null;
+  if (knockout.some(begun)) return onEve(matches) ? "eve" : null;
   if (scenes.includes("bracket")) return "bracket";
   return scenes.includes("rr") ? "rr" : null;
 }
