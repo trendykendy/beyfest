@@ -15,3 +15,6 @@ tournament-app/pb/pocketbase.exe
 
 # Real photos of the people behind the fighters (never commit or publish)
 fighter-art/reference-photos/
+
+# ElevenLabs API key (written by the ElevenLabs CLI)
+.env.local

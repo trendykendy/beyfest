@@ -1,6 +1,6 @@
 import { computeStandings, type Match, type Slot, type Stage, type StandingRow } from "@beyfest/engine";
 import { royaleView, type PBRoyale } from "./royale";
-import { SCREENS, STAGES, TITLES } from "./terms";
+import { AWARD_NAMES, SCREENS, STAGES, TITLES } from "./terms";
 
 // Plain shapes as they arrive from PocketBase (superset of engine fields).
 export interface PBPlayer {
@@ -402,8 +402,8 @@ export function computeAwards(matches: PBMatch[]): Award[] {
 
   // Most finishes of one kind.
   for (const [key, finish, title, min, word] of [
-    ["knockout", "knockout", "Knockout king", 2, "knockouts"],
-    ["dominant", "dominant", "Dominator", 1, "dominant finishes"],
+    ["knockout", "knockout", AWARD_NAMES.knockout, 2, "banishments"],
+    ["dominant", "dominant", AWARD_NAMES.dominant, 1, "annihilations"],
   ] as const) {
     const count = new Map<string, number>();
     for (const m of logged) {
@@ -419,7 +419,7 @@ export function computeAwards(matches: PBMatch[]): Award[] {
     }
   }
 
-  // Iron wall: fewest points let in per match (every result counts; 3+ played).
+  // The Unbroken (was Iron wall): fewest points let in per match (every result counts; 3+ played).
   const against = new Map<string, { pts: number; n: number }>();
   for (const m of matches.filter((x) => x.matchStatus === "done" && !x.walkover)) {
     for (const [id, conceded] of [[m.p1, m.p2Score ?? 0], [m.p2, m.p1Score ?? 0]] as const) {
@@ -430,7 +430,7 @@ export function computeAwards(matches: PBMatch[]): Award[] {
   const avg = new Map([...against].filter(([, a]) => a.n >= 3).map(([id, a]) => [id, Math.round((a.pts / a.n) * 10) / 10]));
   const wall = best(avg, true);
   if (wall) {
-    awards.push({ key: "wall", title: "Iron wall", winners: wall.ids, detail: `Let in ${wall.value} points a match` });
+    awards.push({ key: "wall", title: AWARD_NAMES.wall, winners: wall.ids, detail: `Let in ${wall.value} points a match` });
   }
 
   // Comeback: the biggest deficit a winner came back from.
@@ -452,7 +452,7 @@ export function computeAwards(matches: PBMatch[]): Award[] {
   if (comeback && deepest >= 2) {
     awards.push({
       key: "comeback",
-      title: "Comeback",
+      title: AWARD_NAMES.comeback,
       winners: [comeback.id],
       opponent: comeback.opp,
       detail: `Came back from ${comeback.down[0]}–${comeback.down[1]} down`,

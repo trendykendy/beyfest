@@ -1,25 +1,32 @@
 // The TV's sounds: the match music, the announcer's calls for the VS intro
-// (name, "versus", name, match title), each round's finish, "[name] wins!",
-// and the stinger that ends a match. The files are in static/sounds; each
-// fighter's name clip comes from the fighter library instead (fighters.ts).
-// Only the plain logic is here, so it can be tested; the playing is in
-// components/tv/announcer.ts.
+// (name, "versus", name, match title), each round's finish, the winner's
+// "[name] is VICTORIOUS!", and the stinger that ends a match. Every shared
+// file is on the master list in clips.ts; each fighter's name call and own
+// whole calls come from the fighter library instead (fighters.ts). Some
+// constant names are the 2026 ones (ROYALE, QUALIFIED …); what they say is in
+// clips.ts. Only the plain logic is here, so it can be tested; the playing is
+// in components/tv/announcer.ts.
 
 import type { Stage } from "@beyfest/engine";
-import { FINISHES } from "./finishes";
+import {
+  CHAMPION_THEME_CLIP,
+  CIRCLE_CLIPS,
+  DEATHS_DOOR_CLIP,
+  FINISH_CLIPS,
+  HEARTBEAT_CLIP,
+  IMPACT_CLIP,
+  MELEE_CLIPS,
+  MUSIC_CLIPS,
+  PATH_CLIPS,
+  RECKONING_CLIP,
+  STINGER_CLIP,
+  VERSUS_CLIPS,
+} from "./clips";
 
-export const MUSIC = [
-  "/sounds/music/championship-theme-1.mp3",
-  "/sounds/music/championship-theme-2.mp3",
-  "/sounds/music/championship-mode.mp3",
-  "/sounds/music/championship-theme-3.mp3",
-  "/sounds/music/championship-theme-4.mp3",
-  "/sounds/music/championship-theme-5.mp3",
-];
+export const MUSIC = MUSIC_CLIPS.map((c) => c.url);
 
-export const VERSUS = ["/sounds/versus-1.mp3", "/sounds/versus-2.mp3"];
-export const WINS = "/sounds/wins.mp3"; // said straight after the winner's name
-export const STINGER = "/sounds/stinger.mp3"; // ends a match in place of a fade-out
+export const VERSUS = VERSUS_CLIPS.map((c) => c.url);
+export const STINGER = STINGER_CLIP.url; // ends a match in place of a fade-out
 // The stinger is the last 5.25 s of the Suno piece (which won't generate
 // anything shorter), ending on its own final hit; the raw file is in
 // tournament-app/music/. The end fade is only a safety net now: the clip
@@ -31,41 +38,40 @@ export const STINGER_END_FADE_MS = 150;
 // fades out underneath (a crossfade).
 export const STINGER_IN_MS = 600;
 
-// The call for a round's finish ("Knockout!"), named after its key in
-// finishes.ts; "" for a key it doesn't know.
+// The call for a round's finish ("Banishment!"), by its key in finishes.ts;
+// "" for a key it doesn't know.
 export function finishClip(key: string): string {
-  return FINISHES.some((f) => f.key === key) ? `/sounds/finishes/${key}.mp3` : "";
+  return FINISH_CLIPS[key]?.url ?? "";
 }
 
-// "[name] wins!" when a result goes in. A walkover wasn't a fight, so nobody
-// is called; nor is a winner with no name clip ("wins!" alone says nothing).
-export function winsCall(voice: string, walkover: boolean): string[] {
-  return voice && !walkover ? [voice, WINS] : [];
+// The winner's own "[name] is VICTORIOUS!" when a result goes in (one file,
+// the fighter's callVictorious). A walkover wasn't a fight, so nobody is
+// called; nor is a winner without the clip.
+export function winsCall(victorious: string, walkover: boolean): string[] {
+  return victorious && !walkover ? [victorious] : [];
 }
 
 // The match title clip, or "" when there isn't one. Group matches say their
-// group; knockout matches say their bracket. The 8-player upper and lower
-// brackets borrow the winners and losers clips.
+// Circle (the engine still labels them "Group N"); knockout matches say their
+// Path. Each path's mini round-robin, and the 8-player Upper and Lower
+// brackets, borrow the Gilded and Ashen clips.
 export function titleClip(m: { stage: Stage; roundLabel: string }): string {
-  const clip = (name: string) => `/sounds/titles/${name}.mp3`;
   switch (m.stage) {
     case "group": {
       const n = Number(/^Group (\d+)/.exec(m.roundLabel)?.[1]);
-      return n >= 1 && n <= 5 ? clip(`group-${n}`) : "";
+      return CIRCLE_CLIPS[n - 1]?.url ?? "";
     }
-    case "wb_rr":
-      return clip("winners-round-robin");
-    case "lb_rr":
-      return clip("losers-round-robin");
     case "wb":
     case "ub":
-      return clip("winners-bracket");
+    case "wb_rr":
+      return PATH_CLIPS.gilded.url;
     case "lb":
-      return clip("losers-bracket");
+    case "lb_rr":
+      return PATH_CLIPS.ashen.url;
     case "mb":
-      return clip("mid-bracket");
+      return PATH_CLIPS.iron.url;
     case "gf":
-      return clip("grand-final");
+      return RECKONING_CLIP.url;
     default:
       return "";
   }
@@ -119,12 +125,12 @@ export const WINNER_SLAM = 450; // the winner's banner lands
 // ── Match point ──────────────────────────────────────────────────────
 // The impact as match point lands, then the heartbeat loops under the ducked
 // music until the match ends. The announcer calls it over the impact's tail;
-// sudden death reuses the battle royale's call.
-export const MATCH_POINT_HIT = "/sounds/match-point-impact.mp3";
-export const HEARTBEAT = "/sounds/heartbeat.mp3"; // one lub-dub, padded with silence
+// sudden death reuses the Grand Mêlée's "Last Stand!".
+export const MATCH_POINT_HIT = IMPACT_CLIP.url;
+export const HEARTBEAT = HEARTBEAT_CLIP.url; // one lub-dub, padded with silence
 export const HEARTBEAT_MS = 1200; // the file's length; the TV's pulse keeps time with it
-export const MATCH_POINT_CALL = "/sounds/match-point.mp3";
-export const SUDDEN_DEATH_CALL = "/sounds/royale/sudden-death.mp3";
+export const MATCH_POINT_CALL = DEATHS_DOOR_CLIP.url;
+export const SUDDEN_DEATH_CALL = MELEE_CLIPS.lastStand.url;
 // How loud the impact and heartbeat play: 1 is full volume. The heartbeat
 // also follows the admin page's music level; the calls aren't affected.
 export const MATCH_POINT_FX_LEVEL = 0.75;
@@ -139,25 +145,18 @@ export function matchPointCalls(event: "slam" | "suddenDeath" | "saved"): string
   return event === "suddenDeath" ? [SUDDEN_DEATH_CALL] : [];
 }
 
-// ── Battle royale ────────────────────────────────────────────────────
-// Clips the organiser provides, dropped into static/sounds/royale/. Until a
-// file is there its call is simply skipped (the intro's timing allows for it).
-//   battle-royale.mp3    "Battle royale!" (each battle's intro, first)
-//   heat-1.mp3 … heat-4  "Heat one!" … (then the battle's name)
-//   sudden-death.mp3     "Sudden death!"
-//   final.mp3            "The final!"
-//   royale-champion.mp3  "Battle royale champion!" (after the champion's name)
-//   and.mp3              "and" (between the last two names)
-//   qualified.mp3        "Qualified!" (after the names)
-export const ROYALE = "/sounds/royale/battle-royale.mp3";
-export const ROYALE_CHAMPION = "/sounds/royale/royale-champion.mp3";
-export const AND = "/sounds/royale/and.mp3";
-export const QUALIFIED = "/sounds/royale/qualified.mp3";
+// ── The Grand Mêlée (battle royale) ──────────────────────────────────
+// Its calls are on the list in clips.ts (MELEE_CLIPS). Until a file is
+// there its call is skipped (the intro's timing allows for it). The
+// champion's "… Last One Standing!" is their own clip (callRoyaleChampion).
+export const ROYALE = MELEE_CLIPS.title.url; // "The Grand Mêlée!"
+export const AND = MELEE_CLIPS.and.url;
+export const QUALIFIED = MELEE_CLIPS.stillStanding.url;
 
-// The Qualified screen's call: "[A] and [B]… qualified!" ("A, B and C" for
-// three or more, without the commas). Names with no voice clip are left out;
-// with none at all it's just "Qualified!". The call starts as the panels
-// land (QUALIFIED_CALL ms in).
+// The Still Standing screen's call: "[A] and [B]… Still Standing!" ("A, B
+// and C" for three or more, without the commas). Names with no voice clip are
+// left out; with none at all it's just "Still Standing!". The call starts as
+// the panels land (QUALIFIED_CALL ms in).
 export const QUALIFIED_CALL = 550;
 export function qualifiedCall(voices: string[]): string[] {
   const v = voices.filter(Boolean);
@@ -165,24 +164,23 @@ export function qualifiedCall(voices: string[]): string[] {
   return [...v.slice(0, -1), AND, v[v.length - 1], QUALIFIED];
 }
 
-// The call for a battle's name, from its key (H1…H4, SD, F); "" for none.
+// The call for a battle's name, from its key (H1…H4 skirmishes, SD the Last
+// Stand, F the Final Mêlée); "" for none.
 export function royaleLabelClip(key: string): string {
   const heat = /^H([1-4])$/.exec(key);
-  if (heat) return `/sounds/royale/heat-${heat[1]}.mp3`;
-  if (key === "SD") return "/sounds/royale/sudden-death.mp3";
-  if (key === "F") return "/sounds/royale/final.mp3";
+  if (heat) return MELEE_CLIPS.skirmishes[Number(heat[1]) - 1].url;
+  if (key === "SD") return MELEE_CLIPS.lastStand.url;
+  if (key === "F") return MELEE_CLIPS.final.url;
   return "";
 }
 
 // ── Champion ─────────────────────────────────────────────────────────
-// The Champion scene's music, and its one-off call: the champion's name
-// clip, then "Beyfest 2026 Grand Champion!".
-export const CHAMPION_THEME = "/sounds/champion-theme.mp3";
-export const GRAND_CHAMPION = "/sounds/grand-champion.mp3";
+// The Champion scene's music, and its one-off call: the champion's own
+// "[name] … Hero of Gyrondor!" (one file, their callChampion).
+export const CHAMPION_THEME = CHAMPION_THEME_CLIP.url;
 
 // The call lands with the scene's big reveal: ChampionScene slams the name
-// slab in (with its flash and confetti) 450 ms after it comes up. The title
-// follows the name a breath later (callSequence).
+// slab in (with its flash and confetti) 450 ms after it comes up.
 export const CHAMPION_CALL_START = 450;
 
 // The call is only made if the scene first shows within this long of the TV

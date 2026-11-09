@@ -8,10 +8,12 @@
     "e2e": "bun run scripts/e2e.ts",
     "web": "bun run --cwd web dev",
     "build": "bun run --cwd web build",
+    "announcer": "bun --env-file=../.env.local run scripts/announcer.ts",
     "pb": "pb/pocketbase.exe serve --http=0.0.0.0:8090 --dir=pb/pb_data --migrationsDir=pb/pb_migrations"
   },
   "devDependencies": {
-    "typescript": "^5.6.0",
-    "pocketbase": "^0.26.2"
+    "@elevenlabs/elevenlabs-js": "^2.77.0",
+    "pocketbase": "^0.26.2",
+    "typescript": "^5.6.0"
   }
 }

@@ -1,21 +1,22 @@
 <script lang="ts">
   import WinnerScreen from "$lib/components/tv/WinnerScreen.svelte";
   import { Announcer } from "$lib/components/tv/announcer";
-  import { STINGER, WINNER_SLAM, WINS, winsCall } from "$lib/sounds";
+  import { STINGER, WINNER_SLAM, winsCall } from "$lib/sounds";
   import { page } from "$app/state";
   import { onMount, tick } from "svelte";
 
   // Lab page for the winner screen. Not linked from anywhere. Uses the
-  // starter fighters' pictures and voices (static/starter-fighters).
+  // starter fighters' pictures and VICTORIOUS calls (static/starter-fighters;
+  // a call that isn't recorded yet is skipped).
   const SF = "/starter-fighters/";
   const FIGHTERS = {
-    picture: { name: "The Buzzsaw", kana: "ザ・バズソー", img: SF + "buzzsaw.png", voice: SF + "the-buzzsaw.mp3" },
-    "no picture": { name: "The Modsmith", kana: "ザ・モッドスミス", img: "", voice: SF + "the-modsmith.mp3" },
+    picture: { name: "The Buzzsaw", kana: "ザ・バズソー", img: SF + "buzzsaw.png", voice: SF + "victorious-buzzsaw.mp3" },
+    "no picture": { name: "The Modsmith", kana: "ザ・モッドスミス", img: "", voice: SF + "victorious-modsmith.mp3" },
     "long name": {
       name: "The Torque Warden",
       kana: "ザ・トルクウォーデン",
       img: SF + "torquewarden.png",
-      voice: SF + "the-torque-warden.mp3",
+      voice: SF + "victorious-torquewarden.mp3",
     },
     "no fighter": { name: "Ronan", kana: "", img: "", voice: "" },
   };
@@ -110,7 +111,7 @@
   const file = (u: string) => u.split("/").pop();
   const soundNote = $derived(
     `match music (a random track) for ${LEAD_IN / 1000} s → ` +
-      (calls.length ? `"${winner.name} wins!" (${calls.map(file).join(" + ")}) from the slam → ` : "no call (walkover or no voice) → ") +
+      (calls.length ? `"${winner.name} is VICTORIOUS!" (${calls.map(file).join(" + ")}) from the slam → ` : "no call (walkover or no clip) → ") +
       `stinger (${file(STINGER)})` +
       (slow !== 1 ? " · sound is always 1× speed" : ""),
   );
@@ -118,7 +119,7 @@
   function toggleSound() {
     announcer.setEnabled(sound);
     if (sound) {
-      [WINS, STINGER, ...Object.values(FIGHTERS).map((f) => f.voice)].forEach((u) => announcer.preload(u));
+      [STINGER, ...Object.values(FIGHTERS).map((f) => f.voice)].forEach((u) => announcer.preload(u));
       replay();
     } else {
       clearTimeout(leadTimer);

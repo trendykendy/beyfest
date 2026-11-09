@@ -57,6 +57,9 @@ const toFighter = (r: RecordModel): PBFighter => ({
   royaleVictory: r.royaleVictory || "",
   profile: r.profile || "",
   voice: r.voice || "",
+  callVictorious: r.callVictorious || "",
+  callRoyaleChampion: r.callRoyaleChampion || "",
+  callChampion: r.callChampion || "",
   mirror: !!r.mirror,
   face: toFace(r.face),
 });

@@ -1,6 +1,7 @@
 <script lang="ts">
   import ChampionScene from "$lib/components/tv/ChampionScene.svelte";
   import type { ChampionRun } from "$lib/view";
+  import { AWARD_NAMES } from "$lib/terms";
   import { page } from "$app/state";
   import { tick } from "svelte";
 
@@ -41,10 +42,10 @@
   const UNLOGGED: ChampionRun = { ...LOGGED, roundsWon: 0, topFinish: null };
   // The awards ticker (?noawards hides it, like a tournament with none).
   const AWARDS = [
-    { key: "knockout", title: "Knockout king", name: "Sean", detail: "6 knockouts" },
-    { key: "dominant", title: "Dominator", name: "Aoife & Cuffe", detail: "3 dominant finishes" },
-    { key: "wall", title: "Iron wall", name: "Ronan", detail: "1.4 points let in a match" },
-    { key: "comeback", title: "Comeback kid", name: "Mchale", detail: "won from 1–4 down against Steve" },
+    { key: "knockout", title: AWARD_NAMES.knockout, name: "Sean", detail: "6 banishments" },
+    { key: "dominant", title: AWARD_NAMES.dominant, name: "Aoife & Cuffe", detail: "3 annihilations" },
+    { key: "wall", title: AWARD_NAMES.wall, name: "Ronan", detail: "Let in 1.4 points a match" },
+    { key: "comeback", title: AWARD_NAMES.comeback, name: "Mchale", detail: "Came back from 1–4 down against Steve" },
   ];
 
   let pick = $state<Pick>((page.url.searchParams.get("f") as Pick) ?? "picture");

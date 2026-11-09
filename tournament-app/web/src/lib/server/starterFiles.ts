@@ -33,9 +33,17 @@ const TYPES: Record<string, string> = {
   ogg: "audio/ogg",
 };
 
+// The announcer calls are listed in fighters.json before they're recorded,
+// so one whose file isn't there yet is left off (it fills in on a later load
+// once the file arrives) rather than stopping that fighter from loading.
+const LATE_FILES = ["callVictorious", "callRoyaleChampion", "callChampion"] as const;
+
 export async function readStarters(): Promise<{ starters: Starter[]; file: (name: string) => Promise<File> }> {
   const dir = findDir();
   const starters: Starter[] = JSON.parse(await readFile(join(dir, "fighters.json"), "utf8"));
+  for (const s of starters) {
+    for (const k of LATE_FILES) if (s[k] && !existsSync(join(dir, basename(s[k])))) delete s[k];
+  }
   const file = async (name: string) => {
     const safe = basename(name); // only files in the folder itself
     const type = TYPES[safe.split(".").pop()!.toLowerCase()] ?? "application/octet-stream";

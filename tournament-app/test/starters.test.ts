@@ -13,6 +13,9 @@ const fighter = (over: Partial<PBFighter>): PBFighter => ({
   royaleVictory: "",
   profile: "",
   voice: "",
+  callVictorious: "",
+  callRoyaleChampion: "",
+  callChampion: "",
   mirror: false,
   face: null,
   ...over,
@@ -84,6 +87,22 @@ describe("planStarters", () => {
       { kind: "fill", id: "a", starter: posed, fields: {}, files: ["royaleVictory"] },
     ]);
     expect(planStarters([posed], [{ ...loaded, royaleVictory: "mine.png" }])).toEqual([]);
+  });
+
+  test("gives a fighter already loaded their own announcer calls, keeping any uploaded by hand", () => {
+    const voiced: Starter = {
+      ...breycist,
+      callVictorious: "victorious-breycist.mp3",
+      callRoyaleChampion: "last-one-standing-breycist.mp3",
+      callChampion: "hero-breycist.mp3",
+    };
+    const loaded = fighter({ id: "a", name: "The Breycist", player: "Conor", kana: "k", image: "i.png", voice: "v.mp3" });
+    expect(planStarters([voiced], [loaded])).toEqual([
+      { kind: "fill", id: "a", starter: voiced, fields: {}, files: ["callVictorious", "callRoyaleChampion", "callChampion"] },
+    ]);
+    expect(planStarters([voiced], [{ ...loaded, callVictorious: "mine.mp3" }])).toEqual([
+      { kind: "fill", id: "a", starter: voiced, fields: {}, files: ["callRoyaleChampion", "callChampion"] },
+    ]);
   });
 
   test("gives a fighter already loaded the profile sheet, keeping one uploaded by hand", () => {

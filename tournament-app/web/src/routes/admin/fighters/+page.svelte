@@ -9,7 +9,9 @@
     fighterProfileUrl,
     fighterVictoryUrl,
     fighterVoiceUrl,
+    fighterCallUrl,
     artFor,
+    type FighterCall,
     type PBFighter,
   } from "$lib/fighters";
 
@@ -27,11 +29,19 @@
 
   // One clip at a time: a new Play stops the last one.
   let playing: HTMLAudioElement | null = null;
-  function play(f: PBFighter) {
+  function play(url: string) {
     playing?.pause();
-    playing = new Audio(fighterVoiceUrl(data.pbUrl, f));
+    playing = new Audio(url);
     playing.play().catch(() => {});
   }
+
+  // The fighter's own whole announcer calls (one file each), as the form
+  // labels them.
+  const CALLS: { key: FighterCall; label: string }[] = [
+    { key: "callVictorious", label: "VICTORIOUS call" },
+    { key: "callRoyaleChampion", label: "Last One Standing call" },
+    { key: "callChampion", label: "Hero of Gyrondor call" },
+  ];
 
   // Bladers in the current tournament who'll get the silhouette.
   const unmatched = $derived(data.players.filter((n) => !fighterFor(n, data.fighters)));
@@ -110,7 +120,10 @@
       <label>Royale pose <input type="file" name="royaleVictory" accept="image/png,image/webp,image/jpeg" /></label>
       <label>Profile sheet <input type="file" name="profile" accept="image/png,image/webp,image/jpeg" /></label>
       <label>Mirrored image <input type="file" name="imageMirrored" accept="image/png,image/webp,image/jpeg" /></label>
-      <label>Voice <input type="file" name="voice" accept="audio/*" /></label>
+      <label>Voice (name call) <input type="file" name="voice" accept="audio/*" /></label>
+      {#each CALLS as c (c.key)}
+        <label>{c.label} <input type="file" name={c.key} accept="audio/*" /></label>
+      {/each}
       <label class="check"><input type="checkbox" name="mirror" /> Mirror</label>
       <button class="btn primary" type="submit">Add fighter</button>
     </form>
@@ -158,7 +171,10 @@
           {/if}
           <label>{f.royaleVictory ? "Replace royale pose" : "Royale pose"} <input type="file" name="royaleVictory" accept="image/png,image/webp,image/jpeg" /></label>
           <label>{f.profile ? "Replace profile sheet" : "Profile sheet"} <input type="file" name="profile" accept="image/png,image/webp,image/jpeg" /></label>
-          <label>{f.voice ? "Replace voice" : "Voice"} <input type="file" name="voice" accept="audio/*" /></label>
+          <label>{f.voice ? "Replace voice" : "Voice (name call)"} <input type="file" name="voice" accept="audio/*" /></label>
+          {#each CALLS as c (c.key)}
+            <label>{f[c.key] ? `Replace ${c.label}` : c.label} <input type="file" name={c.key} accept="audio/*" /></label>
+          {/each}
           {#if f.image}
             <!-- Keyed on the saved point, so it resets once a save comes back. -->
             {#key JSON.stringify(f.face)}
@@ -167,8 +183,13 @@
           {/if}
           <div class="checks">
             {#if f.voice}
-              <button class="btn" type="button" onclick={() => play(f)}>▶ Play voice</button>
+              <button class="btn" type="button" onclick={() => play(fighterVoiceUrl(data.pbUrl, f))}>▶ Play voice</button>
             {/if}
+            {#each CALLS as c (c.key)}
+              {#if f[c.key]}
+                <button class="btn" type="button" onclick={() => play(fighterCallUrl(data.pbUrl, f, c.key))}>▶ {c.label}</button>
+              {/if}
+            {/each}
             <label class="check"><input type="checkbox" name="mirror" checked={f.mirror} /> Mirror</label>
             {#if f.image}
               <label class="check"><input type="checkbox" name="removeImage" /> Remove image</label>
@@ -188,6 +209,11 @@
             {#if f.voice}
               <label class="check"><input type="checkbox" name="removeVoice" /> Remove voice</label>
             {/if}
+            {#each CALLS as c (c.key)}
+              {#if f[c.key]}
+                <label class="check"><input type="checkbox" name="remove-{c.key}" /> Remove {c.label}</label>
+              {/if}
+            {/each}
           </div>
           <button class="btn" type="submit">Save</button>
           {#if editing === f.id && form?.error}

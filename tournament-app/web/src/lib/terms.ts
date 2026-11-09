@@ -55,7 +55,15 @@ export const SCREENS = {
   live: "In Battle",
   profile: "Chronicle",
   intro: "Prologue",
-  awards: "Awards", // renamed in-world with the Awards restyle
+  awards: "Deeds of Renown", // the Awards scene
+} as const;
+
+/** The Awards scene's honours. Keys match `Award["key"]` in view.ts. */
+export const AWARD_NAMES = {
+  knockout: "The Banisher", // most knockouts (Banishment finishes)
+  dominant: "The Annihilator", // most dominant finishes (Annihilation)
+  wall: "The Unbroken", // fewest points let in per match
+  comeback: "Risen from Ruin", // biggest deficit overturned
 } as const;
 
 /** How a round is won. Keys match `FINISHES` in finishes.ts. */

@@ -16,21 +16,15 @@
     fighterProfileUrl,
     fighterVictoryUrl,
     fighterVoiceUrl,
+    fighterCallUrl,
+    FIGHTER_CALLS,
     type Face,
   } from "$lib/fighters";
   import {
-    AND,
-    GRAND_CHAMPION,
-    MATCH_POINT_CALL,
-    QUALIFIED,
     QUALIFIED_CALL,
     ROYALE,
-    ROYALE_CHAMPION,
     STINGER,
-    SUDDEN_DEATH_CALL,
-    VERSUS,
     WINNER_SLAM,
-    WINS,
     championCallFresh,
     finishClip,
     matchPointCalls,
@@ -40,6 +34,7 @@
     winsCall,
   } from "$lib/sounds";
   import { qualifiers, royaleView, type Battle } from "$lib/royale";
+  import { ANNOUNCER_URLS } from "$lib/clips";
   import { Announcer, soundAllowed } from "$lib/components/tv/announcer";
   import { FINISHES } from "$lib/finishes";
   import { pickStructure, miniRRAdvancers, pointsToWin } from "@beyfest/engine";
@@ -745,13 +740,10 @@
     soundBlocked = false;
     announcer.unlock();
   }
-  // Load every clip the next intros could need, so each one's length is known
-  // when an intro is timed and it plays on cue.
-  onMount(() =>
-    [...VERSUS, ...FINISHES.map((f) => finishClip(f.key)), WINS, STINGER, ROYALE, AND, QUALIFIED, MATCH_POINT_CALL, SUDDEN_DEATH_CALL].forEach((u) =>
-      announcer.preload(u),
-    ),
-  );
+  // Load every announcer clip on the master list (clips.ts) and the stinger,
+  // so each one's length is known when an intro is timed and it plays on cue.
+  // A clip whose file isn't there yet is found out now and skipped later.
+  onMount(() => [...ANNOUNCER_URLS, STINGER].forEach((u) => announcer.preload(u)));
   onMount(() => announcer.preloadTension());
   // The admin page's TV panel sets these, live.
   $effect(() => {
@@ -759,7 +751,10 @@
     announcer.setLevel(data.tv.musicLevel / 100);
   });
   $effect(() => {
-    for (const f of data.fighters) announcer.preload(fighterVoiceUrl(browserPbUrl(), f));
+    for (const f of data.fighters) {
+      announcer.preload(fighterVoiceUrl(browserPbUrl(), f));
+      for (const call of FIGHTER_CALLS) announcer.preload(fighterCallUrl(browserPbUrl(), f, call));
+    }
     for (const m of data.matches) announcer.preload(titleClip(m));
   });
 
@@ -779,7 +774,7 @@
     if (r) announcer.call([finishClip(r.finish)]);
   });
 
-  // A result going in: "[name] wins!" (after the finish call, if that's still
+  // A result going in: "[name] is VICTORIOUS!" (after the finish call, if that's still
   // going), then, if the music is this match's, the stinger in its place.
   // Seen the same way as the cut to Match centre, by comparing reloads, so a
   // page load never calls an old result.
@@ -794,16 +789,16 @@
       const withMusic = m.code === playingFor;
       if (withMusic) musicFor = "";
       // The grand final going straight to the Champion scene: that scene's
-      // theme and "[name]… Grand Champion!" call take over the sound (and
-      // fade the match music out), so no "[name] wins!" or stinger under it.
+      // theme and "[name] … Hero of Gyrondor!" call take over the sound (and
+      // fade the match music out), so no VICTORIOUS call or stinger under it.
       if (m.stage === "gf" && untrack(() => scene === "champion")) continue;
-      const voice = fighterVoiceUrl(browserPbUrl(), fighterFor(names.get(m.winner) ?? "", data.fighters));
+      const victorious = fighterCallUrl(browserPbUrl(), fighterFor(names.get(m.winner) ?? "", data.fighters), "callVictorious");
       // With the winner screen, the call starts with its slam (a walkover gets
       // the screen but no call). Without it (the grand final, or a scene
       // locked by the organiser or picked at the TV), as before.
       const screen =
         !!m.winner && m.stage !== "gf" && untrack(() => !localActive && data.tv.mode !== "locked");
-      announcer.endMatch(winsCall(voice, m.walkover), withMusic, screen ? WINNER_SLAM : 0);
+      announcer.endMatch(winsCall(victorious, m.walkover), withMusic, screen ? WINNER_SLAM : 0);
       if (screen) showWinner(m);
     }
     statusPrimed = true;
@@ -828,8 +823,7 @@
       if (seen && seen.id === id && `${seen.id}@${seen.at}` !== champCalled) {
         champCalled = `${seen.id}@${seen.at}`; // the first showing: now or never
         if (championCallFresh(seen.at, Date.now())) {
-          const voice = fighterVoiceUrl(browserPbUrl(), fighterFor(names.get(id) ?? "", data.fighters));
-          calls = [voice, GRAND_CHAMPION];
+          calls = [fighterCallUrl(browserPbUrl(), fighterFor(names.get(id) ?? "", data.fighters), "callChampion")];
         }
       }
       announcer.startChampion(calls);
@@ -978,7 +972,7 @@
       if (seen && seen.name === name && `${seen.name}@${seen.at}` !== royaleChampCalled) {
         royaleChampCalled = `${seen.name}@${seen.at}`;
         if (championCallFresh(seen.at, Date.now())) {
-          calls = [fighterVoiceUrl(browserPbUrl(), fighterFor(name, data.fighters)), ROYALE_CHAMPION];
+          calls = [fighterCallUrl(browserPbUrl(), fighterFor(name, data.fighters), "callRoyaleChampion")];
         }
       }
       winnerShow = null;
@@ -1650,7 +1644,7 @@
             </section>
           {/each}
         </div>
-        {#if !tournamentOver}<p class="aw-note">Awards so far. They're settled after the grand final.</p>{/if}
+        {#if !tournamentOver}<p class="aw-note">Deeds so far. They're settled after The Reckoning.</p>{/if}
       </div>
 
     {:else if scene === "champion"}

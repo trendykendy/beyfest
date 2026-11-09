@@ -2,7 +2,7 @@ import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { loadFighters, loadTournamentView } from "$lib/server/load";
 import { pbUrlFor } from "$lib/config";
-import { toFace } from "$lib/fighters";
+import { FIGHTER_CALLS, toFace } from "$lib/fighters";
 import { addStarters } from "$lib/server/addStarters";
 
 // The fighter library: who the TV's VS intro shows, with their katakana,
@@ -20,6 +20,18 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 function fileFrom(data: FormData, field: string): File | null {
   const f = data.get(field);
   return f instanceof File && f.size > 0 ? f : null;
+}
+
+// The fighter's own announcer calls: a new upload replaces one; on an update,
+// its "remove-<field>" box clears it.
+function callFiles(data: FormData, updating: boolean): Record<string, File | null> {
+  const out: Record<string, File | null> = {};
+  for (const call of FIGHTER_CALLS) {
+    const file = fileFrom(data, call);
+    if (file) out[call] = file;
+    else if (updating && data.get(`remove-${call}`) === "on") out[call] = null;
+  }
+  return out;
 }
 
 // Combat names and player names must each stay unique (ignoring case), since
@@ -73,6 +85,7 @@ export const actions: Actions = {
         ...(royaleVictory ? { royaleVictory } : {}),
         ...(profile ? { profile } : {}),
         ...(voice ? { voice } : {}),
+        ...callFiles(data, false),
       });
     } catch (e) {
       return fail(400, { error: `Couldn't add ${name}: ${(e as Error).message}` });
@@ -116,6 +129,7 @@ export const actions: Actions = {
             : {}),
         ...(profile ? { profile } : data.get("removeProfile") === "on" ? { profile: null } : {}),
         ...(voice ? { voice } : data.get("removeVoice") === "on" ? { voice: null } : {}),
+        ...callFiles(data, true),
       });
     } catch (e) {
       return fail(400, { error: `Couldn't save ${name}: ${(e as Error).message}`, editing: id });

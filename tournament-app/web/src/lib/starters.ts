@@ -18,7 +18,12 @@ export interface Starter {
   victory?: string; // file name in static/starter-fighters/
   royaleVictory?: string; // file name in static/starter-fighters/
   profile?: string; // file name in static/starter-fighters/
-  voice?: string; // file name in static/starter-fighters/
+  voice?: string; // file name in static/starter-fighters/: the name call
+  // Whole calls (file names in static/starter-fighters/); a file that isn't
+  // there yet is skipped (starterFiles.ts), so these can be listed early.
+  callVictorious?: string;
+  callRoyaleChampion?: string;
+  callChampion?: string;
   mirror?: boolean;
   face?: Face; // where the face is in `image` (scripts/find-faces.py)
 }
@@ -28,7 +33,16 @@ export type StarterStep =
   // fields: the text fields to set; files: which files to upload
   | { kind: "fill"; id: string; starter: Starter; fields: Partial<Pick<PBFighter, "player" | "kana" | "face">>; files: StarterFile[] };
 
-export type StarterFile = "image" | "imageMirrored" | "victory" | "royaleVictory" | "profile" | "voice";
+export type StarterFile =
+  | "image"
+  | "imageMirrored"
+  | "victory"
+  | "royaleVictory"
+  | "profile"
+  | "voice"
+  | "callVictorious"
+  | "callRoyaleChampion"
+  | "callChampion";
 
 const key = (s: string | undefined) => (s ?? "").trim().toLowerCase();
 
@@ -72,6 +86,9 @@ export function planStarters(starters: Starter[], library: PBFighter[], pictures
     if (!f.royaleVictory && s.royaleVictory) files.push("royaleVictory");
     if (!f.profile && s.profile) files.push("profile");
     if (!f.voice && s.voice) files.push("voice");
+    for (const call of ["callVictorious", "callRoyaleChampion", "callChampion"] as const) {
+      if (!f[call] && s[call]) files.push(call);
+    }
     if (Object.keys(fields).length || files.length) steps.push({ kind: "fill", id: f.id, starter: s, fields, files });
   }
   return steps;

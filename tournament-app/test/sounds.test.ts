@@ -1,14 +1,19 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   CALLS_GAP,
   CALLS_START,
+  CHAMPION_THEME,
+  HEARTBEAT,
   INTRO_OUT,
+  MATCH_POINT_CALL,
+  MATCH_POINT_HIT,
   MUSIC,
+  ROYALE,
   STINGER,
+  SUDDEN_DEATH_CALL,
   VERSUS,
-  WINS,
   AND,
   QUALIFIED,
   qualifiedCall,
@@ -16,50 +21,79 @@ import {
   callTimes,
   finishClip,
   pickOther,
+  royaleLabelClip,
   stingerDelay,
   titleClip,
   winsCall,
 } from "../web/src/lib/sounds";
+import { ANNOUNCER_URLS, MUSIC_AND_EFFECTS } from "../web/src/lib/clips";
 import { FINISHES } from "../web/src/lib/finishes";
+import { clipsMarkdown } from "../scripts/clips";
 
 const STATIC = join(import.meta.dir, "../web/static");
+const STARTERS_JSON = readFileSync(join(STATIC, "starter-fighters/fighters.json"), "utf8");
 
 describe("titleClip", () => {
   test("group matches say their group", () => {
-    expect(titleClip({ stage: "group", roundLabel: "Group 1" })).toBe("/sounds/titles/group-1.mp3");
-    expect(titleClip({ stage: "group", roundLabel: "Group 5" })).toBe("/sounds/titles/group-5.mp3");
+    expect(titleClip({ stage: "group", roundLabel: "Group 1" })).toBe("/sounds/announcer/titles/circle-1.mp3");
+    expect(titleClip({ stage: "group", roundLabel: "Group 5" })).toBe("/sounds/announcer/titles/circle-5.mp3");
   });
   test("a group with no clip says nothing", () => {
     expect(titleClip({ stage: "group", roundLabel: "Group 6" })).toBe("");
   });
   test("knockout matches say their bracket", () => {
-    expect(titleClip({ stage: "wb", roundLabel: "Phase 1A — WB Semis" })).toBe("/sounds/titles/winners-bracket.mp3");
-    expect(titleClip({ stage: "mb", roundLabel: "Phase 4 — MB R2" })).toBe("/sounds/titles/mid-bracket.mp3");
-    expect(titleClip({ stage: "lb", roundLabel: "Phase 1B — LB Match" })).toBe("/sounds/titles/losers-bracket.mp3");
+    expect(titleClip({ stage: "wb", roundLabel: "Phase 1A — WB Semis" })).toBe("/sounds/announcer/titles/gilded-path.mp3");
+    expect(titleClip({ stage: "mb", roundLabel: "Phase 4 — MB R2" })).toBe("/sounds/announcer/titles/iron-path.mp3");
+    expect(titleClip({ stage: "lb", roundLabel: "Phase 1B — LB Match" })).toBe("/sounds/announcer/titles/ashen-path.mp3");
     expect(titleClip({ stage: "wb_rr", roundLabel: "Phase 1A — WB Mini-RR" })).toBe(
-      "/sounds/titles/winners-round-robin.mp3",
+      "/sounds/announcer/titles/gilded-path.mp3",
     );
     expect(titleClip({ stage: "lb_rr", roundLabel: "Phase 1B — LB Mini-RR" })).toBe(
-      "/sounds/titles/losers-round-robin.mp3",
+      "/sounds/announcer/titles/ashen-path.mp3",
     );
-    expect(titleClip({ stage: "gf", roundLabel: "Phase 7 — Grand Final" })).toBe("/sounds/titles/grand-final.mp3");
+    expect(titleClip({ stage: "gf", roundLabel: "Phase 7 — Grand Final" })).toBe("/sounds/announcer/titles/the-reckoning.mp3");
   });
   test("8 players: upper and lower borrow the winners and losers clips", () => {
-    expect(titleClip({ stage: "ub", roundLabel: "Upper Bracket — Final" })).toBe("/sounds/titles/winners-bracket.mp3");
-    expect(titleClip({ stage: "lb", roundLabel: "Lower Bracket — Round 1" })).toBe("/sounds/titles/losers-bracket.mp3");
+    expect(titleClip({ stage: "ub", roundLabel: "Upper Bracket — Final" })).toBe("/sounds/announcer/titles/gilded-path.mp3");
+    expect(titleClip({ stage: "lb", roundLabel: "Lower Bracket — Round 1" })).toBe("/sounds/announcer/titles/ashen-path.mp3");
   });
-  test("every clip it can name exists", () => {
-    const stages = ["wb", "ub", "lb", "mb", "wb_rr", "lb_rr", "gf"] as const;
-    const urls = [
+});
+
+// The master list (clips.ts) is the one place every clip is written down, so
+// anything the TV can call must be on it. Announcer files arrive later and are
+// skipped until then; music and effects have 2026 stand-ins, so those exist.
+describe("the clip list", () => {
+  const listed = new Set([...ANNOUNCER_URLS, ...MUSIC_AND_EFFECTS.clips.map((c) => c.url)]);
+  const stages = ["wb", "ub", "lb", "mb", "wb_rr", "lb_rr", "gf"] as const;
+
+  test("every announcer call the TV can make is on it", () => {
+    const calls = [
       ...[1, 2, 3, 4, 5].map((n) => titleClip({ stage: "group", roundLabel: `Group ${n}` })),
       ...stages.map((stage) => titleClip({ stage, roundLabel: "" })),
-      ...MUSIC,
       ...VERSUS,
       ...FINISHES.map((f) => finishClip(f.key)),
-      WINS,
-      STINGER,
+      ...["H1", "H2", "H3", "H4", "SD", "F"].map(royaleLabelClip),
+      AND,
+      QUALIFIED,
+      ROYALE,
+      MATCH_POINT_CALL,
+      SUDDEN_DEATH_CALL,
     ];
-    for (const u of urls) expect(existsSync(join(STATIC, u))).toBe(true);
+    for (const u of calls) expect(ANNOUNCER_URLS).toContain(u);
+  });
+  test("music and effects are on it, and their stand-ins are in static/", () => {
+    for (const u of [...MUSIC, STINGER, CHAMPION_THEME, MATCH_POINT_HIT, HEARTBEAT]) {
+      expect(listed.has(u)).toBe(true);
+      expect(existsSync(join(STATIC, u))).toBe(true);
+    }
+  });
+  test("announcer clips live in their own folder, each named once", () => {
+    for (const u of ANNOUNCER_URLS) expect(u.startsWith("/sounds/announcer/")).toBe(true);
+    expect(new Set(ANNOUNCER_URLS).size).toBe(ANNOUNCER_URLS.length);
+  });
+  test("fighter-art/prompts/announcer-clips.md is up to date (run scripts/clips.ts after changing the list)", () => {
+    const md = readFileSync(join(import.meta.dir, "../../fighter-art/prompts/announcer-clips.md"), "utf8").replace(/\r\n/g, "\n");
+    expect(md).toBe(clipsMarkdown(STARTERS_JSON));
   });
 });
 
@@ -89,9 +123,9 @@ describe("callTimes", () => {
 
 describe("finishClip", () => {
   test("each finish has its own call, named after its key", () => {
-    expect(finishClip("spin")).toBe("/sounds/finishes/spin.mp3");
-    expect(finishClip("knockout")).toBe("/sounds/finishes/knockout.mp3");
-    expect(finishClip("dominant")).toBe("/sounds/finishes/dominant.mp3");
+    expect(finishClip("spin")).toBe("/sounds/announcer/finishes/spin.mp3");
+    expect(finishClip("knockout")).toBe("/sounds/announcer/finishes/knockout.mp3");
+    expect(finishClip("dominant")).toBe("/sounds/announcer/finishes/dominant.mp3");
   });
   test("an unknown finish says nothing", () => {
     expect(finishClip("burst")).toBe("");
@@ -100,13 +134,13 @@ describe("finishClip", () => {
 });
 
 describe("winsCall", () => {
-  test("the winner's name, then \"wins!\"", () => {
-    expect(winsCall("/voice/ace.mp3", false)).toEqual(["/voice/ace.mp3", WINS]);
+  test("the winner's own VICTORIOUS clip, in one go", () => {
+    expect(winsCall("/calls/victorious-ace.mp3", false)).toEqual(["/calls/victorious-ace.mp3"]);
   });
   test("a walkover isn't called", () => {
     expect(winsCall("/voice/ace.mp3", true)).toEqual([]);
   });
-  test("no name clip, no call", () => {
+  test("no VICTORIOUS clip, no call", () => {
     expect(winsCall("", false)).toEqual([]);
   });
 });
@@ -145,8 +179,5 @@ describe("qualifiedCall", () => {
   test("names without a voice clip are left out; none at all is just 'qualified'", () => {
     expect(qualifiedCall(["", "b.mp3"])).toEqual(["b.mp3", QUALIFIED]);
     expect(qualifiedCall(["", ""])).toEqual([QUALIFIED]);
-  });
-  test("the clips are in static/", () => {
-    for (const u of [AND, QUALIFIED]) expect(existsSync(join(STATIC, u))).toBe(true);
   });
 });
