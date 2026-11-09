@@ -9,7 +9,7 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Starter } from "$lib/starters";
+import type { Starter, StarterPick } from "$lib/starters";
 
 function findDir(): string {
   let dir = dirname(fileURLToPath(import.meta.url));
@@ -42,4 +42,16 @@ export async function readStarters(): Promise<{ starters: Starter[]; file: (name
     return new File([await readFile(join(dir, safe))], safe, { type });
   };
   return { starters, file };
+}
+
+// The starting fighters as the sign-in and check-in pickers show them: the
+// name that goes on the list (player, else combat name), the combat name and
+// the picture. Empty if the folder can't be read.
+export async function starterPicks(): Promise<StarterPick[]> {
+  try {
+    const { starters } = await readStarters();
+    return starters.map((s) => ({ player: s.player || s.name, name: s.name, image: s.image ?? "" }));
+  } catch {
+    return [];
+  }
 }

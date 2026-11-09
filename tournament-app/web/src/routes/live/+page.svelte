@@ -6,7 +6,7 @@
   import { EVENT } from "$lib/config";
   import { EVENT_NAME, EVENT_SUBTITLE } from "$lib/terms";
   import { loadFollow, resolveFollow, saveFollow, type Follow } from "$lib/follow";
-  import { loadBettor, saveBettor, type Bettor } from "$lib/betting";
+  import { loadMe, saveMe, type Me } from "$lib/people";
   import { nameMap, type PBPlayer } from "$lib/view";
   import NowTab from "$lib/components/live/NowTab.svelte";
   import GroupsTab from "$lib/components/live/GroupsTab.svelte";
@@ -14,6 +14,8 @@
   import FollowPicker from "$lib/components/live/FollowPicker.svelte";
   import YourNext from "$lib/components/live/YourNext.svelte";
   import BetsTab from "$lib/components/live/BetsTab.svelte";
+  import SignIn from "$lib/components/live/SignIn.svelte";
+  import SignedIn from "$lib/components/live/SignedIn.svelte";
 
   // The phone page, reached from the QR code on the TV. Spectators browse it
   // themselves (unlike the TV, which the organiser drives): what's on now,
@@ -66,30 +68,48 @@
     if (followed && follow && followed.id !== follow.id) setFollow(followed);
   });
 
-  // ── Betting ─────────────────────────────────────────────────────────
-  // This phone's betting name and token, also only in the browser.
-  let bettor = $state<Bettor | null>(null);
+  // ── Signing in ──────────────────────────────────────────────────────
+  // Who this phone signed in as (name and token), also only in the browser.
+  // It's who wagers from this phone; a player follows themselves.
+  let me = $state<Me | null>(null);
 
-  async function joined(b: Bettor) {
-    saveBettor(b);
-    // Load the new bettor before showing the wallet, so it never flashes
-    // back to the join form.
+  // A player follows themselves. Before the draw there's no player record
+  // yet, so the follow holds the name, and resolveFollow finds them by it
+  // once the groups exist.
+  function followMe(m: Me) {
+    follow = { id: m.id, name: m.name };
+    saveFollow(follow);
+  }
+
+  async function signedIn(m: Me, playing: boolean) {
+    saveMe(m);
+    if (playing) followMe(m);
+    // Load the new person before showing them, so the page never flashes
+    // back to the sign-in form.
     await invalidateAll();
-    bettor = b;
+    me = m;
   }
-  function lostBettor() {
-    saveBettor(null);
-    bettor = null;
+  function roleChanged(playing: boolean) {
+    if (playing && me) followMe(me);
   }
+  function signedOut() {
+    saveMe(null);
+    me = null;
+  }
+  // Signed in as someone the server still lists. Removed by the organiser,
+  // or sign-ins cleared: the sign-in form shows again. The saved sign-in
+  // isn't wiped here, since the data can briefly lag just after signing in
+  // (two refreshes crossing); signing in again replaces it.
+  const meHere = $derived(me && data.people.some((p) => p.id === me!.id) ? me : null);
 
   let online = $state(true);
   onMount(() => {
     follow = loadFollow();
-    bettor = loadBettor();
+    me = loadMe();
     const fromHash = location.hash.slice(1);
     if (TABS.some((t) => t.key === fromHash)) tab = fromHash as Tab;
     return liveUpdates(
-      ["tournaments", "groups", "players", "matches", "fighters", "tv_state", "bettors", "bets", "royales"],
+      ["tournaments", "groups", "players", "matches", "fighters", "tv_state", "people", "bets", "royales"],
       () => invalidateAll(),
       { everyMs: 30_000, onStatus: (up) => (online = up) },
     );
@@ -119,6 +139,13 @@
         </p>
         <p class="when">{EVENT.date} · {EVENT.place}</p>
       </section>
+      {#if !data.betting}
+        <p class="lv-note">Signing in is closed right now.</p>
+      {:else if meHere}
+        <SignedIn me={meHere} people={data.people} onrole={roleChanged} onleave={signedOut} />
+      {:else}
+        <SignIn starters={data.starters} people={data.people} drawn={false} onsignin={signedIn} />
+      {/if}
     {:else}
       {#if followed}
         <YourNext
@@ -161,11 +188,12 @@
             {names}
             bettors={data.bettors}
             bets={data.bets}
-            me={bettor}
+            people={data.people}
+            me={meHere}
             enabled={data.betting}
             nextCode={data.next}
-            onjoin={joined}
-            onlost={lostBettor}
+            onsignin={signedIn}
+            onlost={signedOut}
           />
         {:else}
           <FollowPicker players={data.players} fighters={data.fighters} {followId} onpick={setFollow} />

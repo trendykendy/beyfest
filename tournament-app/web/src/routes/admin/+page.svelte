@@ -14,7 +14,8 @@
   import FixResult from "$lib/components/FixResult.svelte";
   import BladersPanel from "$lib/components/BladersPanel.svelte";
   import Trophy from "$lib/components/Trophy.svelte";
-  import StarterPicker from "$lib/components/StarterPicker.svelte";
+  import CheckInList from "$lib/components/CheckInList.svelte";
+  import { playersOf } from "$lib/people";
   import RoyalePanel from "$lib/components/RoyalePanel.svelte";
 
   // "7 November 2026", from PocketBase's "2026-11-07 18:02:11.000Z".
@@ -81,11 +82,8 @@
   );
   const groupNameByIndex = $derived(new Map(data.groups.map((g) => [g.index, g.name])));
 
-  // Live create-form preview.
-  let playersText = $state("");
-  const enteredCount = $derived(
-    playersText.split(/[\n,]/).map((n) => n.trim()).filter(Boolean).length,
-  );
+  // The draw's preview: how many bladers are checked in.
+  const enteredCount = $derived(playersOf(data.people).length);
   const previewStructure = $derived(STRUCTURES[enteredCount] ?? null);
 
   function label(m: PBMatch, which: 1 | 2): string {
@@ -105,7 +103,7 @@
   const tvScenes = $derived(availableScenes(!!data.tournament, data.matches, data.royale).filter((s) => s !== "standby"));
 
   // Realtime: any change made anywhere refreshes this page.
-  onMount(() => liveUpdates(["tournaments", "groups", "players", "matches", "tv_state", "royales"], () => invalidateAll()));
+  onMount(() => liveUpdates(["tournaments", "groups", "players", "matches", "tv_state", "royales", "people"], () => invalidateAll()));
 </script>
 
 <div class="container">
@@ -139,9 +137,10 @@
       <header class="create-head"><h2>New tournament</h2></header>
       <div class="create-body">
         <p class="hint">
-          Type in the bladers who turned up, one per line (commas work too). You need between 8 and 15.
-          The groups are drawn at random and the right bracket is built for that number.
+          Bladers sign in on their phones and appear here as they do. Add anyone without a phone yourself. You need
+          between 8 and 15. The groups are drawn at random and the right bracket is built for that number.
         </p>
+        <CheckInList people={data.people} starters={data.starters} />
         <!-- The button locks while it runs: loading the fighters takes a few
              seconds, and a second press would add them twice. -->
         <form
@@ -160,16 +159,6 @@
             <span class="field">Tournament name</span>
             <input type="text" name="name" value={form?.name ?? EVENT_NAME} />
           </label>
-          <div class="bladers">
-            <div class="bladers-head">
-              <label class="field" for="players">Bladers <b>{enteredCount}</b></label>
-              {#if data.starters.length}
-                <StarterPicker starters={data.starters} bind:text={playersText} />
-              {/if}
-            </div>
-            <textarea id="players" name="players" rows="12" bind:value={playersText} placeholder={"Blader One\nBlader Two\nBlader Three\n…"}></textarea>
-          </div>
-
           <p class="preview">
             {#if enteredCount < 8}
               <span class="muted">{8 - enteredCount} more needed (at least 8).</span>
@@ -562,47 +551,17 @@
   .field {
     font-weight: 700;
   }
-  .bladers {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .bladers-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .bladers-head label {
-    display: block;
-  }
-  .field b {
-    display: inline-block;
-    min-width: 2em;
-    margin-left: 6px;
-    padding: 0 6px;
-    text-align: center;
-    background: var(--gold);
-    border: 2px solid var(--ink);
-  }
   /* Paper-on-paper inputs: white with a heavy ink outline. */
-  .create input,
-  .create textarea {
+  .create input {
     background: var(--paper);
     color: var(--ink);
     border: var(--outline) solid var(--ink);
     border-radius: 0;
     font-size: 1.05rem;
   }
-  .create input:focus,
-  .create textarea:focus {
+  .create input:focus {
     border-color: var(--field);
     outline: 3px solid var(--gold);
-  }
-  textarea {
-    resize: vertical;
-    font-family: var(--font-text);
   }
   .preview {
     font-weight: 600;

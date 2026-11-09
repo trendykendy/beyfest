@@ -1192,7 +1192,7 @@
 
   onMount(() => {
     poke();
-    const stopLive = liveUpdates(["tournaments", "groups", "players", "matches", "tv_state", "fighters", "royales"], () => invalidateAll(), {
+    const stopLive = liveUpdates(["tournaments", "groups", "players", "matches", "tv_state", "fighters", "royales", "people"], () => invalidateAll(), {
       onStatus: (up) => (online = up),
       everyMs: 30_000,
     });
@@ -1252,7 +1252,16 @@
       <div class="finale">
         <img class="standby-logo" src="/logo.webp" alt="Beyfest 2026: Triple Threat" />
         <div class="finale-sub">{EVENT.date}, {EVENT.place}</div>
-        <div class="finale-note">The groups are drawn once everyone has checked in.</div>
+        <div class="finale-note">Playing? Sign in on your phone. The groups are drawn once everyone has.</div>
+        <!-- Placeholder until the Gathering screen (Phase 2c/4): who's signed in so far. -->
+        {#if data.signedIn.length}
+          <div class="signed-in">
+            <div class="signed-in-count">{data.signedIn.length} {data.signedIn.length === 1 ? "blader" : "bladers"} signed in</div>
+            <div class="signed-in-names">
+              {#each data.signedIn as n (n)}<span>{n}</span>{/each}
+            </div>
+          </div>
+        {/if}
         {#if data.network}
           {@const n = data.network}
           <!-- Only on the Raspberry Pi: how to reach the app on the day. -->
@@ -1267,7 +1276,7 @@
       </div>
       <!-- Beside the title, not under it: the column is already tall at 1080p. -->
       <div class="live-card">
-        <div class="live-card-head"><span>Live results on your phone</span></div>
+        <div class="live-card-head"><span>Sign in on your phone</span></div>
         <LiveQr size={data.liveQr.size} path={data.liveQr.path} px={260} />
         <div class="live-card-url">{data.liveQr.url.replace(/^https?:\/\//, "")}</div>
       </div>
@@ -2771,6 +2780,37 @@
     font-weight: 500;
     font-size: 1.7rem;
     color: var(--on-field-soft);
+  }
+  /* Standby: the bladers signed in so far, as name tags that wrap. */
+  .signed-in {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    max-width: 1000px;
+  }
+  .signed-in-count {
+    font-family: var(--font-text);
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .signed-in-names {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .signed-in-names span {
+    background: var(--paper);
+    color: var(--ink);
+    border: 3px solid var(--ink);
+    padding: 4px 16px;
+    font-family: var(--font-text);
+    font-weight: 700;
+    font-size: 1.5rem;
   }
   /* Standby only, on the Pi: which wifi to join and where to go. */
   .join {

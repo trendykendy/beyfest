@@ -1,9 +1,10 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { books, leaderboard, type Bettor, type PBBet, type PBBettor, type SettledBet } from "$lib/betting";
+  import { books, leaderboard, type PBBet, type PBBettor, type SettledBet } from "$lib/betting";
   import { bettingOpen, matchOdds } from "$lib/odds";
   import { isLive, liveMatches, matchContext, tierOf, upNext, type PBMatch } from "$lib/view";
-  import BetJoin from "./BetJoin.svelte";
+  import type { Me, PBPerson } from "$lib/people";
+  import SignIn from "./SignIn.svelte";
 
   // Play-money betting: your balance, the matches you can bet on (with odds
   // from form and the live score), your bets and the leaderboard. The server
@@ -13,21 +14,23 @@
     names,
     bettors,
     bets,
+    people,
     me,
     enabled,
     nextCode = "",
-    onjoin,
+    onsignin,
     onlost,
   }: {
     matches: PBMatch[];
     names: Map<string, string>;
     bettors: PBBettor[];
     bets: PBBet[];
-    me: Bettor | null;
+    people: PBPerson[];
+    me: Me | null;
     enabled: boolean; // false when the server has no betting login
     nextCode?: string;
-    onjoin: (b: Bettor) => void;
-    onlost: () => void; // this phone's bettor is gone (tournament reset)
+    onsignin: (me: Me, playing: boolean) => void;
+    onlost: () => void; // this phone's sign-in is gone (removed, or sign-ins cleared)
   } = $props();
 
   const money = (n: number) => `$${n.toLocaleString("en-IE")}`;
@@ -116,7 +119,7 @@
     <p class="lv-note">Betting is closed right now.</p>
   </section>
 {:else if !me || !mine}
-  <BetJoin {onjoin} />
+  <SignIn starters={[]} {people} drawn={true} {onsignin} />
 {:else}
   <section class="wallet" aria-label="Your money">
     <div>

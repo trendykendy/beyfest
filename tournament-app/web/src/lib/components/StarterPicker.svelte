@@ -1,27 +1,26 @@
 <script lang="ts">
-  // "Use the starting fighters" on the create form: a pop-up listing every
-  // starter, all ticked at first, so the organiser can untick anyone who
-  // didn't turn up. Confirming puts the ticked ones in the Bladers box and
-  // keeps any walk-ins already typed there.
-  import { mergeStarters, splitNames, tickedStarters, type StarterPick } from "$lib/starters";
+  // "Check in starting fighters" on the check-in list: a pop-up listing every
+  // starter who isn't checked in yet, all ticked at first, so the organiser
+  // can untick anyone who didn't turn up. Confirming checks the ticked ones
+  // in, as if they'd signed in themselves (their phone can claim them later).
+  import { enhance } from "$app/forms";
+  import type { PBPerson } from "$lib/people";
+  import type { StarterPick } from "$lib/starters";
 
-  let { starters, text = $bindable() }: { starters: StarterPick[]; text: string } = $props();
+  let { starters, people }: { starters: StarterPick[]; people: PBPerson[] } = $props();
 
   let dialog: HTMLDialogElement;
   let ticked = $state<string[]>([]);
 
-  const players = $derived(starters.map((s) => s.player));
-  // How many bladers the box would hold: the ticked starters plus walk-ins.
-  const total = $derived(splitNames(mergeStarters(text, players, ticked)).length);
-  const walkIns = $derived(total - ticked.length);
+  // Starters already on the list (as a player or a spectator) aren't offered.
+  const here = $derived(new Set(people.map((p) => p.starter).filter(Boolean)));
+  const offered = $derived(starters.filter((s) => !here.has(s.name)));
+  const players = $derived(people.filter((p) => p.role === "player").length);
+  const total = $derived(players + ticked.length);
 
   function open() {
-    ticked = tickedStarters(text, players);
+    ticked = offered.map((s) => s.name);
     dialog.showModal();
-  }
-  function use() {
-    text = mergeStarters(text, players, ticked);
-    dialog.close();
   }
   // A click on the dimmed backdrop lands on the <dialog> itself (the panel
   // inside fills it), so that cancels, as Escape does.
@@ -30,23 +29,32 @@
   }
 </script>
 
-<button class="btn" type="button" onclick={open}>Use the starting fighters</button>
+{#if offered.length}
+  <button class="btn" type="button" onclick={open}>Check in starting fighters</button>
+{/if}
 
 <dialog bind:this={dialog} onclick={backdrop} aria-labelledby="starter-picker-title">
-  <div class="panel">
+  <form
+    class="panel"
+    method="POST"
+    action="?/checkinStarters"
+    use:enhance={() => {
+      dialog.close();
+      return ({ update }) => update();
+    }}
+  >
     <header class="head">
       <h2 id="starter-picker-title">Starting fighters</h2>
       <div class="all">
-        <button type="button" onclick={() => (ticked = [...players])}>All</button>
+        <button type="button" onclick={() => (ticked = offered.map((s) => s.name))}>All</button>
         <button type="button" onclick={() => (ticked = [])}>None</button>
       </div>
     </header>
 
-    <!-- Not named, so they never go in with the create form. -->
     <div class="grid">
-      {#each starters as s (s.player)}
-        <label class="card" class:on={ticked.includes(s.player)}>
-          <input type="checkbox" value={s.player} bind:group={ticked} />
+      {#each offered as s (s.name)}
+        <label class="card" class:on={ticked.includes(s.name)}>
+          <input type="checkbox" name="starter" value={s.name} bind:group={ticked} />
           <span class="pic">
             {#if s.image}
               <img src="/starter-fighters/{s.image}" alt="" loading="lazy" />
@@ -63,8 +71,8 @@
     <footer class="foot">
       <p class="count">
         <b>{ticked.length} picked</b>
-        {#if walkIns > 0}+ {walkIns} typed in{/if}
-        <!-- Only a hint: walk-ins can still be typed in after. -->
+        {#if players}+ {players} already in{/if}
+        <!-- Only a hint: walk-ins can still be added after. -->
         {#if total < 8}
           <span class="warn">{8 - total} short of 8.</span>
         {:else if total > 15}
@@ -73,10 +81,10 @@
       </p>
       <div class="actions">
         <button class="btn" type="button" onclick={() => dialog.close()}>Cancel</button>
-        <button class="btn primary" type="button" onclick={use}>Use these {ticked.length}</button>
+        <button class="btn primary" disabled={!ticked.length}>Check in these {ticked.length}</button>
       </div>
     </footer>
-  </div>
+  </form>
 </dialog>
 
 <style>

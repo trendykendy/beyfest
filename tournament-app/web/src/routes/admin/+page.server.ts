@@ -14,23 +14,12 @@ import {
   resetTournament,
   archiveTournament,
 } from "$lib/server/tournament";
-import { readStarters } from "$lib/server/starterFiles";
+import { starterPicks } from "$lib/server/starterFiles";
 import { addStarters } from "$lib/server/addStarters";
 import { createRoyale, recordBattle, resetRoyale, RoyaleError, startBattle } from "$lib/server/royale";
-import { startersFor, type StarterPick } from "$lib/starters";
-
-// The starting fighters, for the "Use the starting fighters" pop-up on the
-// create form: the name that goes in the Bladers box (player, else combat
-// name), the combat name and the picture. Empty (no button) if the folder
-// can't be read.
-async function starterPicks(): Promise<StarterPick[]> {
-  try {
-    const { starters } = await readStarters();
-    return starters.map((s) => ({ player: s.player || s.name, name: s.name, image: s.image ?? "" }));
-  } catch {
-    return [];
-  }
-}
+import { startersFor } from "$lib/starters";
+import { loadPeople } from "$lib/server/load";
+import { checkRename, checkRole, checkSignIn, playersOf, type Role } from "$lib/people";
 
 // Archived tournaments, newest first, for the download list. Its own request
 // key: it runs alongside loadTournamentView's identical query, which the
@@ -43,9 +32,21 @@ async function archivedList(pb: App.Locals["pb"]) {
 }
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const [view, tv, archived] = await Promise.all([loadTournamentView(locals.pb), loadTvState(locals.pb), archivedList(locals.pb)]);
-  return { ...view, tv, archived, starters: view.tournament ? [] : await starterPicks() };
+  const [view, tv, archived, people] = await Promise.all([
+    loadTournamentView(locals.pb),
+    loadTvState(locals.pb),
+    archivedList(locals.pb),
+    loadPeople(locals.pb),
+  ]);
+  return { ...view, tv, archived, people, starters: view.tournament ? [] : await starterPicks() };
 };
+
+// A check-in change before the draw; a broken rule comes back as the page's error.
+async function checkInDo(locals: App.Locals, work: () => Promise<string | void>) {
+  if (await getActiveTournament(locals.pb)) return fail(409, { error: "The groups are already drawn." });
+  const problem = await work();
+  return problem ? fail(400, { error: problem }) : { checkin: true };
+}
 
 // Run a battle royale change; a broken rule comes back as the page's error.
 async function royaleDo(work: () => Promise<void>) {
@@ -59,39 +60,32 @@ async function royaleDo(work: () => Promise<void>) {
 }
 
 export const actions: Actions = {
+  // Draw the groups from everyone checked in as a player (names are unique:
+  // the people collection makes sure).
   create: async ({ request, locals }) => {
     const data = await request.formData();
     const name = String(data.get("name") || "");
-    const raw = String(data.get("players") || "");
-    const names = raw
-      .split(/[\n,]/)
-      .map((n) => n.trim())
-      .filter(Boolean);
+    const players = playersOf(await loadPeople(locals.pb));
+    const names = players.map((p) => p.name);
 
     if (names.length < 8 || names.length > 15) {
-      return fail(400, {
-        error: `Enter between 8 and 15 players (you entered ${names.length}).`,
-        players: raw,
-        name,
-      });
+      return fail(400, { error: `You need between 8 and 15 bladers checked in (there are ${names.length}).`, name });
     }
-    const dupes = names.filter((n, i) => names.findIndex((m) => m.toLowerCase() === n.toLowerCase()) !== i);
-    if (dupes.length) {
-      return fail(400, { error: `Duplicate names: ${[...new Set(dupes)].join(", ")}.`, players: raw, name });
-    }
-
     const existing = await getActiveTournament(locals.pb);
     if (existing) {
-      return fail(409, { error: "A tournament already exists. Reset it first.", players: raw, name });
+      return fail(409, { error: "A tournament already exists. Reset it first.", name });
     }
 
     // Load the starters who are playing, before the tournament exists, so the
     // TV has their fighters as soon as it appears. A new install's library is
     // empty, which would leave Match centre with no art or speech bubbles.
-    // A failure here is worth a warning, not a lost tournament.
+    // A starter is found by the person's name or the fighter they picked
+    // (the organiser may have renamed them). A failure here is worth a
+    // warning, not a lost tournament.
     let warning = "";
+    const picked = players.map((p) => p.starter).filter(Boolean);
     try {
-      const { problems } = await addStarters(locals.pb, (all) => startersFor(all, names));
+      const { problems } = await addStarters(locals.pb, (all) => startersFor(all, [...names, ...picked]));
       if (problems.length) warning = `Some starting fighters didn't load. ${problems.join("; ")}`;
     } catch (e) {
       warning = `Couldn't load the starting fighters: ${(e as Error).message}`;
@@ -100,9 +94,81 @@ export const actions: Actions = {
     try {
       await createTournament(locals.pb, name, names);
     } catch (e) {
-      return fail(500, { error: (e as Error).message, players: raw, name });
+      return fail(500, { error: (e as Error).message, name });
     }
     return warning ? { created: true, error: warning } : { created: true };
+  },
+
+  // ── Check-in, before the draw (see lib/people.ts) ──
+  // Someone with no phone: added by hand, as a player.
+  checkinAdd: async ({ request, locals }) => {
+    const data = await request.formData();
+    return checkInDo(locals, async () => {
+      const [people, starters] = await Promise.all([loadPeople(locals.pb), starterPicks()]);
+      const ok = checkSignIn({ role: "player", name: String(data.get("name") || "") }, people, starters, false);
+      if ("error" in ok) return ok.error;
+      if (ok.claim) return `${ok.name} is already on the list.`;
+      await locals.pb.collection("people").create({ ...ok, phone: false });
+    });
+  },
+
+  // The starting fighters ticked in the pop-up who aren't checked in yet.
+  checkinStarters: async ({ request, locals }) => {
+    const data = await request.formData();
+    const ticked = data.getAll("starter").map(String);
+    return checkInDo(locals, async () => {
+      const [people, starters] = await Promise.all([loadPeople(locals.pb), starterPicks()]);
+      for (const starter of ticked) {
+        const ok = checkSignIn({ role: "player", starter }, people, starters, false);
+        if ("error" in ok || ok.claim) continue; // already here
+        const rec = await locals.pb.collection("people").create({ ...ok, phone: false });
+        people.push({ id: rec.id, ...ok, phone: false, created: "" });
+      }
+    });
+  },
+
+  checkinRename: async ({ request, locals }) => {
+    const data = await request.formData();
+    return checkInDo(locals, async () => {
+      const people = await loadPeople(locals.pb);
+      const me = people.find((p) => p.id === data.get("id"));
+      if (!me) return "They're not on the list any more.";
+      const ok = checkRename(me, String(data.get("name") || ""), people);
+      if ("error" in ok) return ok.error;
+      await locals.pb.collection("people").update(me.id, ok);
+    });
+  },
+
+  checkinRole: async ({ request, locals }) => {
+    const data = await request.formData();
+    return checkInDo(locals, async () => {
+      const [people, starters] = await Promise.all([loadPeople(locals.pb), starterPicks()]);
+      const me = people.find((p) => p.id === data.get("id"));
+      if (!me) return "They're not on the list any more.";
+      const ok = checkRole(me, String(data.get("role")) as Role, people, starters, false);
+      if ("error" in ok) return ok.error;
+      await locals.pb.collection("people").update(me.id, ok);
+    });
+  },
+
+  // Takes them off the list; their phone is asked to sign in again.
+  checkinRemove: async ({ request, locals }) => {
+    const data = await request.formData();
+    return checkInDo(locals, async () => {
+      await locals.pb
+        .collection("people")
+        .delete(String(data.get("id")))
+        .catch(() => {}); // already gone
+    });
+  },
+
+  // A new event day: everyone signs in again. Only with no tournament up
+  // (reset or archive it first), since wagers go with their sign-ins.
+  checkinClear: async ({ locals }) => {
+    return checkInDo(locals, async () => {
+      const people = await loadPeople(locals.pb);
+      for (const p of people) await locals.pb.collection("people").delete(p.id);
+    });
   },
 
   score: async ({ request, locals }) => {
