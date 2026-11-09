@@ -39,6 +39,15 @@ export function clipKey(url: string): string {
 
 const stamp = () => new Date().toISOString().replace(/[:.]/g, "-");
 
+// A file name in `dir` that isn't taken: the time, plus -2, -3… if two files
+// land in the same millisecond (a fast machine, or a test).
+function freshName(dir: string, prefix: string): string {
+  const base = `${prefix}${stamp()}`;
+  let name = `${base}.mp3`;
+  for (let n = 2; existsSync(join(dir, name)); n++) name = `${base}-${n}.mp3`;
+  return name;
+}
+
 function readJson<T>(path: string, empty: T): T {
   try {
     return JSON.parse(readFileSync(path, "utf8")) as T;
@@ -87,8 +96,8 @@ export function voiceStore(root: string) {
     archive(url: string, label: string, direction?: Direction) {
       const live = join(staticDir, url);
       if (!existsSync(live)) return;
-      const file = `${stamp()}.mp3`;
       mkdirSync(clipDir(url), { recursive: true });
+      const file = freshName(clipDir(url), "");
       copyFileSync(live, join(clipDir(url), file));
       const log = store.log(url);
       log.history.unshift({ file, at: new Date().toISOString(), label, ...(direction ? { direction } : {}) });
@@ -97,8 +106,8 @@ export function voiceStore(root: string) {
 
     // A candidate for a line marked to redo, made by scripts/announcer.ts.
     addCandidate(url: string, mp3: string, direction: Direction) {
-      const file = `candidate-${stamp()}.mp3`;
       mkdirSync(clipDir(url), { recursive: true });
+      const file = freshName(clipDir(url), "candidate-");
       renameSync(mp3, join(clipDir(url), file));
       const log = store.log(url);
       log.candidates.push({ file, at: new Date().toISOString(), label: "Candidate", direction });

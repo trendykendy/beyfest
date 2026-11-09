@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach, afterEach } from "bun:test";
+import { describe, expect, test, beforeEach, afterEach, setSystemTime } from "bun:test";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -90,6 +90,24 @@ describe("voiceStore", () => {
     expect(readFileSync(replaced, "utf8")).toBe("OLD");
     expect(s.directions()[url].text).toBe("B");
     expect(s.marks()[url]).toMatchObject({ status: "ok", note: "too high" });
+  });
+
+  test("candidates made in the same millisecond don't overwrite each other", () => {
+    const s = voiceStore(root);
+    setSystemTime(new Date("2026-11-09T12:00:00.000Z")); // freeze the clock
+    try {
+      for (const body of ["A", "B", "C"]) {
+        const p = join(root, `${body}.tmp`);
+        writeFileSync(p, body);
+        s.addCandidate(url, p, { ...defaults.get(url)!, text: body });
+      }
+    } finally {
+      setSystemTime(); // back to the real clock
+    }
+    const files = s.log(url).candidates.map((c) => c.file);
+    expect(new Set(files).size).toBe(3);
+    const dir = join(s.base, "clips", clipKey(url));
+    expect(files.map((f) => readFileSync(join(dir, f), "utf8"))).toEqual(["A", "B", "C"]);
   });
 
   test("clipFile only serves MP3s inside the clips folder", () => {
