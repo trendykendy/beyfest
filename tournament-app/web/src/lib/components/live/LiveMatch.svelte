@@ -1,7 +1,7 @@
 <script lang="ts">
   import { pointsToWin } from "@beyfest/engine";
   import { FINISHES } from "$lib/finishes";
-  import { stadiumOf } from "$lib/stadia";
+  import { isNorth, southOf, stadiumOf } from "$lib/stadia";
   import { matchContext, sideName, tierOf, type PBMatch } from "$lib/view";
 
   // A match being played, as a phone-sized Match centre: both bladers stacked
@@ -55,6 +55,11 @@
       <span class="num">{stadium.num}</span>
       <span class="nm">{stadium.name}</span>
     </div>
+    {#if isNorth(match.north)}
+      {@const north = match.north === 1 ? match.p1 : match.p2}
+      {@const south = southOf(match.north) === 1 ? match.p1 : match.p2}
+      <p class="sides">North <b>{names.get(north) ?? "—"}</b> · South <b>{names.get(south) ?? "—"}</b></p>
+    {/if}
   {/if}
 
   {#each sides as s, i (s.who)}
@@ -143,6 +148,14 @@
     font-size: 0.95rem;
     line-height: 1;
     transform: skewX(-8deg);
+  }
+  .sides {
+    margin: 6px 0 10px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .sides b {
+    color: var(--ink);
   }
   .stadium > span {
     display: grid;

@@ -20,7 +20,7 @@ import {
   resetTournament,
 } from "../web/src/lib/server/tournament.ts";
 import { pointsToWin } from "../engine/src/index.ts";
-import { pickStadium } from "../web/src/lib/stadia.ts";
+import { pickNorth, pickStadium } from "../web/src/lib/stadia.ts";
 
 // Stadium draws so far, for the same weighted draw the server does.
 const stadiumCounts: Record<string, number> = {};
@@ -78,32 +78,35 @@ for (;;) {
   const name = (pid: string | null) => state.players.find((p) => p.id === pid)?.name ?? "?";
   const target = pointsToWin(next.stage, next.roundLabel);
   const recId = matchIdByCode.get(next.code)!;
-  const log: { who: 1 | 2; finish: string; stadium: string }[] = [];
+  const log: { who: 1 | 2; finish: string; stadium: string; north: 1 | 2 }[] = [];
   let s1 = 0;
   let s2 = 0;
   // Start match: the first round's stadium, and the TV's launch (the VS intro,
   // ~5s, then the draw and LET IT RIP, ~5.5s). Bladers without a fighter in
   // the library get the silhouette.
   let stadium = drawStadium();
+  let north: 0 | 1 | 2 = pickNorth();
   const startedAt = new Date().toISOString();
-  await pb.collection("matches").update(recId, { startedAt, stadium, stadiumAt: startedAt });
+  await pb.collection("matches").update(recId, { startedAt, stadium, north, stadiumAt: startedAt });
   await sleep(Math.max(pace, 11000)); // let the intro and launch play out
   // One side is a bit stronger each match, so scores aren't always close.
   const edge = 0.35 + Math.random() * 0.3;
   while (s1 < target && s2 < target) {
     const who: 1 | 2 = Math.random() < edge ? 1 : 2;
     const f = randomFinish();
-    log.push({ who, finish: f.key, stadium });
+    log.push({ who, finish: f.key, stadium, north: north || 1 });
     if (who === 1) s1 += f.pts;
     else s2 += f.pts;
     // Same as /admin/live: the next round's stadium is drawn unless that was the winning round.
     const over = s1 >= target || s2 >= target;
     stadium = over ? "" : drawStadium();
+    north = over ? 0 : pickNorth();
     await pb.collection("matches").update(recId, {
       liveP1: s1,
       liveP2: s2,
       liveLog: log,
       stadium,
+      north,
       ...(over ? {} : { stadiumAt: new Date().toISOString() }),
     });
     await sleep(over ? pace : Math.max(pace, 5000)); // room for call-out + shuffle

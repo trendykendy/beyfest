@@ -89,6 +89,7 @@ const toMatch = (r: RecordModel): PBMatch => {
     startedAt: r.startedAt || "",
     stadium: r.stadium || "",
     stadiumAt: r.stadiumAt || "",
+    north: r.north === 1 || r.north === 2 ? r.north : 0,
     walkover: done && !!r.walkover,
     winner: r.winner || "",
     loser: r.loser || "",

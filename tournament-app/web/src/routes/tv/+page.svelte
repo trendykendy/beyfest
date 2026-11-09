@@ -266,6 +266,12 @@
   // Where the featured match sits, in plain words: "Group 2, match 4 of 6"
   // for group games, "Mid bracket semi-final" for knockout ones.
   // ── Helpers ─────────────────────────────────────────────────────────
+  // North and south names for a draw on screen ("" each if sides weren't drawn).
+  function drawSides(d: Draw): { north: string; south: string } {
+    const m = data.matches.find((x) => x.code === d.code);
+    if (!m || !d.north) return { north: "", south: "" };
+    return { north: sideName(m, d.north), south: sideName(m, d.north === 1 ? 2 : 1) };
+  }
   function sideName(m: PBMatch, which: 1 | 2): string {
     const pid = which === 1 ? m.p1 : m.p2;
     if (pid) return names.get(pid) ?? "—";
@@ -491,7 +497,7 @@
   // the ~3s shuffle. One of three looks, at random, never the same twice running.
   const LOOKS = ["reel", "spotlight", "spin"] as const;
   const AFTER_CALLOUT_MS = 1700; // a round's finish call-out lands first
-  type Draw = { code: string; at: number; stadium: string; kind: "launch" | "next"; round: number; afterRound: boolean };
+  type Draw = { code: string; at: number; stadium: string; north: 0 | 1 | 2; kind: "launch" | "next"; round: number; afterRound: boolean };
   let drawSeen = new Map<string, { at: string; rounds: number }>();
   let drawPrimed = false;
   let latestDraw = $state<Draw | null>(null);
@@ -504,6 +510,7 @@
           code: m.code,
           at: Date.now(),
           stadium: m.stadium,
+          north: m.north,
           kind: rounds === 0 ? "launch" : "next",
           round: rounds + 1,
           afterRound: rounds > before.rounds,
@@ -1481,6 +1488,7 @@
                 kind={drawShow.kind}
                 round={drawShow.round}
                 look={drawShow.look}
+                {...drawSides(drawShow)}
                 ondone={endDraw}
               />
             {/key}

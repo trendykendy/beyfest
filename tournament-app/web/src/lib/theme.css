@@ -132,6 +132,10 @@
   --st: var(--arena-3);
   --st-ink: var(--paper);
 }
+[data-stadium="fourth"] {
+  --st: var(--arena-4);
+  --st-ink: var(--paper);
+}
 
 *,
 *::before,

@@ -1,13 +1,13 @@
 import { json, error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { getActiveTournament } from "$lib/server/tournament";
-import { drawStadium } from "$lib/server/stadium";
+import { drawRound } from "$lib/server/stadium";
 import { STADIA, isStadiumKey } from "$lib/stadia";
 
 // The scorer's stadium controls. Organiser-only.
 //   { code, redraw: true } — draw again for the current round (the stadium is
-//                            broken, say); never lands on the same one, and
-//                            replays the shuffle on the TV
+//                            broken, say); never lands on the same one, draws
+//                            the sides again too, and replays the shuffle on the TV
 //   { off: ["motor"] }     — which stadia are out of the draw from now on;
 //                            at least one always stays in
 export const POST: RequestHandler = async ({ request, locals }) => {
@@ -28,12 +28,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       .collection("matches")
       .getFirstListItem(locals.pb.filter("tournament = {:id} && code = {:code}", { id: t.id, code: body.code }));
     if (match.matchStatus !== "ready") throw error(400, `${body.code} isn't being played`);
-    const stadium = await drawStadium(locals.pb, t, match.id, {
+    const round = await drawRound(locals.pb, t, match.id, {
       log: Array.isArray(match.liveLog) ? match.liveLog : [],
       avoid: match.stadium,
     });
-    await locals.pb.collection("matches").update(match.id, { stadium, stadiumAt: new Date().toISOString() });
-    return json({ ok: true, stadium });
+    await locals.pb.collection("matches").update(match.id, round);
+    return json({ ok: true, stadium: round.stadium, north: round.north });
   }
 
   throw error(400, "Nothing to do");

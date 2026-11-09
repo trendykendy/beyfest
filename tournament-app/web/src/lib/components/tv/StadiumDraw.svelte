@@ -15,12 +15,16 @@
     kind,
     round,
     look,
+    north = "",
+    south = "",
     ondone,
   }: {
     stadium: string; // key of the stadium drawn
     kind: "launch" | "next";
     round: number; // the round it's for (shown on "next")
     look: "reel" | "spotlight" | "spin";
+    north?: string; // who stands on the north side this round ("" if not drawn)
+    south?: string;
     ondone: () => void;
   } = $props();
 
@@ -57,11 +61,15 @@
   let trio = $state<HTMLElement>();
   let slide = $state(0); // px the winner moves to sit centre stage once it lands
 
-  // Spin: whole turns plus the draw's segment (segment k is centred at k·120°),
-  // with a little wobble inside the segment so it doesn't always stop dead centre.
+  // Spin: whole turns plus the draw's segment (segment k is centred at k·SEG°,
+  // one equal slice per arena), with a little wobble inside the segment so it
+  // doesn't always stop dead centre.
+  const SEG = 360 / STADIA.length;
+  // The disc's slices, in arena colours, starting half a slice before the top.
+  const discFill = `conic-gradient(from ${-SEG / 2}deg, ${STADIA.map((_, k) => `var(--arena-${k + 1}) ${k * SEG}deg ${(k + 1) * SEG}deg`).join(", ")})`;
   let disc = $state<HTMLElement>();
-  const wobble = (Math.random() - 0.5) * 60;
-  const spinTo = (launch ? 5 : 3) * 360 + ((360 - idx * 120) % 360) + wobble;
+  const wobble = (Math.random() - 0.5) * (SEG / 2);
+  const spinTo = (launch ? 5 : 3) * 360 + ((360 - idx * SEG) % 360) + wobble;
 
   onMount(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
@@ -123,6 +131,9 @@
 
 {#snippet codename(extra = "")}
   <span class="codename {extra}" class:shown={landed}>{s.code}</span>
+  {#if north && south}
+    <span class="sides" class:shown={landed}>North <b>{north}</b> · South <b>{south}</b></span>
+  {/if}
 {/snippet}
 
 <div class="sd" aria-live="polite" aria-label="Round {round}: {s.name}">
@@ -171,9 +182,9 @@
       <div class="spin-row">
         <div class="disc-wrap slam">
           <div class="pointer"></div>
-          <div class="disc" bind:this={disc}>
+          <div class="disc" bind:this={disc} style="background: {discFill}">
             {#each STADIA as st, k (st.key)}
-              <div class="seg" style="transform: rotate({k * 120}deg)"><b>{st.num}</b></div>
+              <div class="seg" style="transform: rotate({k * SEG}deg)"><b>{st.num}</b></div>
             {/each}
           </div>
         </div>
@@ -293,6 +304,21 @@
   .codename.shown {
     visibility: visible;
     animation: slam-hold 700ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  }
+  /* Who stands where this round, under the nickname. */
+  .sides {
+    font-family: var(--font-text);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--paper);
+    visibility: hidden;
+  }
+  .sides b {
+    color: var(--gold);
+  }
+  .sides.shown {
+    visibility: visible;
+    animation: slam-hold 700ms 150ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
   }
 
   /* The telop card (same build as LET IT RIP): skewed slab, letters straightened. */
@@ -443,7 +469,8 @@
       opacity 260ms;
   }
 
-  /* Spin: a disc in the three stadium colours (same order as STADIA). */
+  /* Spin: a disc in the arena colours, one slice per arena (same order as
+     STADIA); its fill is set inline from STADIA, so a fourth arena just works. */
   .spin-row {
     display: flex;
     align-items: center;
@@ -471,7 +498,6 @@
     border: 8px solid var(--paper);
     overflow: hidden;
     will-change: transform;
-    background: conic-gradient(from -60deg, var(--gold) 0 120deg, var(--green) 0 240deg, var(--red) 0 360deg);
   }
   .disc::after {
     content: "";
