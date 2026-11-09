@@ -64,7 +64,7 @@ Said last in the VS intro: name, versus, name, title.
 
 ## Fighter name calls
 
-The 12 starter fighters' names, said as a call ("The Beanblader!"). The new files replace the 2026 ones under the same names in `tournament-app/web/static/starter-fighters/`. A fighter already in the library keeps its old clip until the new one is uploaded with Replace voice on the admin Fighters page.
+The 12 starter fighters' names, said as a call ("The Beanblader!"), under these names in `tournament-app/web/static/starter-fighters/`. The library picks up a re-recorded one the next time starters are loaded (Add starting fighters on the admin Fighters page, or creating a tournament); a clip uploaded by hand is kept.
 
 | File | Says | When it plays |
 |---|---|---|
@@ -83,7 +83,7 @@ The 12 starter fighters' names, said as a call ("The Beanblader!"). The new file
 
 ## Fighters' own calls
 
-One whole line per fighter per moment, said in one go (not a name clip joined to a shared line). They go in `tournament-app/web/static/starter-fighters/`; the library picks up a new one the next time starters are loaded (Add starting fighters on the admin Fighters page, or creating a tournament). A fighter without one gets no call at that moment.
+One whole line per fighter per moment, said in one go (not a name clip joined to a shared line). They go in `tournament-app/web/static/starter-fighters/`; the library picks up a new or re-recorded one the next time starters are loaded (Add starting fighters on the admin Fighters page, or creating a tournament). A fighter without one gets no call at that moment.
 
 | File | Says | When it plays |
 |---|---|---|
