@@ -14,7 +14,11 @@ export interface PBFighter {
   victory: string; // victory pose for the Champion scene, "" if none
   royaleVictory: string; // the battle royale champion's pose, "" if none
   profile: string; // "Blader profile" sheet the TV's rotation shows, "" if none
-  voice: string; // file name in PocketBase storage, "" if none
+  voice: string; // the name call ("The Buzzsaw!"), file name in PocketBase storage, "" if none
+  // Whole calls of their own (migration 1710002800), each "" if none:
+  callVictorious: string; // "The Buzzsaw is VICTORIOUS!"
+  callRoyaleChampion: string; // "The Buzzsaw … Last One Standing!"
+  callChampion: string; // "The Buzzsaw … Hero of Gyrondor!"
   mirror: boolean;
   face: Face | null; // where the face is in the image, null if not set
 }
@@ -134,4 +138,13 @@ export function fighterProfileUrl(pbUrl: string, f: PBFighter | null, thumb = ""
 // The announcer clip's URL, or "" if the fighter has no voice.
 export function fighterVoiceUrl(pbUrl: string, f: PBFighter | null): string {
   return f?.voice ? fileUrl(pbUrl, f, f.voice) : "";
+}
+
+// One of the fighter's own whole calls, or "" if they don't have it (the TV
+// then says nothing at that moment).
+export type FighterCall = "callVictorious" | "callRoyaleChampion" | "callChampion";
+export const FIGHTER_CALLS: FighterCall[] = ["callVictorious", "callRoyaleChampion", "callChampion"];
+
+export function fighterCallUrl(pbUrl: string, f: PBFighter | null, call: FighterCall): string {
+  return f?.[call] ? fileUrl(pbUrl, f, f[call]) : "";
 }

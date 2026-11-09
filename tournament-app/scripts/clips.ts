@@ -9,17 +9,20 @@
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { ANNOUNCER, MUSIC_AND_EFFECTS, type Clip, type ClipSection } from "../web/src/lib/clips.ts";
+import { ANNOUNCER, FIGHTER_CALL_LINES, MUSIC_AND_EFFECTS, type Clip, type ClipSection } from "../web/src/lib/clips.ts";
+import { FIGHTER_CALLS, type FighterCall } from "../web/src/lib/fighters.ts";
 
 const ROOT = join(import.meta.dir, "..");
 const STATIC = join(ROOT, "web/static");
 const STARTERS = join(STATIC, "starter-fighters/fighters.json");
 const OUT = join(ROOT, "../fighter-art/prompts/announcer-clips.md");
 
+type StarterJson = { name: string; voice?: string } & Partial<Record<FighterCall, string>>;
+
 // The 12 starter fighters' name calls (each one's `voice` file). Their names
 // haven't changed, so the files keep their 2026 names.
 function nameCalls(startersJson: string): ClipSection {
-  const starters = JSON.parse(startersJson) as { name: string; voice?: string }[];
+  const starters = JSON.parse(startersJson) as StarterJson[];
   return {
     title: "Fighter name calls",
     note:
@@ -31,8 +34,28 @@ function nameCalls(startersJson: string): ClipSection {
       .map((s) => ({
         url: `/starter-fighters/${s.voice}`,
         says: `${s.name}!`,
-        when: "VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene",
+        when: "VS intro, and the Still Standing screen",
       })),
+  };
+}
+
+// Each starter's own whole calls (VICTORIOUS, Last One Standing, Hero of
+// Gyrondor), one file per fighter per moment, as named in fighters.json.
+function fighterCalls(startersJson: string): ClipSection {
+  const starters = JSON.parse(startersJson) as StarterJson[];
+  return {
+    title: "Fighters' own calls",
+    note:
+      "One whole line per fighter per moment, said in one go (not a name clip joined to a shared line). They go in " +
+      "`tournament-app/web/static/starter-fighters/`; the library picks up a new one the next time starters are loaded (Add starting " +
+      "fighters on the admin Fighters page, or creating a tournament). A fighter without one gets no call at that moment.",
+    clips: starters.flatMap((s) =>
+      FIGHTER_CALLS.filter((call) => s[call]).map((call) => ({
+        url: `/starter-fighters/${s[call]}`,
+        says: FIGHTER_CALL_LINES[call].says.replace("{name}", s.name),
+        when: FIGHTER_CALL_LINES[call].when,
+      })),
+    ),
   };
 }
 
@@ -53,24 +76,26 @@ function table(section: ClipSection): string {
 
 export function clipsMarkdown(startersJson: string): string {
   const names = nameCalls(startersJson);
+  const own = fighterCalls(startersJson);
   const announcerCount = ANNOUNCER.reduce((n, s) => n + s.clips.length, 0);
   return [
     "# Beyfest: Tetrafatalis: clip list",
     "",
     "Every sound the TV plays. Generated from `tournament-app/web/src/lib/clips.ts` by `bun run scripts/clips.ts` (run in `tournament-app`); change the list there, not here.",
     "",
-    `**To commission:** ${announcerCount} announcer clips, ${names.clips.length} fighter name calls, ` +
-      `and the ${MUSIC_AND_EFFECTS.clips.length} music, effect and narration files.`,
+    `**To commission:** ${announcerCount} shared announcer clips, ${names.clips.length} fighter name calls, ` +
+      `${own.clips.length} fighters' own calls, and the ${MUSIC_AND_EFFECTS.clips.length} music, effect and narration files.`,
     "",
     "**How to deliver the announcer clips**",
     "",
     "- MP3, one call per file, under exactly the file name below.",
     "- Trim the silence off both ends: calls are chained with a 0.15 s breath, so any padding shows as a pause.",
-    "- A line starting \"…\" is said straight after a name (\"The Buzzsaw … is VICTORIOUS!\"), so it should sound like the end of a sentence.",
+    "- A line starting \"…\" is said straight after a name (\"The Buzzsaw and The Breycist … Still Standing!\"), so it should sound like the end of a sentence.",
     "- Until a file is in place the TV skips that call without a gap, so clips can arrive a few at a time.",
     "",
     ...ANNOUNCER.map(table),
     table(names),
+    table(own),
     table(MUSIC_AND_EFFECTS),
   ].join("\n");
 }
@@ -79,7 +104,7 @@ if (import.meta.main) {
   const startersJson = readFileSync(STARTERS, "utf8");
   writeFileSync(OUT, clipsMarkdown(startersJson));
   console.log(`Wrote ${OUT}\n`);
-  const sections = [...ANNOUNCER, nameCalls(startersJson), MUSIC_AND_EFFECTS];
+  const sections = [...ANNOUNCER, nameCalls(startersJson), fighterCalls(startersJson), MUSIC_AND_EFFECTS];
   // These two sections start out full of 2026 files, which a file check
   // can't tell from new ones.
   const standIns = new Set(["Fighter name calls", MUSIC_AND_EFFECTS.title]);

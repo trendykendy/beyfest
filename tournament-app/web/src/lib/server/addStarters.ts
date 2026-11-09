@@ -79,6 +79,9 @@ export async function addStarters(
           ...(s.royaleVictory ? { royaleVictory: await file(s.royaleVictory) } : {}),
           ...(s.profile ? { profile: await file(s.profile) } : {}),
           ...(s.voice ? { voice: await file(s.voice) } : {}),
+          ...(s.callVictorious ? { callVictorious: await file(s.callVictorious) } : {}),
+          ...(s.callRoyaleChampion ? { callRoyaleChampion: await file(s.callRoyaleChampion) } : {}),
+          ...(s.callChampion ? { callChampion: await file(s.callChampion) } : {}),
         });
         added++;
       } else {

@@ -17,7 +17,6 @@ import {
   CALLS_TAIL,
   CHAMPION_CALL_START,
   CHAMPION_THEME,
-  GRAND_CHAMPION,
   HEARTBEAT,
   MATCH_POINT_FX_LEVEL,
   MATCH_POINT_HIT,
@@ -495,9 +494,9 @@ export class Announcer {
   private champTimers: ReturnType<typeof setTimeout>[] = [];
   private champTween: ReturnType<typeof setInterval> | undefined;
 
-  // Load the theme and the title call before the scene first needs them.
+  // Load the theme before the scene first needs it (the champions' own calls
+  // are loaded with the fighters).
   preloadChampion() {
-    this.preload(GRAND_CHAMPION);
     if (this.champTheme) return;
     const a = new Audio(CHAMPION_THEME);
     a.preload = "auto";

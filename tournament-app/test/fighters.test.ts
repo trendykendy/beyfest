@@ -12,6 +12,9 @@ const f = (id: string, name: string, player: string, image = "", voice = ""): PB
   royaleVictory: "",
   profile: "",
   voice,
+  callVictorious: "",
+  callRoyaleChampion: "",
+  callChampion: "",
   mirror: false,
   face: null,
 });

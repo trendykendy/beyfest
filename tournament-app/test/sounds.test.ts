@@ -5,18 +5,15 @@ import {
   CALLS_GAP,
   CALLS_START,
   CHAMPION_THEME,
-  GRAND_CHAMPION,
   HEARTBEAT,
   INTRO_OUT,
   MATCH_POINT_CALL,
   MATCH_POINT_HIT,
   MUSIC,
   ROYALE,
-  ROYALE_CHAMPION,
   STINGER,
   SUDDEN_DEATH_CALL,
   VERSUS,
-  WINS,
   AND,
   QUALIFIED,
   qualifiedCall,
@@ -76,12 +73,9 @@ describe("the clip list", () => {
       ...VERSUS,
       ...FINISHES.map((f) => finishClip(f.key)),
       ...["H1", "H2", "H3", "H4", "SD", "F"].map(royaleLabelClip),
-      WINS,
       AND,
       QUALIFIED,
       ROYALE,
-      ROYALE_CHAMPION,
-      GRAND_CHAMPION,
       MATCH_POINT_CALL,
       SUDDEN_DEATH_CALL,
     ];
@@ -140,13 +134,13 @@ describe("finishClip", () => {
 });
 
 describe("winsCall", () => {
-  test("the winner's name, then \"wins!\"", () => {
-    expect(winsCall("/voice/ace.mp3", false)).toEqual(["/voice/ace.mp3", WINS]);
+  test("the winner's own VICTORIOUS clip, in one go", () => {
+    expect(winsCall("/calls/victorious-ace.mp3", false)).toEqual(["/calls/victorious-ace.mp3"]);
   });
   test("a walkover isn't called", () => {
     expect(winsCall("/voice/ace.mp3", true)).toEqual([]);
   });
-  test("no name clip, no call", () => {
+  test("no VICTORIOUS clip, no call", () => {
     expect(winsCall("", false)).toEqual([]);
   });
 });

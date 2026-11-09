@@ -6,8 +6,9 @@
 //
 // New announcer clips go in static/sounds/announcer/ under these names. Until
 // a file is there, the TV skips that call without a gap (announcer.ts checks
-// every clip when the TV loads). The fighter name calls are listed separately,
-// from the starter fighters (static/starter-fighters/fighters.json).
+// every clip when the TV loads). Each fighter's name call and own whole calls
+// (VICTORIOUS, Last One Standing, Hero of Gyrondor) belong to the fighter, so
+// the script lists them from the starter fighters (fighters.json).
 
 import { circleName } from "./terms";
 
@@ -58,7 +59,6 @@ export const FINISH_CLIPS: Record<string, Clip> = {
   dominant: announcer("finishes/dominant", "Annihilation!", "A round won by a dominant finish"),
 };
 
-export const VICTORIOUS_CLIP = announcer("victorious", "…is VICTORIOUS!", "Straight after the winner's name when a result goes in");
 export const DEATHS_DOOR_CLIP = announcer("deaths-door", "Death's Door!", "Match point lands, over the impact");
 
 // The Grand Mêlée (battle royale).
@@ -69,12 +69,19 @@ export const MELEE_CLIPS = {
   ),
   lastStand: announcer("melee/last-stand", "Last Stand!", "The Mêlée's sudden-death battle, and a match's sudden death"),
   final: announcer("melee/final-melee", "The Final Mêlée!", "After \"The Grand Mêlée!\" for the final battle"),
-  lastOneStanding: announcer("melee/last-one-standing", "…Last One Standing!", "After the Mêlée winner's name"),
   and: announcer("melee/and", "…and…", "Between the last two names on the Still Standing screen"),
   stillStanding: announcer("melee/still-standing", "…Still Standing!", "After the names of those who go through a skirmish"),
 };
 
-export const HERO_CLIP = announcer("hero-of-gyrondor", "…Hero of Gyrondor!", "After the champion's name, as the Champion scene's reveal lands");
+// Each fighter's own whole calls: one file per fighter per moment, stored on
+// the fighter (fighters.ts FighterCall), so they aren't on the list above.
+// The script lists them per starter from fighters.json. `{name}` is the
+// fighter's combat name. A fighter without one gets no call at that moment.
+export const FIGHTER_CALL_LINES = {
+  callVictorious: { says: "{name} is VICTORIOUS!", when: "The winner screen, as the banner lands" },
+  callRoyaleChampion: { says: "{name} … Last One Standing!", when: "The Grand Mêlée champion scene" },
+  callChampion: { says: "{name} … Hero of Gyrondor!", when: "The Champion scene, as the reveal lands" },
+} as const;
 
 export const ANNOUNCER: ClipSection[] = [
   { title: "VS intro", clips: VERSUS_CLIPS },
@@ -84,15 +91,14 @@ export const ANNOUNCER: ClipSection[] = [
     clips: [...CIRCLE_CLIPS, PATH_CLIPS.gilded, PATH_CLIPS.iron, PATH_CLIPS.ashen, RECKONING_CLIP],
   },
   { title: "Finishing blows", clips: Object.values(FINISH_CLIPS) },
-  { title: "Results and match point", clips: [VICTORIOUS_CLIP, DEATHS_DOOR_CLIP] },
+  { title: "Match point", clips: [DEATHS_DOOR_CLIP] },
   {
     title: "The Grand Mêlée",
-    clips: [MELEE_CLIPS.title, ...MELEE_CLIPS.skirmishes, MELEE_CLIPS.lastStand, MELEE_CLIPS.final, MELEE_CLIPS.lastOneStanding, MELEE_CLIPS.and, MELEE_CLIPS.stillStanding],
+    clips: [MELEE_CLIPS.title, ...MELEE_CLIPS.skirmishes, MELEE_CLIPS.lastStand, MELEE_CLIPS.final, MELEE_CLIPS.and, MELEE_CLIPS.stillStanding],
   },
-  { title: "The champion", clips: [HERO_CLIP] },
 ];
 
-/** Every announcer clip's URL (the name calls aren't included). */
+/** Every shared announcer clip's URL (not the fighters' own calls). */
 export const ANNOUNCER_URLS: string[] = ANNOUNCER.flatMap((s) => s.clips.map((c) => c.url));
 
 // ── Music and effects ────────────────────────────────────────────────

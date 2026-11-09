@@ -2,13 +2,13 @@
 
 Every sound the TV plays. Generated from `tournament-app/web/src/lib/clips.ts` by `bun run scripts/clips.ts` (run in `tournament-app`); change the list there, not here.
 
-**To commission:** 27 announcer clips, 12 fighter name calls, and the 11 music, effect and narration files.
+**To commission:** 24 shared announcer clips, 12 fighter name calls, 36 fighters' own calls, and the 11 music, effect and narration files.
 
 **How to deliver the announcer clips**
 
 - MP3, one call per file, under exactly the file name below.
 - Trim the silence off both ends: calls are chained with a 0.15 s breath, so any padding shows as a pause.
-- A line starting "…" is said straight after a name ("The Buzzsaw … is VICTORIOUS!"), so it should sound like the end of a sentence.
+- A line starting "…" is said straight after a name ("The Buzzsaw and The Breycist … Still Standing!"), so it should sound like the end of a sentence.
 - Until a file is in place the TV skips that call without a gap, so clips can arrive a few at a time.
 
 ## VS intro
@@ -42,11 +42,10 @@ Said last in the VS intro: name, versus, name, title.
 | `tournament-app/web/static/sounds/announcer/finishes/knockout.mp3` | Banishment! | A round won by knockout |
 | `tournament-app/web/static/sounds/announcer/finishes/dominant.mp3` | Annihilation! | A round won by a dominant finish |
 
-## Results and match point
+## Match point
 
 | File | Says | When it plays |
 |---|---|---|
-| `tournament-app/web/static/sounds/announcer/victorious.mp3` | …is VICTORIOUS! | Straight after the winner's name when a result goes in |
 | `tournament-app/web/static/sounds/announcer/deaths-door.mp3` | Death's Door! | Match point lands, over the impact |
 
 ## The Grand Mêlée
@@ -60,15 +59,8 @@ Said last in the VS intro: name, versus, name, title.
 | `tournament-app/web/static/sounds/announcer/melee/skirmish-4.mp3` | Skirmish Four! | After "The Grand Mêlée!" for skirmish 4 |
 | `tournament-app/web/static/sounds/announcer/melee/last-stand.mp3` | Last Stand! | The Mêlée's sudden-death battle, and a match's sudden death |
 | `tournament-app/web/static/sounds/announcer/melee/final-melee.mp3` | The Final Mêlée! | After "The Grand Mêlée!" for the final battle |
-| `tournament-app/web/static/sounds/announcer/melee/last-one-standing.mp3` | …Last One Standing! | After the Mêlée winner's name |
 | `tournament-app/web/static/sounds/announcer/melee/and.mp3` | …and… | Between the last two names on the Still Standing screen |
 | `tournament-app/web/static/sounds/announcer/melee/still-standing.mp3` | …Still Standing! | After the names of those who go through a skirmish |
-
-## The champion
-
-| File | Says | When it plays |
-|---|---|---|
-| `tournament-app/web/static/sounds/announcer/hero-of-gyrondor.mp3` | …Hero of Gyrondor! | After the champion's name, as the Champion scene's reveal lands |
 
 ## Fighter name calls
 
@@ -76,18 +68,61 @@ The 12 starter fighters' names, said as a call ("The Beanblader!"). The new file
 
 | File | Says | When it plays |
 |---|---|---|
-| `tournament-app/web/static/starter-fighters/the-beanblader.mp3` | The Beanblader! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
-| `tournament-app/web/static/starter-fighters/the-baby.mp3` | The Beyby! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
-| `tournament-app/web/static/starter-fighters/the-breycist.mp3` | The Breycist! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
-| `tournament-app/web/static/starter-fighters/the-buzzsaw.mp3` | The Buzzsaw! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
-| `tournament-app/web/static/starter-fighters/the-cheatseeker.mp3` | The Cheatseeker! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
-| `tournament-app/web/static/starter-fighters/the-fairy-dancer.mp3` | The Fairy Dancer! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
-| `tournament-app/web/static/starter-fighters/the-joyzerker.mp3` | The Joyzerker! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
-| `tournament-app/web/static/starter-fighters/the-modsmith.mp3` | The Modsmith! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
-| `tournament-app/web/static/starter-fighters/the-pugilist.mp3` | The Pugilist! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
-| `tournament-app/web/static/starter-fighters/the-stancemancer.mp3` | The Stancemancer! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
-| `tournament-app/web/static/starter-fighters/the-torque-warden.mp3` | The Torque Warden! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
-| `tournament-app/web/static/starter-fighters/the-underdogger.mp3` | The Underdogger! | VS intro, VICTORIOUS, Still Standing, Last One Standing and the Champion scene |
+| `tournament-app/web/static/starter-fighters/the-beanblader.mp3` | The Beanblader! | VS intro, and the Still Standing screen |
+| `tournament-app/web/static/starter-fighters/the-baby.mp3` | The Beyby! | VS intro, and the Still Standing screen |
+| `tournament-app/web/static/starter-fighters/the-breycist.mp3` | The Breycist! | VS intro, and the Still Standing screen |
+| `tournament-app/web/static/starter-fighters/the-buzzsaw.mp3` | The Buzzsaw! | VS intro, and the Still Standing screen |
+| `tournament-app/web/static/starter-fighters/the-cheatseeker.mp3` | The Cheatseeker! | VS intro, and the Still Standing screen |
+| `tournament-app/web/static/starter-fighters/the-fairy-dancer.mp3` | The Fairy Dancer! | VS intro, and the Still Standing screen |
+| `tournament-app/web/static/starter-fighters/the-joyzerker.mp3` | The Joyzerker! | VS intro, and the Still Standing screen |
+| `tournament-app/web/static/starter-fighters/the-modsmith.mp3` | The Modsmith! | VS intro, and the Still Standing screen |
+| `tournament-app/web/static/starter-fighters/the-pugilist.mp3` | The Pugilist! | VS intro, and the Still Standing screen |
+| `tournament-app/web/static/starter-fighters/the-stancemancer.mp3` | The Stancemancer! | VS intro, and the Still Standing screen |
+| `tournament-app/web/static/starter-fighters/the-torque-warden.mp3` | The Torque Warden! | VS intro, and the Still Standing screen |
+| `tournament-app/web/static/starter-fighters/the-underdogger.mp3` | The Underdogger! | VS intro, and the Still Standing screen |
+
+## Fighters' own calls
+
+One whole line per fighter per moment, said in one go (not a name clip joined to a shared line). They go in `tournament-app/web/static/starter-fighters/`; the library picks up a new one the next time starters are loaded (Add starting fighters on the admin Fighters page, or creating a tournament). A fighter without one gets no call at that moment.
+
+| File | Says | When it plays |
+|---|---|---|
+| `tournament-app/web/static/starter-fighters/victorious-beanblader.mp3` | The Beanblader is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-beanblader.mp3` | The Beanblader … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-beanblader.mp3` | The Beanblader … Hero of Gyrondor! | The Champion scene, as the reveal lands |
+| `tournament-app/web/static/starter-fighters/victorious-beyby.mp3` | The Beyby is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-beyby.mp3` | The Beyby … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-beyby.mp3` | The Beyby … Hero of Gyrondor! | The Champion scene, as the reveal lands |
+| `tournament-app/web/static/starter-fighters/victorious-breycist.mp3` | The Breycist is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-breycist.mp3` | The Breycist … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-breycist.mp3` | The Breycist … Hero of Gyrondor! | The Champion scene, as the reveal lands |
+| `tournament-app/web/static/starter-fighters/victorious-buzzsaw.mp3` | The Buzzsaw is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-buzzsaw.mp3` | The Buzzsaw … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-buzzsaw.mp3` | The Buzzsaw … Hero of Gyrondor! | The Champion scene, as the reveal lands |
+| `tournament-app/web/static/starter-fighters/victorious-cheatseeker.mp3` | The Cheatseeker is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-cheatseeker.mp3` | The Cheatseeker … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-cheatseeker.mp3` | The Cheatseeker … Hero of Gyrondor! | The Champion scene, as the reveal lands |
+| `tournament-app/web/static/starter-fighters/victorious-fairydancer.mp3` | The Fairy Dancer is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-fairydancer.mp3` | The Fairy Dancer … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-fairydancer.mp3` | The Fairy Dancer … Hero of Gyrondor! | The Champion scene, as the reveal lands |
+| `tournament-app/web/static/starter-fighters/victorious-joyzerker.mp3` | The Joyzerker is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-joyzerker.mp3` | The Joyzerker … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-joyzerker.mp3` | The Joyzerker … Hero of Gyrondor! | The Champion scene, as the reveal lands |
+| `tournament-app/web/static/starter-fighters/victorious-modsmith.mp3` | The Modsmith is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-modsmith.mp3` | The Modsmith … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-modsmith.mp3` | The Modsmith … Hero of Gyrondor! | The Champion scene, as the reveal lands |
+| `tournament-app/web/static/starter-fighters/victorious-pugilist.mp3` | The Pugilist is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-pugilist.mp3` | The Pugilist … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-pugilist.mp3` | The Pugilist … Hero of Gyrondor! | The Champion scene, as the reveal lands |
+| `tournament-app/web/static/starter-fighters/victorious-stancemancer.mp3` | The Stancemancer is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-stancemancer.mp3` | The Stancemancer … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-stancemancer.mp3` | The Stancemancer … Hero of Gyrondor! | The Champion scene, as the reveal lands |
+| `tournament-app/web/static/starter-fighters/victorious-torquewarden.mp3` | The Torque Warden is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-torquewarden.mp3` | The Torque Warden … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-torquewarden.mp3` | The Torque Warden … Hero of Gyrondor! | The Champion scene, as the reveal lands |
+| `tournament-app/web/static/starter-fighters/victorious-underdogger.mp3` | The Underdogger is VICTORIOUS! | The winner screen, as the banner lands |
+| `tournament-app/web/static/starter-fighters/last-one-standing-underdogger.mp3` | The Underdogger … Last One Standing! | The Grand Mêlée champion scene |
+| `tournament-app/web/static/starter-fighters/hero-underdogger.mp3` | The Underdogger … Hero of Gyrondor! | The Champion scene, as the reveal lands |
 
 ## Music, effects and narration
 

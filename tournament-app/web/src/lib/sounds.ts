@@ -1,10 +1,11 @@
 // The TV's sounds: the match music, the announcer's calls for the VS intro
-// (name, "versus", name, match title), each round's finish, "[name] is
-// VICTORIOUS!", and the stinger that ends a match. Every file is on the
-// master list in clips.ts; each fighter's name clip comes from the fighter
-// library instead (fighters.ts). The constant names are the 2026 ones (WINS,
-// GRAND_CHAMPION …); what they say is in clips.ts. Only the plain logic is
-// here, so it can be tested; the playing is in components/tv/announcer.ts.
+// (name, "versus", name, match title), each round's finish, the winner's
+// "[name] is VICTORIOUS!", and the stinger that ends a match. Every shared
+// file is on the master list in clips.ts; each fighter's name call and own
+// whole calls come from the fighter library instead (fighters.ts). Some
+// constant names are the 2026 ones (ROYALE, QUALIFIED …); what they say is in
+// clips.ts. Only the plain logic is here, so it can be tested; the playing is
+// in components/tv/announcer.ts.
 
 import type { Stage } from "@beyfest/engine";
 import {
@@ -13,7 +14,6 @@ import {
   DEATHS_DOOR_CLIP,
   FINISH_CLIPS,
   HEARTBEAT_CLIP,
-  HERO_CLIP,
   IMPACT_CLIP,
   MELEE_CLIPS,
   MUSIC_CLIPS,
@@ -21,13 +21,11 @@ import {
   RECKONING_CLIP,
   STINGER_CLIP,
   VERSUS_CLIPS,
-  VICTORIOUS_CLIP,
 } from "./clips";
 
 export const MUSIC = MUSIC_CLIPS.map((c) => c.url);
 
 export const VERSUS = VERSUS_CLIPS.map((c) => c.url);
-export const WINS = VICTORIOUS_CLIP.url; // "…is VICTORIOUS!", straight after the winner's name
 export const STINGER = STINGER_CLIP.url; // ends a match in place of a fade-out
 // The stinger is the last 5.25 s of the Suno piece (which won't generate
 // anything shorter), ending on its own final hit; the raw file is in
@@ -46,11 +44,11 @@ export function finishClip(key: string): string {
   return FINISH_CLIPS[key]?.url ?? "";
 }
 
-// "[name] is VICTORIOUS!" when a result goes in. A walkover wasn't a fight,
-// so nobody is called; nor is a winner with no name clip (the call alone
-// says nothing).
-export function winsCall(voice: string, walkover: boolean): string[] {
-  return voice && !walkover ? [voice, WINS] : [];
+// The winner's own "[name] is VICTORIOUS!" when a result goes in (one file,
+// the fighter's callVictorious). A walkover wasn't a fight, so nobody is
+// called; nor is a winner without the clip.
+export function winsCall(victorious: string, walkover: boolean): string[] {
+  return victorious && !walkover ? [victorious] : [];
 }
 
 // The match title clip, or "" when there isn't one. Group matches say their
@@ -149,9 +147,9 @@ export function matchPointCalls(event: "slam" | "suddenDeath" | "saved"): string
 
 // ── The Grand Mêlée (battle royale) ──────────────────────────────────
 // Its calls are on the list in clips.ts (MELEE_CLIPS). Until a file is
-// there its call is skipped (the intro's timing allows for it).
+// there its call is skipped (the intro's timing allows for it). The
+// champion's "… Last One Standing!" is their own clip (callRoyaleChampion).
 export const ROYALE = MELEE_CLIPS.title.url; // "The Grand Mêlée!"
-export const ROYALE_CHAMPION = MELEE_CLIPS.lastOneStanding.url;
 export const AND = MELEE_CLIPS.and.url;
 export const QUALIFIED = MELEE_CLIPS.stillStanding.url;
 
@@ -177,14 +175,12 @@ export function royaleLabelClip(key: string): string {
 }
 
 // ── Champion ─────────────────────────────────────────────────────────
-// The Champion scene's music, and its one-off call: the champion's name
-// clip, then "Hero of Gyrondor!".
+// The Champion scene's music, and its one-off call: the champion's own
+// "[name] … Hero of Gyrondor!" (one file, their callChampion).
 export const CHAMPION_THEME = CHAMPION_THEME_CLIP.url;
-export const GRAND_CHAMPION = HERO_CLIP.url;
 
 // The call lands with the scene's big reveal: ChampionScene slams the name
-// slab in (with its flash and confetti) 450 ms after it comes up. The title
-// follows the name a breath later (callSequence).
+// slab in (with its flash and confetti) 450 ms after it comes up.
 export const CHAMPION_CALL_START = 450;
 
 // The call is only made if the scene first shows within this long of the TV
