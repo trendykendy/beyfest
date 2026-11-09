@@ -10,6 +10,8 @@ import {
   type MarginBand,
 } from "./odds";
 import { WAGERS } from "./terms";
+import { OUTRIGHT_MARKETS, type OutrightMarket } from "./outrights";
+import { isOutright, outrightState } from "./outrightMarket";
 import type { PBMatch } from "./view";
 
 // An amount of play money as every screen shows it: "12,760 gold".
@@ -20,12 +22,13 @@ export const gold = (n: number) => `${n.toLocaleString("en-IE")} ${WAGERS.curren
 //   finish — the finishing blow: how the deciding round is won (selection:
 //            a FINISH_KEYS key)
 //   margin — the winning margin band (selection: a MARGIN_BANDS key)
-// Outrights come with Phase 2d's third part.
-export type Market = "match" | "finish" | "margin";
-export const MARKETS: readonly Market[] = ["match", "finish", "margin"];
+//   champion, gilded, iron, ashen — outrights: who wins the tournament or a
+//            path (pick: the player; no match). See lib/outrightMarket.ts.
+export type Market = "match" | "finish" | "margin" | OutrightMarket;
+export const MARKETS: readonly Market[] = ["match", "finish", "margin", ...OUTRIGHT_MARKETS];
 
-// The selections a market takes ("match" takes a player instead).
-export const SELECTIONS: Record<Exclude<Market, "match">, readonly string[]> = {
+// The selections a market takes (the others take a player).
+export const SELECTIONS: Record<"finish" | "margin", readonly string[]> = {
   finish: FINISH_KEYS,
   margin: MARGIN_BANDS,
 };
@@ -97,8 +100,11 @@ export type BetState = "open" | "won" | "lost" | "refund";
 //   margin: from the final score.
 // Finish and margin wagers are on the match itself, so they ride on
 // whoever plays it.
-export function betState(bet: PBBet, match: PBMatch | undefined): BetState {
+//   outrights: from the whole tournament (`matches`), open until the
+//           champion or the path's winner is known.
+export function betState(bet: PBBet, match: PBMatch | undefined, matches: PBMatch[] = []): BetState {
   if (!MARKETS.includes(bet.market)) return "refund";
+  if (isOutright(bet.market)) return outrightState(bet.market, bet.pick, matches);
   if (!match) return "refund";
   if (bet.market === "match" && bet.pick !== match.p1 && bet.pick !== match.p2) return "refund";
   if (match.matchStatus !== "done") return "open";
@@ -138,7 +144,7 @@ export function books(bettors: PBBettor[], bets: PBBet[], matches: PBMatch[]): B
   for (const bet of bets) {
     const book = out.get(bet.bettor);
     if (!book) continue;
-    const state = betState(bet, byId.get(bet.match));
+    const state = betState(bet, byId.get(bet.match), matches);
     const returns = payout(bet, state);
     book.balance += returns - bet.stake;
     if (state === "open") book.atStake += bet.stake;

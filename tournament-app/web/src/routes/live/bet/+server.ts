@@ -6,11 +6,14 @@ import { oneAtATime } from "$lib/server/oneAtATime";
 import { loadBetting, loadPeople, loadTournamentView } from "$lib/server/load";
 import { books, gold, quoteWager } from "$lib/betting";
 import { bettingOpen } from "$lib/odds";
+import { isOutright, quoteOutright } from "$lib/outrightMarket";
 
 // The phone page's betting (play money, see lib/odds.ts and lib/betting.ts).
 //   { action: "bet", id, token, match, market, choice, stake, odds } → { ok: true }
 // market: "match" (choice = a player id), "finish" or "margin" (choice = a
-// selection key); a missing market is a match wager with `pick` as before.
+// selection key), or an outright: "champion", "gilded", "iron", "ashen"
+// (choice = a player id; no match). A missing market is a match wager with
+// `pick` as before.
 // id and token are the phone's sign-in (/live/me). Everything is checked
 // here against fresh data, never trusted from the phone. If the odds moved
 // since the phone showed them, nothing is placed and the reply (409) carries
@@ -39,12 +42,14 @@ async function bet(
 
   const view = await loadTournamentView(pb);
   if (!view.tournament) error(409, "Betting opens once the groups are drawn.");
-  const m = view.matches.find((x) => x.id === body.match);
-  if (!m || !bettingOpen(m)) error(409, "Betting on that match has closed.");
   const market = String(body.market ?? "match");
   const choice = String(body.choice ?? body.pick ?? "");
-  const quote = quoteWager(market, m, view.matches, choice);
-  if ("error" in quote) error(400, quote.error);
+  // Outrights are on the tournament, not a match.
+  const outright = isOutright(market);
+  const m = outright ? null : view.matches.find((x) => x.id === body.match);
+  if (!outright && (!m || !bettingOpen(m))) error(409, "Betting on that match has closed.");
+  const quote = outright ? quoteOutright(market, choice, view.players, view.matches) : quoteWager(market, m!, view.matches, choice);
+  if ("error" in quote) error(outright ? 409 : 400, quote.error);
 
   const people = await loadPeople(pb);
   const { bettors, bets } = await loadBetting(pb, view.tournament.id, people);
@@ -57,15 +62,15 @@ async function bet(
   const now = quote.odds;
   if (now !== Number(body.odds)) return json({ odds: now, message: "The odds just changed." }, { status: 409 });
 
-  const isMatch = market === "match";
+  const onPlayer = market === "match" || outright; // these back a player; the rest a selection
   await pb.collection("bets").create({
     tournament: view.tournament.id,
     person: id,
     who: me.name,
     market,
-    match: m.id,
-    pick: isMatch ? choice : "",
-    selection: isMatch ? "" : choice,
+    match: m?.id ?? "",
+    pick: onPlayer ? choice : "",
+    selection: onPlayer ? "" : choice,
     stake,
     odds: now,
   });

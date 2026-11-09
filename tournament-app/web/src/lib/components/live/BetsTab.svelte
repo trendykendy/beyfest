@@ -3,6 +3,17 @@
   import { books, gold, leaderboard, quoteWager, type Market, type PBBet, type PBBettor, type SettledBet } from "$lib/betting";
   import { bettingOpen, FINISH_KEYS, MARGIN_BANDS, matchOdds, propOdds } from "$lib/odds";
   import { FINISH_NAMES, MARGIN_NAMES, PROP_MARKETS } from "$lib/terms";
+  import type { OutrightMarket } from "$lib/outrights";
+  import {
+    isOutright,
+    outrightBook,
+    outrightMarketsFor,
+    outrightName,
+    outrightsOpen,
+    quoteOutright,
+    respiteStanding,
+  } from "$lib/outrightMarket";
+  import type { PBPlayer } from "$lib/view";
   import { isLive, liveMatches, matchContext, tierOf, upNext, type PBMatch } from "$lib/view";
   import type { Me, PBPerson } from "$lib/people";
   import SignIn from "./SignIn.svelte";
@@ -12,6 +23,7 @@
   // (/live/bet) checks every bet; this only shows and asks.
   let {
     matches,
+    players,
     names,
     bettors,
     bets,
@@ -23,6 +35,7 @@
     onlost,
   }: {
     matches: PBMatch[];
+    players: PBPlayer[]; // for the outrights' standings
     names: Map<string, string>;
     bettors: PBBettor[];
     bets: PBBet[];
@@ -47,7 +60,8 @@
   const byId = $derived(new Map(matches.map((m) => [m.id, m])));
 
   // ── The bet slip: one open at a time ────────────────────────────────
-  // market "match": choice is a player id; "finish"/"margin": a selection key.
+  // market "match" and outrights: choice is a player id; "finish"/"margin":
+  // a selection key. Outrights have no match (match "").
   type Slip = { match: string; market: Market; choice: string; stake: number; odds: number | null };
   let slip = $state<Slip | null>(null);
   let busy = $state(false);
@@ -55,21 +69,41 @@
   // Which match's finishing-blow and margin wagers are showing ("More wagers").
   let more = $state<string | null>(null);
 
-  // Betting closed on the slip's match (match point, or the result went in
-  // while it was open), or what it backs can't happen any more: put it away.
+  // What a slip would get right now, or why it can't be placed.
+  function quoteSlip(s: Slip): { odds: number } | { error: string } {
+    if (isOutright(s.market)) return quoteOutright(s.market, s.choice, players, matches);
+    const m = byId.get(s.match);
+    if (!m || !bettingOpen(m)) return { error: "Betting on that match has closed." };
+    return quoteWager(s.market, m, matches, s.choice);
+  }
+
+  // Betting closed (match point, a result in, the Respite over), or what the
+  // slip backs can't happen any more: put it away.
   $effect(() => {
-    if (!slip) return;
-    const m = byId.get(slip.match);
-    if (!m || !bettingOpen(m) || "error" in quoteWager(slip.market, m, matches, slip.choice)) slip = null;
+    if (slip && "error" in quoteSlip(slip)) slip = null;
   });
 
-  const chosen = (m: PBMatch, market: Market, choice: string) =>
-    slip?.match === m.id && slip.market === market && slip.choice === choice;
+  const chosen = (matchId: string, market: Market, choice: string) =>
+    slip?.match === matchId && slip.market === market && slip.choice === choice;
 
-  function choose(m: PBMatch, market: Market, choice: string) {
+  function choose(matchId: string, market: Market, choice: string) {
     say = null;
-    slip = chosen(m, market, choice) ? null : { match: m.id, market, choice, stake: 0, odds: null };
+    slip = chosen(matchId, market, choice) ? null : { match: matchId, market, choice, stake: 0, odds: null };
   }
+
+  // ── Outrights, at the Respite ───────────────────────────────────────
+  const outrightsOn = $derived(outrightsOpen(matches));
+  const outrightMarkets = $derived(outrightMarketsFor(players.length));
+  let outrightMarket = $state<OutrightMarket>("champion");
+  const book = $derived(outrightsOn ? outrightBook(players, matches) : null);
+  // Everyone in overall-standing order, with this market's odds (offered only).
+  const outrightRows = $derived(
+    book && outrightsOn
+      ? respiteStanding(players, matches)
+          .map((id) => ({ id, odds: book[outrightMarket].get(id) ?? null }))
+          .filter((r) => r.odds !== null)
+      : [],
+  );
   function add(n: number) {
     if (!slip || !mine) return;
     slip.stake = Math.min(mine.balance, slip.stake + n);
@@ -84,17 +118,17 @@
 
   // The odds the slip will bet at: the shown ones, or the new ones the server
   // offered after they moved.
-  function slipOdds(m: PBMatch): number {
+  function slipOdds(): number {
     if (slip?.odds) return slip.odds;
-    const q = slip ? quoteWager(slip.market, m, matches, slip.choice) : null;
+    const q = slip ? quoteSlip(slip) : null;
     return q && "odds" in q ? q.odds : 0;
   }
 
-  async function place(m: PBMatch) {
+  async function place() {
     if (!slip || !me || slip.stake < 1) return;
     busy = true;
     say = null;
-    const odds = slipOdds(m);
+    const odds = slipOdds();
     try {
       const res = await fetch("/live/bet", {
         method: "POST",
@@ -103,7 +137,7 @@
           action: "bet",
           id: me.id,
           token: me.token,
-          match: m.id,
+          match: slip.match,
           market: slip.market,
           choice: slip.choice,
           stake: slip.stake,
@@ -131,8 +165,10 @@
   }
 
   // A wager in the "Your bets" list: "Kerbeus v Xcalius" for a match
-  // wager, "Banishment · Kerbeus v Xcalius" for the others.
+  // wager, "Banishment · Kerbeus v Xcalius" for the others, "Hero of
+  // Gyrondor · Kerbeus" for an outright.
   function betLine(b: SettledBet): string {
+    if (isOutright(b.market)) return `${outrightName(b.market, players.length)} · ${names.get(b.pick) ?? "?"}`;
     const m = byId.get(b.match);
     if (b.market === "match") {
       const other = m ? names.get(b.pick === m.p1 ? m.p2 : m.p1) : "";
@@ -161,6 +197,55 @@
 
   {#if say}<p class="say" class:good={say.good} role="status">{say.text}</p>{/if}
 
+  <!-- The stake chips and Bet button, under whatever was picked. -->
+  {#snippet slipBox()}
+    {#if slip}
+      {@const odds = slipOdds()}
+      <div class="slip">
+        <div class="chips">
+          <button onclick={() => add(100)}>+100</button>
+          <button onclick={() => add(500)}>+500</button>
+          <button onclick={() => add(1000)}>+1k</button>
+          <button onclick={() => slip && mine && (slip.stake = mine.balance)}>All in</button>
+        </div>
+        <div class="stake">
+          <span>Stake <b>{money(slip.stake)}</b></span>
+          {#if slip.stake}<button class="clear" onclick={() => slip && (slip.stake = 0)}>Clear</button>{/if}
+        </div>
+        <button class="go" disabled={busy || slip.stake < 1} onclick={() => place()}>
+          {#if slip.stake < 1}Pick a stake
+          {:else}Bet {money(slip.stake)} · win {money(Math.round(slip.stake * odds))}{/if}
+        </button>
+      </div>
+    {/if}
+  {/snippet}
+
+  <!-- Outrights: open at the Respite, closed when the Paths begin. Fixed
+       odds from where each blader finished. -->
+  {#if outrightsOn && outrightMarkets.length}
+    <section>
+      <h2 class="lv-h">Outright wagers</h2>
+      <p class="lv-note">Who goes all the way? Open until the Paths begin. The odds are fixed from where each blader finished.</p>
+      <div class="lv-chips outright-chips">
+        {#each outrightMarkets as k (k)}
+          <button class="lv-chip" class:on={outrightMarket === k} onclick={() => (outrightMarket = k)}>
+            {outrightName(k, players.length)}
+          </button>
+        {/each}
+      </div>
+      <div class="lv-slab outrights">
+        {#each outrightRows as r (r.id)}
+          {@const on = chosen("", outrightMarket, r.id)}
+          <button class="orow" class:on aria-pressed={on} onclick={() => choose("", outrightMarket, r.id)}>
+            <span class="nm">{names.get(r.id)}</span>
+            <span class="od">{oddsText(r.odds!)}</span>
+          </button>
+          {#if on}{@render slipBox()}{/if}
+        {/each}
+      </div>
+    </section>
+  {/if}
+
   <section>
     <h2 class="lv-h">Bet now</h2>
     {#each open as m (m.id)}
@@ -174,8 +259,8 @@
         </div>
         <div class="sides">
           {#each [{ id: m.p1, odds: o.p1 }, { id: m.p2, odds: o.p2 }] as s (s.id)}
-            {@const on = chosen(m, "match", s.id)}
-            <button class="side" class:on aria-pressed={on} disabled={closed} onclick={() => choose(m, "match", s.id)}>
+            {@const on = chosen(m.id, "match", s.id)}
+            <button class="side" class:on aria-pressed={on} disabled={closed} onclick={() => choose(m.id, "match", s.id)}>
               <span class="nm">{names.get(s.id)}</span>
               {#if !closed}<span class="od">{oddsText(s.odds)}</span>{/if}
             </button>
@@ -198,8 +283,8 @@
                   {#each row.keys as k (k)}
                     {@const od = (row.odds as Record<string, number | null>)[k]}
                     {#if od !== null}
-                      {@const on = chosen(m, row.market, k)}
-                      <button class="side small" class:on aria-pressed={on} onclick={() => choose(m, row.market, k)}>
+                      {@const on = chosen(m.id, row.market, k)}
+                      <button class="side small" class:on aria-pressed={on} onclick={() => choose(m.id, row.market, k)}>
                         <span class="nm">{choiceName(row.market, k)}</span>
                         <span class="od">{oddsText(od)}</span>
                       </button>
@@ -210,25 +295,7 @@
             {/each}
           {/if}
         {/if}
-        {#if slip?.match === m.id && !closed}
-          {@const odds = slipOdds(m)}
-          <div class="slip">
-            <div class="chips">
-              <button onclick={() => add(100)}>+100</button>
-              <button onclick={() => add(500)}>+500</button>
-              <button onclick={() => add(1000)}>+1k</button>
-              <button onclick={() => slip && mine && (slip.stake = mine.balance)}>All in</button>
-            </div>
-            <div class="stake">
-              <span>Stake <b>{money(slip.stake)}</b></span>
-              {#if slip.stake}<button class="clear" onclick={() => slip && (slip.stake = 0)}>Clear</button>{/if}
-            </div>
-            <button class="go" disabled={busy || slip.stake < 1} onclick={() => place(m)}>
-              {#if slip.stake < 1}Pick a stake
-              {:else}Bet {money(slip.stake)} · win {money(Math.round(slip.stake * odds))}{/if}
-            </button>
-          </div>
-        {/if}
+        {#if slip?.match === m.id && !closed}{@render slipBox()}{/if}
       </div>
     {:else}
       <p class="lv-note">No matches taking bets right now. Bets open once both bladers are known and close on match point.</p>
@@ -417,6 +484,47 @@
     color: #8a90ad;
     border-color: #c5c9dc;
     min-height: 48px;
+  }
+  /* Outrights: market chips, then one row per blader with their odds. */
+  /* Two by two: "Hero of Gyrondor" won't fit four across on a phone. */
+  .outright-chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 10px;
+  }
+  .outright-chips :global(.lv-chip) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .outrights {
+    display: flex;
+    flex-direction: column;
+  }
+  .orow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 52px;
+    padding: 6px 14px;
+    background: var(--paper);
+    color: var(--ink);
+    border: 0;
+    border-bottom: 1px solid rgb(0 0 0 / 0.12);
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+  .orow.on {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .orow.on .od {
+    color: var(--gold);
+  }
+  .outrights .slip {
+    padding-top: 12px;
   }
   /* "More wagers": a quiet text toggle under the bladers. */
   .more-toggle {

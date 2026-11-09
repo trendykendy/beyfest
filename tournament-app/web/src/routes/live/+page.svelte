@@ -185,6 +185,7 @@
         {:else if shownTab === "bets"}
           <BetsTab
             matches={data.matches}
+            players={data.players}
             {names}
             bettors={data.bettors}
             bets={data.bets}
