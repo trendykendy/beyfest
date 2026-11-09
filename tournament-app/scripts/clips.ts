@@ -39,7 +39,7 @@ function nameCalls(startersJson: string): ClipSection {
 const cell = (s: string) => s.replace(/\|/g, "\\|");
 
 function table(section: ClipSection): string {
-  const rows = section.clips.map((c: Clip) => `| \`web/static${c.url}\` | ${cell(c.says)} | ${cell(c.when)} |`);
+  const rows = section.clips.map((c: Clip) => `| \`tournament-app/web/static${c.url}\` | ${cell(c.says)} | ${cell(c.when)} |`);
   return [
     `## ${section.title}`,
     "",
