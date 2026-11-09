@@ -1650,7 +1650,7 @@
             </section>
           {/each}
         </div>
-        {#if !tournamentOver}<p class="aw-note">Awards so far. They're settled after the grand final.</p>{/if}
+        {#if !tournamentOver}<p class="aw-note">Deeds so far. They're settled after The Reckoning.</p>{/if}
       </div>
 
     {:else if scene === "champion"}
