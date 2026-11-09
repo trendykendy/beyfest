@@ -134,12 +134,26 @@ export class Announcer {
   private stingerTween: ReturnType<typeof setInterval> | undefined;
   private stingerEnd: ReturnType<typeof setTimeout> | undefined;
 
-  // Load a clip ahead of time, so its length is known and it plays on cue.
+  // Clips whose file failed to load (not delivered yet): their calls are
+  // skipped, with no gap left where they'd have been.
+  private missing = new Set<string>();
+
+  // Load a clip ahead of time, so its length is known and it plays on cue,
+  // and so a missing file is known about before it's needed.
   preload(url: string) {
     if (!url || this.clips.has(url)) return;
     const a = new Audio(url);
     a.preload = "auto";
+    a.onerror = () => this.missing.add(url);
     this.clips.set(url, a);
+  }
+
+  // The calls that can actually be made: empty URLs and missing files are
+  // dropped. Each one left is loaded, if it isn't already.
+  private usable(calls: string[]): string[] {
+    const list = calls.filter((u) => u && !this.missing.has(u));
+    list.forEach((u) => this.preload(u));
+    return list;
   }
 
   private lengthOf(url: string): number {
@@ -147,13 +161,13 @@ export class Announcer {
     return d && Number.isFinite(d) ? d * 1000 : FALLBACK_MS;
   }
 
-  // Start the music and schedule the intro's calls (empty URLs are skipped).
+  // Start the music and schedule the intro's calls (empty URLs and missing
+  // files are skipped).
   // Returns when the intro's banners should split apart, in ms.
   intro(calls: string[]): number {
     this.cancelCalls();
     if (!this.enabled) return callTimes([]).out;
-    const list = calls.filter(Boolean);
-    list.forEach((u) => this.preload(u));
+    const list = this.usable(calls);
     const { starts, out } = callTimes(list.map((u) => this.lengthOf(u)));
     this.startMusic();
     if (list.length) {
@@ -284,8 +298,7 @@ export class Announcer {
   // music ducked until they're done. Returns how long until it's quiet, in ms.
   // `from`: the earliest they may start, in ms from now.
   private queue(calls: string[], from = 0): number {
-    const list = calls.filter(Boolean);
-    list.forEach((u) => this.preload(u));
+    const list = this.usable(calls);
     const now = Date.now();
     const busy = Math.max(0, this.callsEnd - now);
     if (!list.length) return busy;
@@ -500,8 +513,7 @@ export class Announcer {
     this.cancelChampCalls();
     if (!this.enabled) return;
     this.silenceMatch(400);
-    const list = calls.filter(Boolean);
-    list.forEach((u) => this.preload(u));
+    const list = this.usable(calls);
     const { starts, end } = callSequence(
       list.map((u) => this.lengthOf(u)),
       CHAMPION_CALL_START,

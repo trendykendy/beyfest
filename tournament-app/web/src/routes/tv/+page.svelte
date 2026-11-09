@@ -19,18 +19,12 @@
     type Face,
   } from "$lib/fighters";
   import {
-    AND,
     GRAND_CHAMPION,
-    MATCH_POINT_CALL,
-    QUALIFIED,
     QUALIFIED_CALL,
     ROYALE,
     ROYALE_CHAMPION,
     STINGER,
-    SUDDEN_DEATH_CALL,
-    VERSUS,
     WINNER_SLAM,
-    WINS,
     championCallFresh,
     finishClip,
     matchPointCalls,
@@ -40,6 +34,7 @@
     winsCall,
   } from "$lib/sounds";
   import { qualifiers, royaleView, type Battle } from "$lib/royale";
+  import { ANNOUNCER_URLS } from "$lib/clips";
   import { Announcer, soundAllowed } from "$lib/components/tv/announcer";
   import { FINISHES } from "$lib/finishes";
   import { pickStructure, miniRRAdvancers, pointsToWin } from "@beyfest/engine";
@@ -745,13 +740,10 @@
     soundBlocked = false;
     announcer.unlock();
   }
-  // Load every clip the next intros could need, so each one's length is known
-  // when an intro is timed and it plays on cue.
-  onMount(() =>
-    [...VERSUS, ...FINISHES.map((f) => finishClip(f.key)), WINS, STINGER, ROYALE, AND, QUALIFIED, MATCH_POINT_CALL, SUDDEN_DEATH_CALL].forEach((u) =>
-      announcer.preload(u),
-    ),
-  );
+  // Load every announcer clip on the master list (clips.ts) and the stinger,
+  // so each one's length is known when an intro is timed and it plays on cue.
+  // A clip whose file isn't there yet is found out now and skipped later.
+  onMount(() => [...ANNOUNCER_URLS, STINGER].forEach((u) => announcer.preload(u)));
   onMount(() => announcer.preloadTension());
   // The admin page's TV panel sets these, live.
   $effect(() => {
