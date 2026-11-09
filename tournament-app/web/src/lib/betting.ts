@@ -5,13 +5,15 @@ import type { PBMatch } from "./view";
 // worked out from the bets and the match results every time, so entering,
 // correcting or walking over a result settles bets with nothing else to run.
 
+// Whoever placed a bet: a signed-in person (lib/people.ts), or for the 2026
+// event's archived tournaments, one of the old per-tournament bettors.
 export interface PBBettor {
   id: string;
   name: string;
 }
 export interface PBBet {
   id: string;
-  bettor: string;
+  bettor: string; // PBBettor id
   match: string;
   pick: string; // player id
   stake: number; // whole dollars
@@ -86,27 +88,4 @@ export const sameName = (a: string, b: string) =>
 export function cleanName(raw: string): string | null {
   const name = raw.trim().replace(/\s+/g, " ");
   return name.length >= 2 && name.length <= 16 ? name : null;
-}
-
-// ── This phone's betting identity ─────────────────────────────────────
-// The token proves the phone that joined is the one betting.
-export type Bettor = { id: string; name: string; token: string };
-const KEY = "beyfest.bettor";
-
-export function loadBettor(): Bettor | null {
-  try {
-    const v = JSON.parse(localStorage.getItem(KEY) ?? "null");
-    return v && typeof v.id === "string" && typeof v.token === "string" ? v : null;
-  } catch {
-    return null;
-  }
-}
-
-export function saveBettor(b: Bettor | null) {
-  try {
-    if (b) localStorage.setItem(KEY, JSON.stringify(b));
-    else localStorage.removeItem(KEY);
-  } catch {
-    /* private mode: betting just won't survive a reload */
-  }
 }

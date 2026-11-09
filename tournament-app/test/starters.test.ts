@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mergeStarters, planStarters, splitNames, startersFor, tickedStarters, type Starter } from "../web/src/lib/starters";
+import { planStarters, startersFor, type Starter } from "../web/src/lib/starters";
 import type { PBFighter } from "../web/src/lib/fighters";
 
 const fighter = (over: Partial<PBFighter>): PBFighter => ({
@@ -112,8 +112,6 @@ describe("planStarters", () => {
   });
 });
 
-const names = ["Conor", "Sean", "Vhar", "Mark"];
-
 describe("startersFor", () => {
   const nameless: Starter = { name: "The Stray" }; // no player name
   const others: Starter = { name: "The Joyzerker", player: "Eamon" };
@@ -126,38 +124,5 @@ describe("startersFor", () => {
   test("leaves out starters who aren't playing, and walk-ins match nothing", () => {
     expect(startersFor([breycist, others], ["Eamon", "Walk-in"])).toEqual([others]);
     expect(startersFor([breycist], [])).toEqual([]);
-  });
-});
-
-describe("tickedStarters", () => {
-  test("ticks every starter when none are in the box", () => {
-    expect(tickedStarters("", names)).toEqual(names);
-    expect(tickedStarters("Walk In\nOther", names)).toEqual(names);
-  });
-
-  test("ticks only the starters already in the box, whatever the case", () => {
-    expect(tickedStarters("sean\nWalk In, VHAR", names)).toEqual(["Sean", "Vhar"]);
-  });
-});
-
-describe("mergeStarters", () => {
-  test("fills an empty box with the picked starters, in list order", () => {
-    expect(mergeStarters("", names, ["Mark", "Conor"])).toBe("Conor\nMark");
-  });
-
-  test("keeps walk-ins that were typed in, after the starters", () => {
-    expect(mergeStarters("Walk In\n\n  Late One , ", names, ["Sean"])).toBe("Sean\nWalk In\nLate One");
-  });
-
-  test("drops a starter that's unticked, and doesn't double one already there", () => {
-    expect(mergeStarters("conor\nSean\nWalk In", names, ["Conor", "Vhar"])).toBe("Conor\nVhar\nWalk In");
-  });
-
-  test("picking none leaves just the walk-ins", () => {
-    expect(mergeStarters("Sean\nWalk In", names, [])).toBe("Walk In");
-  });
-
-  test("splitNames reads lines and commas, skipping blanks", () => {
-    expect(splitNames(" A ,B\n\nC,")).toEqual(["A", "B", "C"]);
   });
 });

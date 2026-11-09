@@ -4,6 +4,7 @@ import type { PBGroup, PBMatch, PBPlayer, TvState } from "$lib/view";
 import { toFace, type PBFighter } from "$lib/fighters";
 import type { PBBet, PBBettor } from "$lib/betting";
 import type { PBRoyale } from "$lib/royale";
+import type { PBPerson } from "$lib/people";
 
 export interface TournamentView {
   tournament: {
@@ -134,27 +135,55 @@ export async function loadTournamentRecords(pb: PocketBase, t: RecordModel): Pro
   };
 }
 
-// The phone page's betting for a tournament (see migration 1710001500_betting).
-// Never breaks the page: before the migration has run it's just empty.
-export async function loadBetting(pb: PocketBase, tournamentId: string): Promise<{ bettors: PBBettor[]; bets: PBBet[] }> {
+// Everyone signed in (see migration 1710002400_people), first in first.
+// Empty before the migration has run.
+export async function loadPeople(pb: PocketBase): Promise<PBPerson[]> {
+  try {
+    const rows = await pb.collection("people").getFullList({ sort: "created,name", requestKey: "people" });
+    return rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      role: r.role === "spectator" ? "spectator" : "player",
+      starter: r.starter || "",
+      phone: !!r.phone,
+      created: isoDate(r.created),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+// The wagers on a tournament and who placed them (see migrations
+// 1710001500_betting and 1710002400_people). Never breaks the page: before
+// the migrations have run it's just empty.
+//   people: everyone signed in, who all get a wallet on the phone page. Pass
+//           null for an archive, which lists only those who wagered on it.
+// The 2026 event's tournaments wagered as per-tournament "bettors"; they're
+// read too, so their archive downloads keep the betting leaderboard.
+export async function loadBetting(
+  pb: PocketBase,
+  tournamentId: string,
+  people: PBPerson[] | null,
+): Promise<{ bettors: PBBettor[]; bets: PBBet[] }> {
   const filter = pb.filter("tournament = {:id}", { id: tournamentId });
   try {
-    const [bettors, bets] = await Promise.all([
+    const [oldBettors, rows, everyone] = await Promise.all([
       pb.collection("bettors").getFullList({ filter, sort: "name" }),
       pb.collection("bets").getFullList({ filter, sort: "created" }),
+      people ?? loadPeople(pb),
     ]);
-    return {
-      bettors: bettors.map((r) => ({ id: r.id, name: r.name })),
-      bets: bets.map((r) => ({
-        id: r.id,
-        bettor: r.bettor,
-        match: r.match,
-        pick: r.pick,
-        stake: r.stake,
-        odds: r.odds,
-        created: r.created || "",
-      })),
-    };
+    const bettors = new Map<string, PBBettor>();
+    for (const p of everyone) if (people) bettors.set(p.id, { id: p.id, name: p.name });
+    for (const b of oldBettors) bettors.set(b.id, { id: b.id, name: b.name });
+    const signedIn = new Map(everyone.map((p) => [p.id, p.name]));
+    const bets: PBBet[] = rows.map((r) => {
+      // Who placed it: a person, still signed in or since cleared (then known
+      // by the name kept on the wager); or a 2026 bettor.
+      const bettor = r.person || r.bettor || `gone:${r.who}`;
+      if (!bettors.has(bettor)) bettors.set(bettor, { id: bettor, name: signedIn.get(r.person) ?? r.who ?? "?" });
+      return { id: r.id, bettor, match: r.match, pick: r.pick, stake: r.stake, odds: r.odds, created: r.created || "" };
+    });
+    return { bettors: [...bettors.values()].sort((a, b) => a.name.localeCompare(b.name)), bets };
   } catch {
     return { bettors: [], bets: [] };
   }

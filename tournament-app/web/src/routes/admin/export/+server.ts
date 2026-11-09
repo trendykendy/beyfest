@@ -15,7 +15,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
   const t = id ? await locals.pb.collection("tournaments").getOne(id).catch(() => null) : await getActiveTournament(locals.pb);
   if (!t) throw error(404, "No such tournament");
 
-  const [view, betting] = await Promise.all([loadTournamentRecords(locals.pb, t), loadBetting(locals.pb, t.id)]);
+  const [view, betting] = await Promise.all([loadTournamentRecords(locals.pb, t), loadBetting(locals.pb, t.id, null)]);
   const iso = (v: unknown) => (typeof v === "string" && v ? new Date(v.replace(" ", "T")).toISOString() : "");
   const createdAt = iso(t.createdAt);
   const html = exportHtml({
