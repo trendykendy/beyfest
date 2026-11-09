@@ -91,3 +91,112 @@ export function matchOdds(m: PBMatch, matches: PBMatch[]): MatchOdds {
   const chance1 = raceChance(target - m.liveP1, target - m.liveP2, q);
   return { p1: oddsFor(chance1), p2: oddsFor(1 - chance1), chance1 };
 }
+
+// ── Finishing blow and margin (Phase 2d) ──────────────────────────────
+// These need the match played round by round: each round, form decides who
+// wins it (the same per-round chance as above), and how often each finish
+// happens decides whether it's worth 1, 2 or 3 points.
+
+export type FinishKey = "spin" | "knockout" | "dominant";
+export const FINISH_KEYS: readonly FinishKey[] = ["spin", "knockout", "dominant"];
+const FINISH_PTS: Record<FinishKey, number> = { spin: 1, knockout: 2, dominant: 3 };
+export type FinishFreq = Record<FinishKey, number>; // chances, adding up to 1
+
+// How often each finish happens, before the event has played any rounds.
+// Stand-in figures: replace with the counts from the 2026 event's round logs
+// (the Mac's pb_data) when they're in.
+export const FINISH_PRIOR: FinishFreq = { spin: 0.4, knockout: 0.4, dominant: 0.2 };
+// How many rounds the prior counts as, against the rounds logged so far at
+// this event: it leads early on, then the day's own rounds take over.
+const PRIOR_ROUNDS = 40;
+
+// Finish frequencies for odds: the prior, blended with every round logged at
+// this event so far.
+export function finishFrequencies(matches: PBMatch[], prior: FinishFreq = FINISH_PRIOR): FinishFreq {
+  const counts: FinishFreq = { spin: 0, knockout: 0, dominant: 0 };
+  let total = 0;
+  for (const m of matches) {
+    for (const r of m.liveLog ?? []) {
+      if (r.finish in counts) {
+        counts[r.finish as FinishKey]++;
+        total++;
+      }
+    }
+  }
+  const out = {} as FinishFreq;
+  for (const k of FINISH_KEYS) out[k] = (prior[k] * PRIOR_ROUNDS + counts[k]) / (PRIOR_ROUNDS + total);
+  return out;
+}
+
+// One way a match can end: who wins, the finish of the deciding round, the
+// final score, and its chance.
+export type Ending = { winner: 1 | 2; finish: FinishKey; s1: number; s2: number; p: number };
+
+// Every way the match can still end from the score (s1, s2), with chances
+// adding up to 1. q: the chance blader 1 wins any one round. Worked out
+// exactly (a few hundred score states at most), not simulated.
+export function endings(target: number, s1: number, s2: number, q: number, freq: FinishFreq): Ending[] {
+  const out = new Map<string, Ending>();
+  const walk = (a: number, b: number, p: number) => {
+    for (const [who, pw] of [[1, q], [2, 1 - q]] as const) {
+      for (const f of FINISH_KEYS) {
+        const pp = p * pw * freq[f];
+        if (pp === 0) continue;
+        const na = who === 1 ? a + FINISH_PTS[f] : a;
+        const nb = who === 2 ? b + FINISH_PTS[f] : b;
+        if (na >= target || nb >= target) {
+          const key = `${who}|${f}|${na}|${nb}`;
+          const e = out.get(key);
+          if (e) e.p += pp;
+          else out.set(key, { winner: who, finish: f, s1: na, s2: nb, p: pp });
+        } else {
+          walk(na, nb, pp);
+        }
+      }
+    }
+  };
+  walk(s1, s2, 1);
+  return [...out.values()];
+}
+
+export type MarginBand = "nailbiter" | "comfortable" | "whitewash";
+export const MARGIN_BANDS: readonly MarginBand[] = ["nailbiter", "comfortable", "whitewash"];
+
+// The band a final score falls in, the same rule for every match length:
+// the loser scored nothing → Whitewash; won by 1–2 → Nail-biter; else
+// Comfortable.
+export function marginBand(s1: number, s2: number): MarginBand {
+  if (Math.min(s1, s2) === 0) return "whitewash";
+  return Math.abs(s1 - s2) <= 2 ? "nailbiter" : "comfortable";
+}
+
+// Below this chance an outcome isn't offered (e.g. a Whitewash once both
+// bladers have scored): it can't happen, or as good as.
+export const PROP_MIN_CHANCE = 0.005;
+
+// A finishing-blow or margin selection: its odds, or null if it isn't offered.
+export type PropOdds = { finish: Record<FinishKey, number | null>; margin: Record<MarginBand, number | null> };
+
+// Margin wagers close once the first point is scored (the organiser's call:
+// the margin is too easy to read after that). Finishing-blow wagers stay
+// open until match point, like match wagers.
+export const marginOpen = (m: PBMatch) => m.liveP1 === 0 && m.liveP2 === 0;
+
+// Live odds for a match's finishing-blow and margin wagers.
+export function propOdds(m: PBMatch, matches: PBMatch[]): PropOdds {
+  const target = pointsToWin(m.stage, m.roundLabel);
+  const q = pointChance(formOf(m.p1, matches), formOf(m.p2, matches));
+  const all = endings(target, m.liveP1, m.liveP2, q, finishFrequencies(matches));
+  const finishP: Record<FinishKey, number> = { spin: 0, knockout: 0, dominant: 0 };
+  const marginP: Record<MarginBand, number> = { nailbiter: 0, comfortable: 0, whitewash: 0 };
+  for (const e of all) {
+    finishP[e.finish] += e.p;
+    marginP[marginBand(e.s1, e.s2)] += e.p;
+  }
+  const offer = (p: number) => (p < PROP_MIN_CHANCE ? null : oddsFor(p));
+  const finish = {} as PropOdds["finish"];
+  const margin = {} as PropOdds["margin"];
+  for (const k of FINISH_KEYS) finish[k] = offer(finishP[k]);
+  for (const k of MARGIN_BANDS) margin[k] = marginOpen(m) ? offer(marginP[k]) : null;
+  return { finish, margin };
+}
