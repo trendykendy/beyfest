@@ -81,6 +81,7 @@
   import TensionGlow from "$lib/components/tv/TensionGlow.svelte";
   import UltimateFinish, { eventLanding, type Variant } from "$lib/components/tv/UltimateFinish.svelte";
   import { matchPointEvent, matchPointState, type MatchPointEvent, type MatchPointState } from "$lib/matchPoint";
+  import { leftSide } from "$lib/arena";
   import { pickSpeech } from "$lib/speech/pick";
 
   let { data } = $props();
@@ -322,13 +323,6 @@
     const m = data.matches.find((x) => x.code === d.code);
     if (!m || !d.north) return { north: "", south: "" };
     return { north: sideName(m, d.north), south: sideName(m, d.north === 1 ? 2 : 1) };
-  }
-  // Which player (1 or 2) the VS intro puts on the left: round one's North
-  // player (from the first round's log once it's played, else the side drawn
-  // for the round about to start), or p1 if sides weren't drawn.
-  function leftSide(m: PBMatch): 1 | 2 {
-    const first = m.liveLog[0];
-    return (first ? first.north : m.north) || 1;
   }
   function sideName(m: PBMatch, which: 1 | 2): string {
     const pid = which === 1 ? m.p1 : m.p2;
