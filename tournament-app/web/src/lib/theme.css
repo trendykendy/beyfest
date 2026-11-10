@@ -88,6 +88,15 @@
   --tf-font-display: "Marcellus SC", Georgia, serif;
   --tf-font-text: "EB Garamond", Georgia, serif;
   --tf-font-runic: "Noto Sans Runic", serif;
+  /* The "Carved" look (chosen 2026-11-10, to match the logo's weight): heavy
+     Cinzel capitals with a dark edge. Lettering marked .tf-carved (below)
+     gets a gold face; add .stone for slate with crimson veins. */
+  --tf-font-carved: "Cinzel", "Marcellus SC", Georgia, serif;
+  --tf-carved-edge: #1c0c04;
+  --tf-carved-gold: linear-gradient(180deg, #fffbe0 8%, #ffd257 36%, #b96a10 60%, #6a3606 78%, #f3c75c 95%);
+  --tf-carved-stone:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='90'%3E%3Cpath d='M0 52 22 44 38 58 61 40 80 49 104 33 121 47 150 38 171 55 196 41 221 50 240 36 260 46' fill='none' stroke='%23ff2a1a' stroke-width='2.4'/%3E%3Cpath d='M61 40 70 20M150 38 143 70M221 50 232 78' fill='none' stroke='%23ff5a3a' stroke-width='1.6'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #e6e8ee 4%, #9aa0ad 34%, #4b505c 62%, #23262e 84%, #7d8391);
 
   /* Stone and gold (TV) */
   --tf-stone: #1b1a1f;
@@ -136,6 +145,49 @@
 [data-stadium="fourth"] {
   --st: var(--arena-4);
   --st-ink: var(--paper);
+}
+
+/* Carved lettering: the word drawn twice, a thick dark edge with a hard drop
+   underneath (::before) and the gold or stone face on top (::after). The
+   element needs data-t set to its own text. Sizes come from the element:
+   --stroke is the edge's width, --drop the shadow's depth. */
+.tf-carved {
+  --stroke: 8px;
+  --drop: 5px;
+  position: relative;
+  display: inline-block;
+  font-family: var(--tf-font-carved);
+  font-weight: 900;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: transparent;
+}
+.tf-carved::before,
+.tf-carved::after {
+  content: attr(data-t);
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.tf-carved::before {
+  z-index: 1;
+  color: var(--tf-carved-edge);
+  -webkit-text-stroke: var(--stroke) var(--tf-carved-edge);
+  text-shadow:
+    0 var(--drop) 0 var(--tf-carved-edge),
+    0 calc(var(--drop) + 6px) 14px rgb(0 0 0 / 0.7);
+}
+.tf-carved::after {
+  z-index: 2;
+  color: transparent;
+  background: var(--tf-carved-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.tf-carved.stone::after {
+  background: var(--tf-carved-stone);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 *,

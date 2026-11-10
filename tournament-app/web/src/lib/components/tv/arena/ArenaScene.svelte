@@ -94,8 +94,8 @@
         if (last !== undefined && v !== last && v !== null && !reduced()) {
           el()?.animate(
             [
-              { transform: "scale(1.6)", filter: "brightness(1.8) drop-shadow(0 7px 0 #2b1806)" },
-              { transform: "none", filter: "drop-shadow(0 7px 0 #2b1806)" },
+              { transform: "scale(1.6)", filter: "brightness(1.8)" },
+              { transform: "none", filter: "brightness(1)" },
             ],
             { duration: 500, easing: "cubic-bezier(.2, 1.6, .4, 1)" },
           );
@@ -242,7 +242,7 @@
 {#snippet who(s: ArenaSide, lr: "l" | "r")}
   {@const { count, tags } = tagsOf(s)}
   <div class="who {lr}" class:won-side={s.won} class:lost-side={s.lost}>
-    <div class="name" class:long={s.name.length > 16}>{s.name}</div>
+    <div class="name" class:long={s.name.length > 12} class:longer={s.name.length > 17}><span class="tf-carved stone" data-t={s.name}>{s.name}</span></div>
     {#if count}
       <!-- Two full-size tags fit a row; any more go compact, in two rows at most. -->
       <div class="pills" class:compact={count > 2}>
@@ -292,9 +292,9 @@
       {@render portrait(right, "r")}
 
       <div class="center" class:two={twoDigits}>
-        <span class="score gold-text" class:brink={door === "left" || door === "both"} bind:this={scoreL}>{left.score ?? "–"}</span>
+        <span class="score tf-carved" class:brink={door === "left" || door === "both"} data-t={left.score ?? "–"} bind:this={scoreL}>{left.score ?? "–"}</span>
         <div class="orn"></div>
-        <span class="score gold-text" class:brink={door === "right" || door === "both"} bind:this={scoreR}>{right.score ?? "–"}</span>
+        <span class="score tf-carved" class:brink={door === "right" || door === "both"} data-t={right.score ?? "–"} bind:this={scoreR}>{right.score ?? "–"}</span>
         <div class="ft">First to<b>{target}</b></div>
       </div>
 
@@ -335,10 +335,10 @@
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background: radial-gradient(ellipse 80% 80% at 50% 50%, #1b2032, #090b11 78%);
+    background: radial-gradient(ellipse 80% 80% at 50% 50%, #23232b, #08080b 78%);
   }
   .canvas {
-    --gold: #e5b452;
+    --gold: #eab13a;
     --gold-hi: #fff1c4;
     --ink: #ffe6ad;
     --ruby-glow: rgba(225, 30, 40, 0.85);
@@ -431,12 +431,6 @@
     opacity: 0;
     transition: none;
   }
-  .gold-text {
-    color: transparent;
-    background: linear-gradient(180deg, #fff6d0 8%, #f1c25a 45%, #a8691e 78%, #f3cf74);
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
 
   /* ── Status line ────────────────────────────────────────────────── */
   .mstat {
@@ -455,21 +449,33 @@
     color: #e9cf8e;
   }
   .pill {
-    font-family: var(--tf-font-display);
+    /* A stone plate with a gold edge, like the logo's lower half. */
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 27px;
     font-variant: normal;
-    letter-spacing: 0.1em;
-    padding: 7px 25px 5px;
-    border: 3.5px solid var(--gold);
-    border-radius: 58px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 9px 28px 7px;
+    border: 4px solid var(--gold);
+    border-radius: 6px;
     color: var(--ink);
-    background: rgba(10, 8, 6, 0.7);
+    background: linear-gradient(180deg, #4a4d58, #1d1f26);
+    box-shadow:
+      0 0 0 3px #1c0c04,
+      inset 0 2px 0 rgba(255, 255, 255, 0.25),
+      0 6px 0 #000;
     transition:
       border-color 0.4s,
       box-shadow 0.4s,
       color 0.4s;
   }
   .pill.battle {
-    box-shadow: 0 0 19px rgba(255, 157, 46, 0.55);
+    box-shadow:
+      0 0 0 3px #1c0c04,
+      inset 0 2px 0 rgba(255, 255, 255, 0.25),
+      0 6px 0 #000,
+      0 0 22px rgba(255, 157, 46, 0.55);
   }
   .pill.battle::before {
     content: "";
@@ -487,7 +493,10 @@
   .pill.door {
     border-color: #ff4a4a;
     color: #ffd0c8;
-    box-shadow: 0 0 27px rgba(225, 30, 40, 0.75);
+    box-shadow:
+      0 0 0 3px #1c0c04,
+      0 6px 0 #000,
+      0 0 27px rgba(225, 30, 40, 0.75);
   }
   .pill.door::before {
     background: #ff3a3a;
@@ -630,18 +639,24 @@
     right: 0;
     bottom: -46px;
     text-align: center;
-    font-size: 29px;
-    letter-spacing: 0.4em;
-    font-variant: small-caps;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 27px;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
     animation: engr-in 0.5s ease-out both;
   }
   .engr.ruby {
-    color: #e88a8a;
-    text-shadow: 0 0 15px var(--ruby-glow);
+    color: #ff9c94;
+    text-shadow:
+      0 0 15px var(--ruby-glow),
+      0 2px 0 #000;
   }
   .engr.sapph {
-    color: #8aa6e8;
-    text-shadow: 0 0 15px var(--sapph-glow);
+    color: #9db8ff;
+    text-shadow:
+      0 0 15px var(--sapph-glow),
+      0 2px 0 #000;
   }
   @keyframes engr-in {
     from {
@@ -663,19 +678,20 @@
     transform: translateX(-50%);
     z-index: 4;
     display: grid;
-    grid-template-columns: 211px 58px 211px;
+    grid-template-columns: 230px 58px 230px;
     align-items: center;
     justify-items: center;
   }
   .score {
-    font-family: var(--tf-font-display);
-    font-size: 230px;
+    /* Carved gold (theme.css .tf-carved), at its biggest. */
+    --stroke: 18px;
+    --drop: 9px;
+    font-size: 218px;
     line-height: 1;
-    filter: drop-shadow(0 7px 0 #2b1806);
-    display: inline-block;
   }
   .two .score {
-    font-size: 168px;
+    font-size: 150px;
+    --stroke: 14px;
   }
   /* One point from winning: the score throbs crimson with the heartbeat, so
      the room can see whose door it is. */
@@ -685,14 +701,14 @@
   @keyframes brink {
     0%,
     100% {
-      filter: drop-shadow(0 7px 0 #2b1806) drop-shadow(0 0 20px rgba(225, 30, 40, 0.6));
+      filter: drop-shadow(0 0 20px rgba(225, 30, 40, 0.6));
     }
     50% {
-      filter: drop-shadow(0 7px 0 #2b1806) drop-shadow(0 0 30px rgba(255, 44, 54, 1)) drop-shadow(0 0 60px rgba(255, 44, 54, 0.8));
+      filter: drop-shadow(0 0 30px rgba(255, 44, 54, 1)) drop-shadow(0 0 60px rgba(255, 44, 54, 0.8));
     }
   }
   .orn {
-    width: 4px;
+    width: 7px;
     height: 250px;
     background: linear-gradient(180deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
     position: relative;
@@ -706,8 +722,10 @@
     height: 27px;
     margin: -13.5px 0 0 -13.5px;
     transform: rotate(45deg);
-    background: var(--gold);
-    box-shadow: 0 0 19px rgba(255, 173, 61, 0.8);
+    background: linear-gradient(135deg, #fff3c2, #d3961f);
+    box-shadow:
+      0 0 0 3px #1c0c04,
+      0 0 19px rgba(255, 173, 61, 0.8);
   }
   .ft {
     grid-column: 1 / -1;
@@ -720,48 +738,43 @@
   }
   .ft b {
     display: block;
-    font-family: var(--tf-font-display);
-    font-weight: 400;
-    font-size: 50px;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 52px;
     color: var(--gold-hi);
     letter-spacing: 0;
+    text-shadow: 0 4px 0 #1c0c04;
   }
 
   /* ── Names and finish tags ──────────────────────────────────────── */
   .who {
     position: absolute;
-    top: 710px;
-    width: 653px;
+    top: 706px;
+    width: 740px;
     z-index: 3;
     text-align: center;
     transition: filter 0.6s;
   }
   .who.l {
-    left: 86px;
+    left: 43px;
   }
   .who.r {
-    right: 86px;
+    right: 43px;
   }
+  /* Carved slate with crimson veins (theme.css .tf-carved.stone). Heavy
+     capitals run wide, so longer names step down to stay inside 740px. */
   .name {
-    font-family: var(--tf-font-display);
-    font-size: 61px;
+    font-size: 66px;
     line-height: 1.15;
-    color: var(--ink);
-    text-shadow:
-      0 5px 0 #1b0e04,
-      0 0 27px rgba(0, 0, 0, 0.9);
-    white-space: nowrap;
+    --stroke: 9px;
+    --drop: 5px;
   }
   .name.long {
-    font-size: 48px;
+    font-size: 56px;
   }
-  .name::before,
-  .name::after {
-    content: "❖";
-    font-size: 0.55em;
-    color: var(--gold);
-    margin: 0 23px;
-    vertical-align: 0.25em;
+  .name.longer {
+    font-size: 44px;
+    --stroke: 7px;
   }
   .pills {
     display: flex;
@@ -777,10 +790,12 @@
     --tip: 15px;
     position: relative;
     z-index: 0;
-    font-family: var(--tf-font-display);
-    font-size: 28px;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 24px;
     line-height: 1.2;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     padding: 10px 24px 8px;
     color: var(--ink);
     background: var(--gold);
@@ -792,7 +807,7 @@
     position: absolute;
     inset: 3px 4.5px;
     z-index: -1;
-    background: linear-gradient(180deg, #23262d, #121418);
+    background: linear-gradient(180deg, #54575f, #23252c);
     clip-path: polygon(
       calc(var(--tip) - 2px) 0,
       calc(100% - var(--tip) + 2px) 0,
@@ -808,11 +823,11 @@
   }
   .compact .fin {
     --tip: 12px;
-    font-size: 22px;
+    font-size: 19px;
     padding: 8px 19px 6px;
   }
   .fin b {
-    font-weight: 400;
+    font-weight: inherit;
     color: #ffcf73;
     margin-left: 10px;
   }
@@ -848,12 +863,14 @@
     opacity: 0;
     pointer-events: none;
     text-align: center;
-    font-family: var(--tf-font-display);
-    font-size: 65px;
-    letter-spacing: 0.05em;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 56px;
+    letter-spacing: 0.04em;
     color: var(--ink);
     /* The same gold lozenge as the tag it lands on, just bigger (65px to the
-       tag's 28px), so it reads as one thing flying down, not two shapes. */
+       tag's 24px), so it reads as one thing flying down, not two shapes. */
     --tip: 35px;
     line-height: 1.2;
     padding: 23px 56px 19px;
@@ -865,7 +882,7 @@
     position: absolute;
     inset: 7px 10px;
     z-index: -1;
-    background: linear-gradient(180deg, #23262d, #121418);
+    background: linear-gradient(180deg, #54575f, #23252c);
     clip-path: polygon(
       calc(var(--tip) - 5px) 0,
       calc(100% - var(--tip) + 5px) 0,
@@ -936,14 +953,15 @@
     border-top: 4px solid var(--gold);
   }
   .ticker .lab {
-    font-family: var(--tf-font-display);
-    letter-spacing: 0.12em;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     color: var(--gold);
-    font-size: 27px;
+    font-size: 24px;
   }
   .ticker b {
-    font-family: var(--tf-font-display);
-    font-weight: 400;
+    font-weight: 700;
     color: var(--ink);
     margin: 0 10px;
   }

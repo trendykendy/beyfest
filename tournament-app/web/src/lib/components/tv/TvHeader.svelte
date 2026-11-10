@@ -7,7 +7,7 @@
 
 <header class="tv-header">
   <img class="logo" src="/logo-tetrafatalis.webp" alt="Beyfest: Tetrafatalis" />
-  {#if title}<span class="title">{title}</span>{/if}
+  {#if title}<span class="title tf-carved" data-t={title}>{title}</span>{/if}
 </header>
 
 <style>
@@ -22,7 +22,7 @@
     justify-content: space-between;
     padding: 0 46px;
     background: linear-gradient(180deg, rgba(5, 6, 10, 0.95), rgba(5, 6, 10, 0.75));
-    border-bottom: 4px solid #e5b452;
+    border-bottom: 7px solid #eab13a;
     box-shadow: 0 0 23px rgba(255, 173, 61, 0.35);
   }
   .logo {
@@ -31,10 +31,10 @@
     width: auto;
   }
   .title {
-    font-family: var(--tf-font-display);
-    font-size: 36px;
-    letter-spacing: 0.14em;
-    color: #ffe6ad;
-    white-space: nowrap;
+    /* Carved gold capitals (theme.css .tf-carved). */
+    font-size: 38px;
+    letter-spacing: 0.04em;
+    --stroke: 6px;
+    --drop: 3px;
   }
 </style>
