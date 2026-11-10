@@ -87,6 +87,7 @@
      the light set. Fonts: Marcellus SC + EB Garamond (fonts.css). */
   --tf-font-display: "Marcellus SC", Georgia, serif;
   --tf-font-text: "EB Garamond", Georgia, serif;
+  --tf-font-runic: "Noto Sans Runic", serif;
 
   /* Stone and gold (TV) */
   --tf-stone: #1b1a1f;
