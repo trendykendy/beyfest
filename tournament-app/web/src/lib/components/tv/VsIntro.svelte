@@ -3,6 +3,7 @@
   import { artFor } from "$lib/fighters";
   import FighterSilhouette from "./FighterSilhouette.svelte";
   import VsCrackArcs from "./VsCrackArcs.svelte";
+  import RuneRing from "./RuneRing.svelte";
 
   // The fighter intro on Start match, in the Tetrafatalis look (locked style
   // frame: fighter-art/style-frames/vs-slam on tetrafatalis/art). A ruby half
@@ -74,10 +75,6 @@
   // The same crack on the whole canvas, for the arcs.
   const crackOnCanvas = CRACK.map(([x, y]) => [x, y + BAND_TOP] as [number, number]);
 
-  // Runes round the medallion and the burst: the Elder Futhark, twice, each
-  // set at an equal step round the circle so the ring is always full.
-  const RUNES = [..."ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".repeat(2)];
-
   let w = $state(1920);
   const scale = $derived(w / 1920);
 
@@ -133,17 +130,6 @@
   </div>
 {/snippet}
 
-{#snippet ring(r: number, size: number, circles: number[])}
-  <g fill="none" stroke="currentColor">
-    {#each circles as c, i}<circle cx="100" cy="100" r={c} stroke-width={i ? 1 : 1.3} />{/each}
-  </g>
-  <g class="runes" font-size={size} fill="currentColor" text-anchor="middle" dominant-baseline="central">
-    {#each RUNES as rune, i}
-      <text x="100" y={100 - r} transform="rotate({(i * 360) / RUNES.length} 100 100)">{rune}</text>
-    {/each}
-  </g>
-{/snippet}
-
 <div class="vs" class:hold bind:clientWidth={w} style:--k={slow} style:--out="{OUT}ms">
   <div class="canvas" style:transform="scale({scale})">
     <div class="backdrop"></div>
@@ -186,12 +172,12 @@
             <circle {cx} {cy} r="20" stroke-width="1.2" />
           {/each}
         </g>
-        {@render ring(87, 13, [97, 77])}
+        <RuneRing r={87} size={13} circles={[97, 77]} />
       </svg>
 
       <div class="medallion">
         <svg class="band" viewBox="0 0 200 200" aria-hidden="true">
-          {@render ring(89, 12, [98, 80])}
+          <RuneRing r={89} size={12} circles={[98, 80]} />
         </svg>
         <span>VS</span>
       </div>
@@ -587,9 +573,6 @@
     to {
       transform: rotate(360deg);
     }
-  }
-  .runes {
-    font-family: var(--tf-font-runic);
   }
   /* The dark disc, rimmed in gold. */
   .medallion::before {

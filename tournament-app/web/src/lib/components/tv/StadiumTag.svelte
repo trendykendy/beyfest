@@ -2,8 +2,8 @@
   import { STADIA, stadiumOf } from "$lib/stadia";
   import { onMount, untrack } from "svelte";
 
-  // The arena tag in Match centre: the round, then the stadium's numeral and
-  // name. At match point the big stadium draw would break the flow, so with
+  // The arena tag in the Arena's status line: "Arena II · Double Xtreme ·
+  // Round 1", in Marcellus and gold. At match point the big stadium draw would break the flow, so with
   // `spin` the tag draws it instead: numeral and name roll vertically a couple
   // of times and land on the stadium, in place on the main view.
   //
@@ -79,8 +79,8 @@
   });
 </script>
 
-<span class="tag" class:rolling class:landed={spinning && !rolling} class:spin={spinning} data-stadium={spinning ? shown : s.key}>
-  <span class="rd"><b>Round {round}</b></span>
+<span class="stag" class:rolling class:landed={spinning && !rolling} class:spin={spinning} data-stadium={spinning ? shown : s.key}>
+  <span class="lbl">Arena</span>
   {#if spinning}
     <span class="num">
       <span class="win" bind:this={numWin}>
@@ -89,6 +89,7 @@
         </span>
       </span>
     </span>
+    <span class="dot">·</span>
     <span class="name">
       <span class="win" bind:this={nameWin}>
         <span class="strip" style:transform="translateY({-pos * 1.1}em)">
@@ -98,69 +99,53 @@
     </span>
   {:else}
     <span class="num"><b>{s.num}</b></span>
+    <span class="dot">·</span>
     <span class="name"><b>{s.name}</b></span>
   {/if}
+  <span class="dot">·</span>
+  <span class="rd">Round <b>{round}</b></span>
 </span>
 
 <style>
-  .tag {
+  /* Inherits the status line's EB Garamond small caps; numerals in gold Marcellus. */
+  .stag {
     display: inline-flex;
-    align-items: stretch;
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 2.2rem;
-    line-height: 1;
-    transform: skewX(-10deg);
-    background: var(--paper);
-    color: var(--ink);
-    border: var(--outline) solid var(--ink);
-    box-shadow: 6px 6px 0 var(--st);
+    align-items: center; /* not baseline: the reel windows hide overflow */
+    gap: 0.35em;
+    line-height: 1.1;
+    color: #ffe6ad;
     animation: pop 320ms cubic-bezier(0.2, 0.9, 0.3, 1.4);
   }
-  .tag > span {
-    display: grid;
-    place-items: center;
-    padding: 8px 18px 10px;
-  }
-  .tag b {
+  .stag b {
     display: block;
-    font-weight: inherit;
-    transform: skewX(10deg);
-    padding-right: 0.12em; /* italic overhang */
+    font-weight: 400;
+  }
+  .num b,
+  .rd b {
+    font-family: var(--tf-font-display);
+    color: #fff1c4;
   }
   .rd {
-    background: var(--ink);
-    color: var(--paper);
-    font-family: var(--font-text);
-    font-weight: 700;
-    font-stretch: 75%;
-    letter-spacing: 0.12em;
-    font-size: 1.5rem;
-  }
-  .num {
-    background: var(--st);
-    color: var(--st-ink);
-    border-right: var(--outline) solid var(--ink);
-    min-width: 2.2em;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35em;
   }
   @keyframes pop {
     from {
-      transform: skewX(-10deg) scale(1.25);
-    }
-    to {
-      transform: skewX(-10deg) scale(1);
+      transform: scale(1.15);
+      opacity: 0;
     }
   }
 
   /* The spin: the tag grows while it rolls, so the room sees it, and drops
      back with a bump as it lands. */
-  .tag.spin {
+  .stag.spin {
     animation: none;
     scale: 1;
     transform-origin: 0 50%; /* grows away from the match title beside it */
     transition: scale 280ms cubic-bezier(0.2, 0.9, 0.3, 1.5);
   }
-  .tag.rolling {
+  .stag.rolling {
     scale: 1.2;
   }
   .win {
