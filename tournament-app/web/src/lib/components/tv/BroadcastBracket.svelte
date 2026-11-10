@@ -13,6 +13,7 @@
     orientation = "horizontal",
     fit = "screen",
     followId = "",
+    carved = false,
     pages = $bindable([]),
   }: {
     matches: PBMatch[];
@@ -25,6 +26,7 @@
     // is a scroll-snap point marked data-page, listed in `pages` in order.
     fit?: "screen" | "swipe";
     followId?: string;
+    carved?: boolean; // the TV's Carved look (the phone keeps its own until it is rebuilt)
     pages?: { names: string[]; codes: string[] }[];
   } = $props();
 
@@ -308,7 +310,7 @@
   });
 </script>
 
-<div class="bb {orientation}" class:swipe={fit === "swipe"} bind:this={boxEl}>
+<div class="bb {orientation}" class:carved class:swipe={fit === "swipe"} bind:this={boxEl}>
   <div class="bb-scale" style={fit === "screen" ? `transform: scale(${scale})` : undefined}>
     <div class="bb-content" bind:this={contentEl}>
       <svg class="bb-links" width={dims.w} height={dims.h} viewBox="0 0 {dims.w} {dims.h}">
@@ -332,7 +334,7 @@
                 <div class="bb-col-body" class:de-upper={ri === 0} style="grid-row: {ri * 2 + 2}; grid-column: {ci + 1}">
                   {#each col as m (m.code)}
                     <div class="bb-node" data-code={m.code} bind:this={nodeEls[m.code]}>
-                      <MatchPlate match={m} {names} {groupCount} {followId} />
+                      <MatchPlate match={m} {names} {groupCount} {followId} {carved} />
                     </div>
                   {/each}
                 </div>
@@ -346,7 +348,7 @@
               {#each rows.gf as m (m.code)}
                 <div class="bb-node is-gf" data-code={m.code} bind:this={nodeEls[m.code]}>
                   <div class="gf-crown"><Trophy /></div>
-                  <MatchPlate match={m} {names} {groupCount} {followId} />
+                  <MatchPlate match={m} {names} {groupCount} {followId} {carved} />
                 </div>
               {/each}
             </div>
@@ -363,7 +365,7 @@
               {#each col as m (m.code)}
                 <div class="bb-node" class:is-gf={m.stage === "gf"} data-code={m.code} bind:this={nodeEls[m.code]}>
                   {#if m.stage === "gf"}<div class="gf-crown"><Trophy /></div>{/if}
-                  <MatchPlate match={m} {names} {groupCount} {followId} />
+                  <MatchPlate match={m} {names} {groupCount} {followId} {carved} />
                 </div>
               {/each}
             </div>
@@ -524,5 +526,31 @@
     left: 50%;
     transform: translateX(-50%);
     font-size: 1.5rem;
+  }
+
+  /* ── The TV's Carved look ────────────────────────────────────────────
+     Round names in carved gold; the lines in each Path's metal. */
+  .carved .bb-col-head {
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 1.35rem;
+    letter-spacing: 0.04em;
+    color: #ffd257;
+    text-shadow: 0 3px 0 #1c0c04;
+  }
+  .carved .link {
+    stroke: #8d8577;
+  }
+  .carved .link.tier-wb {
+    stroke: var(--tf-path-gilded);
+  }
+  .carved .link.tier-mb {
+    stroke: #aab3bf;
+  }
+  .carved .link.tier-lb {
+    stroke: #b0694f;
+  }
+  .carved .gf-crown {
+    color: #ffd257;
   }
 </style>

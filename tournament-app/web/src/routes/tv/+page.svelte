@@ -74,7 +74,9 @@
   import RoyaleIntro from "$lib/components/tv/RoyaleIntro.svelte";
   import RoyaleDraw from "$lib/components/tv/RoyaleDraw.svelte";
   import QualifiedScreen from "$lib/components/tv/QualifiedScreen.svelte";
-  import LiveQr from "$lib/components/tv/LiveQr.svelte";
+  import ProvingScene, { type PathTier, type ProvingFixture, type ProvingTablet } from "$lib/components/tv/ProvingScene.svelte";
+  import GatheringScene from "$lib/components/tv/GatheringScene.svelte";
+  import DeedsScene from "$lib/components/tv/DeedsScene.svelte";
   import IntroPlayer from "$lib/components/tv/IntroPlayer.svelte";
   import { introImages } from "$lib/intro";
   import UltimateFinish, { eventLanding, type Variant } from "$lib/components/tv/UltimateFinish.svelte";
@@ -103,6 +105,9 @@
     wagers: data.bets.length > 0,
     now,
   });
+  // The scenes rebuilt in the Tetrafatalis look so far (dark stone, not the
+  // old blue field behind them). Each joins as it's rebuilt.
+  const TF_SCENES: Scene[] = ["standby", "groups", "rr", "bracket", "spotlight", "awards"];
   const scenes = $derived(availableScenes(!!data.tournament, data.matches, data.royale, flow));
 
   // For the Respite and the Lord of Gold: the wagerers, richest first.
@@ -272,15 +277,6 @@
     data.matches
       .filter((m) => m.stage === "group" && m.groupIndex === gi)
       .sort((a, b) => a.orderIndex - b.orderIndex);
-  // Tallest fixture list on screen (two groups → fixtures split into 2 columns).
-  // Short lists get the bigger "roomy" sizing so the slabs fill the screen;
-  // only 3 groups of 5 (13–15 players) needs the compact sizes.
-  const fixtureRows = $derived(
-    Math.max(0, ...data.groups.map((g) => {
-      const n = groupMatchesOf(g.index).length;
-      return groupCount === 2 ? Math.ceil(n / 2) : n;
-    })),
-  );
   const groupPlayed = (gi: number) => groupMatchesOf(gi).filter((m) => m.matchStatus === "done").length;
   // How a fixture row reads on the Group stage scene. Only ONE row is "next":
   // the next match due that isn't already being played.
@@ -293,8 +289,86 @@
   // The next fixture to be played (not the one currently live) — for the "prep" strip.
   const nextUp = $derived(upNext(data.matches, data.tv.next)[0] ?? null);
 
-  // The match on the table right now (first live one), for the "On now" band.
+  // The match on the table right now (first live one), for the strip along the bottom.
   const onNow = $derived(liveMatches(data.matches)[0] ?? null);
+
+  // ── The Proving and the Path round-robins (ProvingScene) ────────────
+  // A tablet per Circle: the standings, the Path each place leads to, and
+  // the fixtures in play order.
+  const TIER_PATH: Record<string, PathTier> = { wb: "gilded", mb: "iron", lb: "ashen" };
+  function fixtureOf(m: PBMatch): ProvingFixture {
+    const state = fixtureState(m);
+    const s1 = m.p1Score ?? 0;
+    const s2 = m.p2Score ?? 0;
+    const mid =
+      state === "done" ? (m.walkover ? "W/O" : `${s1}–${s2}`) : state === "live" ? `${m.liveP1}–${m.liveP2}` : state === "next" ? "next" : "v";
+    return { key: m.code, a: sideName(m, 1), b: sideName(m, 2), mid, state, won: state !== "done" ? 0 : s1 > s2 ? 1 : s2 > s1 ? 2 : 0 };
+  }
+  const provingTablets = $derived<ProvingTablet[]>(
+    data.groups.map((g) => {
+      const list = groupMatchesOf(g.index);
+      return {
+        key: g.id,
+        title: circleName(g.index),
+        progress: g.complete ? "Final standings" : `${groupPlayed(g.index)} of ${list.length} fought`,
+        settled: g.complete,
+        rows: groupStandings(data.players, data.matches, g.index).map((row, i) => {
+          const d = destinationOf(i + 1, g.size, structure?.knockoutType ?? "");
+          const seeded = d.label === "Seeded"; // no Paths to split into: everyone is seeded into one bracket
+          return {
+            name: names.get(row.playerId) ?? "?",
+            won: row.wins,
+            lost: row.losses,
+            diff: row.pointDiff,
+            to: seeded ? "Seeded" : PATH_NAME[d.tier],
+            tier: seeded ? "" : TIER_PATH[d.tier],
+          };
+        }),
+        fixtures: list.map(fixtureOf),
+      };
+    }),
+  );
+  // The Gilded and Ashen Paths' round-robins, where the structure has them.
+  const rrTablets = $derived.by<ProvingTablet[]>(() => {
+    const s = structure;
+    if (!s) return [];
+    const defs = [
+      { stage: "wb_rr" as const, title: STAGES.winners, tier: "gilded" as const, note: `The winner goes straight to ${STAGES.grandFinal}` },
+      { stage: "lb_rr" as const, title: STAGES.losers, tier: "ashen" as const, note: "The last chance to stay in" },
+    ];
+    return defs
+      .filter((d) => hasStage(data.matches, d.stage))
+      .map((d) => {
+        const adv = miniRRAdvancers(s, d.stage);
+        const list = rrMatchesOf(d.stage);
+        const played = list.filter((m) => m.matchStatus === "done").length;
+        return {
+          key: d.stage,
+          title: d.title,
+          tier: d.tier,
+          note: d.note,
+          progress: played === list.length ? "Final standings" : `${played} of ${list.length} fought`,
+          settled: played === list.length,
+          rows: miniRRStandings(data.matches, d.stage).map((row, i) => {
+            const fate = rrFate(d.stage, i + 1, adv).tier;
+            return {
+              name: names.get(row.playerId) ?? "?",
+              won: row.wins,
+              lost: row.losses,
+              diff: row.pointDiff,
+              to: fate === "gf" ? STAGES.grandFinal : fate === "mb" ? STAGES.mid : "Out",
+              tier: (fate === "gf" ? "reck" : fate === "mb" ? "iron" : "out") as PathTier,
+            };
+          }),
+          fixtures: list.map(fixtureOf),
+        };
+      });
+  });
+  // The strip under the tables: the match in battle, and who's summoned.
+  const tableTicker = $derived({
+    live: onNow ? { a: sideName(onNow, 1), b: sideName(onNow, 2), sa: onNow.liveP1, sb: onNow.liveP2 } : undefined,
+    next: nextUp ? { a: sideName(nextUp, 1), b: sideName(nextUp, 2) } : undefined,
+  });
 
   // Where the featured match sits, in plain words: "Group 2, match 4 of 6"
   // for group games, "Mid bracket semi-final" for knockout ones.
@@ -1177,22 +1251,7 @@
     };
   });
 
-  // The phone page's QR in the corner: not on Standby (it has a big one),
-  // Champion, the Arena (which carries its own, top right), or while the
-  // intro / stadium draw / blank build-up is on.
-  const cornerQr = $derived(
-    scene !== "standby" &&
-      (scene !== "spotlight" || profileOn) &&
-      scene !== "champion" &&
-      scene !== "royaleChampion" &&
-      !introShow &&
-      !royaleIntro &&
-      !royaleDraw &&
-      !drawShow &&
-      !blank &&
-      !winnerShow &&
-      !qualifiedShow,
-  );
+  // The phone page's QR sits in the top bar (TvHeader) on every scene with one.
 
   // ── Operator control (keyboard / mouse at the TV) ───────────────────
   let barVisible = $state(true);
@@ -1300,20 +1359,20 @@
      old blue field). Each scene joins the list as it's rebuilt. -->
 <div
   class="tv"
-  class:tf={scene === "spotlight" && !profileOn}
+  class:tf={TF_SCENES.includes(scene) && !profileOn}
   class:cursor-hide={!barVisible}
   class:bar-open={barVisible}
   class:blank
-  class:qr-corner={cornerQr}
 >
-  <!-- Standby, Champion and the flow holds carry their own giant title; don't repeat it. -->
-  <TvHeader
-    title={profileOn
-      ? SCREENS.profile
-      : ["standby", "champion", "respite", "eve", "lordOfGold"].includes(scene)
-        ? ""
-        : SCENE_TITLE[scene]}
-  />
+  <!-- The Gathering fills the whole screen and carries the logo itself: no
+       top bar. Champion and the flow holds carry their own giant title, so
+       the bar has none for them. The phone QR is in the bar. -->
+  {#if scene !== "standby" || profileOn}
+    <TvHeader
+      title={profileOn ? SCREENS.profile : ["champion", "respite", "eve", "lordOfGold"].includes(scene) ? "" : SCENE_TITLE[scene]}
+      qr={data.liveQr}
+    />
+  {/if}
 
   <main class="stage">
     {#if profileOn}
@@ -1324,158 +1383,18 @@
         </div>
       {/key}
     {:else if scene === "standby"}
-      <div class="standby">
-      <div class="finale">
-        <img class="standby-logo" src="/logo.webp" alt="Beyfest 2026: Triple Threat" />
-        <div class="finale-sub">{EVENT.date}, {EVENT.place}</div>
-        <div class="finale-note">Playing? Sign in on your phone. The groups are drawn once everyone has.</div>
-        <!-- Placeholder until the Gathering screen (Phase 2c/4): who's signed in so far. -->
-        {#if data.signedIn.length}
-          <div class="signed-in">
-            <div class="signed-in-count">{data.signedIn.length} {data.signedIn.length === 1 ? "blader" : "bladers"} signed in</div>
-            <div class="signed-in-names">
-              {#each data.signedIn as n (n)}<span>{n}</span>{/each}
-            </div>
-          </div>
-        {/if}
-      </div>
-      <!-- Beside the title, not under it: the column is already tall at 1080p. -->
-      <div class="live-card">
-        <div class="live-card-head"><span>Sign in on your phone</span></div>
-        <LiveQr size={data.liveQr.size} path={data.liveQr.path} px={260} />
-        <div class="live-card-url">{data.liveQr.url.replace(/^https?:\/\//, "")}</div>
-      </div>
-      </div>
+      <GatheringScene
+        when={`${EVENT.date} · ${EVENT.place}`}
+        names={data.signedIn}
+        qr={data.liveQr}
+        url={data.liveQr.url.replace(/^https?:\/\//, "")}
+      />
 
     {:else if scene === "groups"}
-      <div class="gs" class:roomy={fixtureRows <= 6}>
-        <div class="gs-grid gs-{groupCount}">
-          {#each data.groups as g (g.id)}
-            {@const total = groupMatchesOf(g.index).length}
-            <section class="gs-slab">
-              <header class="gs-head">
-                <h2>{g.name}</h2>
-                <span class="gs-progress">
-                  {#if g.complete}Final standings{:else}{groupPlayed(g.index)} of {total} played{/if}
-                </span>
-              </header>
-
-              <div class="gs-cols" aria-hidden="true">
-                <span></span><span></span><span>W–L</span><span>Point diff.</span><span>Goes to</span>
-              </div>
-              {#each groupStandings(data.players, data.matches, g.index) as row, i (row.playerId)}
-                {@const dest = destinationOf(i + 1, g.size, structure?.knockoutType ?? "")}
-                <div class="gs-row tier-{dest.tier}">
-                  <span class="gs-rank">{i + 1}</span>
-                  <span class="gs-name">{names.get(row.playerId)}</span>
-                  <span class="gs-wl">{row.wins}–{row.losses}</span>
-                  <span class="gs-diff">{row.pointDiff > 0 ? "+" : ""}{row.pointDiff}</span>
-                  <span class="gs-dest" class:projected={!g.complete}>{dest.label}</span>
-                </div>
-              {/each}
-
-              <ol class="gs-fixtures" class:wide={groupCount === 2}>
-                {#each groupMatchesOf(g.index) as m (m.code)}
-                  {@const st = fixtureState(m)}
-                  {@const w1 = st === "done" && (m.p1Score ?? 0) > (m.p2Score ?? 0)}
-                  {@const w2 = st === "done" && (m.p2Score ?? 0) > (m.p1Score ?? 0)}
-                  <li class="gs-fx {st}">
-                    <span class="gs-fx-p" class:win={w1} class:lose={w2}>{names.get(m.p1)}</span>
-                    <span class="gs-fx-mid">
-                      {#if st === "done"}{m.walkover ? "W/O" : `${m.p1Score}–${m.p2Score}`}
-                      {:else if st === "live"}{m.liveP1}–{m.liveP2}
-                      {:else if st === "next"}Next
-                      {:else}v{/if}
-                    </span>
-                    <span class="gs-fx-p right" class:win={w2} class:lose={w1}>{names.get(m.p2)}</span>
-                  </li>
-                {/each}
-              </ol>
-            </section>
-          {/each}
-        </div>
-
-        {#if onNow || nextUp}
-          <div class="onnow">
-            {#if onNow}
-              <span class="onnow-tag live">On now</span>
-              <span class="onnow-match">
-                {sideName(onNow, 1)} <b>{onNow.liveP1}–{onNow.liveP2}</b> {sideName(onNow, 2)}
-              </span>
-            {/if}
-            {#if nextUp}
-              <span class="onnow-tag">Next up</span>
-              <span class="onnow-match soft">{sideName(nextUp, 1)} <em>v</em> {sideName(nextUp, 2)}</span>
-            {/if}
-          </div>
-        {/if}
-      </div>
+      <ProvingScene tablets={provingTablets} ticker={tableTicker} />
 
     {:else if scene === "rr"}
-      <div class="gs roomy">
-        <div class="gs-grid rr-grid">
-          {#each [{ st: "wb_rr", title: "Winners round-robin", note: "Winner goes straight to the grand final" }, { st: "lb_rr", title: "Losers round-robin", note: "Last chance to stay in" }] as def (def.st)}
-            {#if structure && hasStage(data.matches, def.st)}
-              {@const stage = def.st as "wb_rr" | "lb_rr"}
-              {@const adv = miniRRAdvancers(structure, stage)}
-              {@const list = rrMatchesOf(stage)}
-              {@const played = list.filter((m) => m.matchStatus === "done").length}
-              <section class="gs-slab rr-slab rr-{stage === 'wb_rr' ? 'wb' : 'lb'}">
-                <header class="gs-head">
-                  <h2>{def.title}</h2>
-                  <span class="gs-progress">{played === list.length ? "Final standings" : `${played} of ${list.length} played`}</span>
-                </header>
-                <p class="rr-note">{def.note}</p>
-                <div class="gs-cols" aria-hidden="true">
-                  <span></span><span></span><span>W–L</span><span>Point diff.</span><span>Goes to</span>
-                </div>
-                {#each miniRRStandings(data.matches, stage) as row, i (row.playerId)}
-                  {@const f = rrFate(stage, i + 1, adv)}
-                  <div class="gs-row tier-{f.tier === 'out' ? 'lb' : f.tier === 'gf' ? 'wb' : 'mb'}">
-                    <span class="gs-rank">{i + 1}</span>
-                    <span class="gs-name">{names.get(row.playerId)}</span>
-                    <span class="gs-wl">{row.wins}–{row.losses}</span>
-                    <span class="gs-diff">{row.pointDiff > 0 ? "+" : ""}{row.pointDiff}</span>
-                    <span class="gs-dest rr-dest-{f.tier}" class:projected={played < list.length}>{f.text}</span>
-                  </div>
-                {/each}
-                <ol class="gs-fixtures">
-                  {#each list as m (m.code)}
-                    {@const st = fixtureState(m)}
-                    {@const w1 = st === "done" && (m.p1Score ?? 0) > (m.p2Score ?? 0)}
-                    {@const w2 = st === "done" && (m.p2Score ?? 0) > (m.p1Score ?? 0)}
-                    <li class="gs-fx {st}">
-                      <span class="gs-fx-p" class:win={w1} class:lose={w2}>{sideName(m, 1)}</span>
-                      <span class="gs-fx-mid">
-                        {#if st === "done"}{m.walkover ? "W/O" : `${m.p1Score}–${m.p2Score}`}
-                        {:else if st === "live"}{m.liveP1}–{m.liveP2}
-                        {:else if st === "next"}Next
-                        {:else}v{/if}
-                      </span>
-                      <span class="gs-fx-p right" class:win={w2} class:lose={w1}>{sideName(m, 2)}</span>
-                    </li>
-                  {/each}
-                </ol>
-              </section>
-            {/if}
-          {/each}
-        </div>
-
-        {#if onNow || nextUp}
-          <div class="onnow">
-            {#if onNow}
-              <span class="onnow-tag live">On now</span>
-              <span class="onnow-match">
-                {sideName(onNow, 1)} <b>{onNow.liveP1}–{onNow.liveP2}</b> {sideName(onNow, 2)}
-              </span>
-            {/if}
-            {#if nextUp}
-              <span class="onnow-tag">Next up</span>
-              <span class="onnow-match soft">{sideName(nextUp, 1)} <em>v</em> {sideName(nextUp, 2)}</span>
-            {/if}
-          </div>
-        {/if}
-      </div>
+      <ProvingScene tablets={rrTablets} ticker={tableTicker} />
 
     {:else if scene === "bracket"}
       {#if structure}
@@ -1485,6 +1404,7 @@
           {structure}
           {groupCount}
           orientation={bracketOrientation}
+          carved
         />
       {/if}
 
@@ -1506,15 +1426,7 @@
           ticker={arenaView.ticker}
           {callout}
           speech={{ left: speechL, right: speechR }}
-        >
-          <!-- The phone page's QR: up here, as the tags and the strip have the bottom. -->
-          {#snippet corner()}
-            <div class="arena-qr">
-              <LiveQr size={data.liveQr.size} path={data.liveQr.path} px={104} />
-              <span>Scan for<br />live results</span>
-            </div>
-          {/snippet}
-        </ArenaScene>
+        />
         {#if drawShow}
           {#key drawShow.id}
             <StadiumDraw
@@ -1532,19 +1444,16 @@
       {/if}
 
     {:else if scene === "awards"}
-      <!-- Built from how every round was won. "So far" until the grand final. -->
-      <div class="aw">
-        <div class="aw-grid">
-          {#each awards as a (a.key)}
-            <section class="aw-card aw-{a.key}">
-              <header class="aw-title">{a.title}</header>
-              <div class="aw-name">{a.winners.map((id) => names.get(id)).join(" & ")}</div>
-              <div class="aw-detail">{a.opponent ? `${a.detail} against ${names.get(a.opponent)}` : a.detail}</div>
-            </section>
-          {/each}
-        </div>
-        {#if !tournamentOver}<p class="aw-note">Deeds so far. They're settled after The Reckoning.</p>{/if}
-      </div>
+      <!-- Built from how every round was won. "So far" until The Reckoning. -->
+      <DeedsScene
+        deeds={awards.map((a) => ({
+          key: a.key,
+          title: a.title,
+          name: a.winners.map((id) => names.get(id)).join(" & "),
+          detail: a.opponent ? `${a.detail} against ${names.get(a.opponent)}` : a.detail,
+        }))}
+        settled={tournamentOver}
+      />
 
     {:else if scene === "champion"}
       <!-- Browser only: the picture's address is worked out from the
@@ -1705,14 +1614,6 @@
     {/key}
   {/if}
 
-  <!-- Small, fixed and static: the phone page's QR for the busy scenes. -->
-  {#if cornerQr}
-    <div class="corner-qr" class:lifted={soundBlocked}>
-      <span>Scan for<br />live results</span>
-      <LiveQr size={data.liveQr.size} path={data.liveQr.path} px={100} />
-    </div>
-  {/if}
-
   <!-- Small and in the corner: for the operator, not the room. -->
   {#if !online}<div class="offline" role="status">Reconnecting</div>{/if}
   {#if soundBlocked}
@@ -1827,7 +1728,7 @@
 
   /* Scenes in the Tetrafatalis look sit on dark stone, not the blue field. */
   .tv.tf {
-    background: #090b11;
+    background: radial-gradient(ellipse 80% 80% at 50% 55%, #23232b, #08080b 78%);
   }
   .stage {
     flex: 1;
@@ -1845,315 +1746,6 @@
   }
 
 
-  /* ── Group stage ─────────────────────────────────────────────────
-     White telop slabs on the field. Sized for reading across a hall at
-     1920×1080: names ~40px, fixtures ~22px, nothing under 18px. */
-  .gs {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-  }
-  .gs-grid {
-    flex: 1;
-    min-height: 0;
-    display: grid;
-    gap: 30px;
-    align-items: center;
-  }
-  .gs-2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .gs-3 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .gs-slab {
-    background: var(--paper);
-    color: var(--ink);
-    border: var(--outline) solid var(--ink);
-    box-shadow: 8px 8px 0 var(--ink);
-  }
-  .gs-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    background: var(--ink);
-    color: var(--paper);
-    padding: 10px 20px 12px;
-  }
-  .gs-head h2 {
-    font-size: 2.6rem;
-    line-height: 1;
-  }
-  .gs-progress {
-    font-family: var(--font-text);
-    font-weight: 600;
-    font-size: 1.2rem;
-    color: var(--on-field-soft);
-  }
-  .gs-cols,
-  .gs-row {
-    display: grid;
-    grid-template-columns: 44px 1fr 88px 64px 108px;
-    align-items: center;
-    column-gap: 10px;
-    padding: 0 16px 0 10px;
-  }
-  .gs-cols {
-    /* "Point diff." wraps to two lines in its narrow column; keep every
-       header sitting on the same bottom line. */
-    align-items: end;
-    line-height: 1.05;
-    padding-top: 8px;
-    padding-bottom: 2px;
-    border-left: 10px solid transparent;
-    font-family: var(--font-text);
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: var(--ink-soft);
-  }
-  .gs-cols span:nth-child(n + 3) {
-    text-align: center;
-  }
-  .gs-cols span:last-child {
-    text-align: right;
-  }
-  .gs-row {
-    --tier: var(--neutral);
-    height: 60px;
-    border-left: 10px solid var(--tier);
-    border-top: 2px solid #e3e6f3;
-  }
-  .gs-row.tier-wb {
-    --tier: var(--wb);
-  }
-  .gs-row.tier-mb {
-    --tier: var(--mb);
-  }
-  .gs-row.tier-lb {
-    --tier: var(--lb);
-  }
-  .gs-rank {
-    font-family: var(--font-display);
-    font-size: 1.9rem;
-    color: var(--ink-soft);
-    text-align: center;
-  }
-  .gs-name {
-    font-family: var(--font-display);
-    font-stretch: 62%;
-    font-size: 2.5rem;
-    line-height: 1;
-    text-transform: uppercase;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 4px; /* italic overhang */
-  }
-  .gs-wl {
-    font-family: var(--font-display);
-    font-size: 2.2rem;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-  }
-  .gs-diff {
-    font-family: var(--font-text);
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: var(--ink-soft);
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-  }
-  /* Destination chip: solid arena colour once the group is decided,
-     dashed outline while it's only a projection. */
-  .gs-dest {
-    justify-self: end;
-    font-family: var(--font-text);
-    font-weight: 800;
-    font-size: 1.15rem;
-    padding: 3px 12px 4px;
-    background: var(--tier);
-    color: var(--ink);
-    border: 2px solid var(--ink);
-  }
-  .tier-lb .gs-dest {
-    color: var(--paper);
-  }
-  .gs-dest.projected {
-    background: transparent;
-    color: var(--ink-soft);
-    border: 2px dashed var(--ink-soft);
-  }
-  .gs-fixtures {
-    list-style: none;
-    margin: 0;
-    padding: 10px 12px 12px;
-    background: #eef0f8;
-    border-top: var(--outline) solid var(--ink);
-  }
-  /* Two groups → wide slabs: fixtures flow down one column, then the next. */
-  .gs-fixtures.wide {
-    columns: 2;
-    column-gap: 16px;
-  }
-  .gs-fx {
-    break-inside: avoid;
-    display: grid;
-    grid-template-columns: 1fr 76px 1fr;
-    align-items: center;
-    gap: 8px;
-    padding: 3px 10px;
-    font-family: var(--font-text);
-    font-weight: 500;
-    font-size: 1.4rem;
-    line-height: 1.3;
-    color: var(--ink-soft);
-  }
-  .gs-fx-p {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .gs-fx-p.right {
-    text-align: right;
-  }
-  .gs-fx-mid {
-    text-align: center;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-  }
-  .gs-fx.done {
-    color: var(--ink);
-  }
-  .gs-fx .win {
-    font-weight: 800;
-  }
-  .gs-fx .lose {
-    color: var(--ink-soft);
-  }
-  .gs-fx.live {
-    background: var(--red);
-    color: var(--paper);
-    font-weight: 700;
-  }
-  .gs-fx.next {
-    background: var(--gold);
-    color: var(--ink);
-    font-weight: 700;
-  }
-
-  /* Roomy: bigger rows and type when the fixture lists are short. */
-  .gs.roomy .gs-row {
-    height: 74px;
-  }
-  .gs.roomy .gs-head h2 {
-    font-size: 3rem;
-  }
-  .gs.roomy .gs-name {
-    font-size: 3rem;
-  }
-  .gs.roomy .gs-wl {
-    font-size: 2.6rem;
-  }
-  .gs.roomy .gs-rank {
-    font-size: 2.2rem;
-  }
-  .gs.roomy .gs-fx {
-    font-size: 1.65rem;
-    padding: 4px 10px;
-  }
-
-  /* ── On now / Next up band (bottom of the non-match scenes) ─────── */
-  .onnow {
-    align-self: center;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    background: var(--ink);
-    color: var(--paper);
-    padding: 10px 34px 10px 0;
-    clip-path: polygon(0 0, 100% 0, calc(100% - var(--cut)) 100%, 0 100%);
-    font-family: var(--font-display);
-    font-size: 1.9rem;
-    line-height: 1;
-    text-transform: uppercase;
-  }
-  .onnow-tag {
-    font-family: var(--font-text);
-    font-weight: 800;
-    font-size: 1.2rem;
-    text-transform: none;
-    background: var(--gold);
-    color: var(--ink);
-    padding: 12px 18px;
-    margin: -10px 0;
-  }
-  .onnow-tag.live {
-    background: var(--red);
-    color: var(--paper);
-  }
-  .onnow-match b {
-    color: var(--gold);
-    margin: 0 6px;
-  }
-  .onnow-match em {
-    font-style: normal;
-    color: var(--on-field-soft);
-    margin: 0 6px;
-  }
-  .onnow-match.soft {
-    color: var(--on-field-soft);
-  }
-
-  /* ── Mini round-robins: the group slabs, with a tier-coloured header ── */
-  .rr-grid {
-    grid-template-columns: repeat(auto-fit, minmax(0, 780px));
-    justify-content: center;
-  }
-  .rr-slab .gs-cols,
-  .rr-slab .gs-row {
-    grid-template-columns: 44px 1fr 88px 64px 150px;
-  }
-  .rr-wb .gs-head {
-    background: var(--green);
-    color: var(--ink);
-  }
-  .rr-lb .gs-head {
-    background: var(--red);
-  }
-  .rr-wb .gs-progress {
-    color: var(--ink);
-  }
-  .rr-lb .gs-progress {
-    color: var(--paper);
-  }
-  .rr-note {
-    margin: 0;
-    padding: 10px 20px 0;
-    font-family: var(--font-text);
-    font-weight: 600;
-    font-size: 1.3rem;
-    color: var(--ink-soft);
-  }
-  .gs-dest.rr-dest-gf {
-    background: var(--ink);
-    color: var(--gold);
-  }
-  .gs-dest.rr-dest-mb {
-    background: var(--gold);
-  }
-  .gs-dest.rr-dest-out {
-    background: #dfe3f2;
-    color: var(--ink-soft);
-  }
-  /* Projected (round-robin not finished) beats the outcome colours above. */
-  .rr-slab .gs-dest.projected {
-    background: transparent;
-    color: var(--ink-soft);
-  }
-
   /* ── The Arena ──────────────────────────────────────────────────────
      The match itself is ArenaScene (it fills the stage). This is only the
      line shown when there is no match to put in it yet. */
@@ -2162,159 +1754,6 @@
     font-size: 2.2rem;
     font-style: italic;
     color: #d9c79b;
-  }
-  /* The phone QR in the Arena's top right corner: the code in a gold rim
-     like the portraits', its caption underneath. Sized in the Arena's own
-     1920-wide canvas, so it scales with it. */
-  .arena-qr {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    font-family: var(--tf-font-text);
-    font-size: 21px;
-    line-height: 1.1;
-    letter-spacing: 0.08em;
-    font-variant: small-caps;
-    text-align: center;
-    color: #e9cf8e;
-  }
-  .arena-qr :global(svg) {
-    box-shadow:
-      0 0 0 4px #e5b452,
-      0 0 0 7px #5a3a12,
-      0 0 26px rgba(255, 150, 40, 0.3);
-  }
-
-  /* ── Standby: the event logo with the date and place ─────────────── */
-  .finale {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 22px;
-  }
-  /* Standby's title: the full event logo. */
-  .standby-logo {
-    display: block;
-    width: 860px;
-    max-width: 100%;
-    height: auto;
-    filter: drop-shadow(10px 12px 0 rgb(0 0 0 / 0.35));
-  }
-  .finale-sub {
-    font-family: var(--font-text);
-    font-weight: 600;
-    font-size: 2.2rem;
-    color: var(--paper);
-  }
-  .finale-note {
-    font-family: var(--font-text);
-    font-weight: 500;
-    font-size: 1.7rem;
-    color: var(--on-field-soft);
-  }
-  /* Standby: the bladers signed in so far, as name tags that wrap. */
-  .signed-in {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    max-width: 1000px;
-  }
-  .signed-in-count {
-    font-family: var(--font-text);
-    font-weight: 800;
-    font-size: 1.6rem;
-    color: var(--gold);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .signed-in-names {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-  }
-  .signed-in-names span {
-    background: var(--paper);
-    color: var(--ink);
-    border: 3px solid var(--ink);
-    padding: 4px 16px;
-    font-family: var(--font-text);
-    font-weight: 700;
-    font-size: 1.5rem;
-  }
-  /* Standby: the title column with the phone-page QR card beside it. */
-  .standby {
-    display: flex;
-    align-items: center;
-    gap: 70px;
-  }
-  .live-card {
-    flex: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-  }
-  .live-card-head {
-    background: var(--ink);
-    color: var(--paper);
-    border: 3px solid var(--paper);
-    padding: 8px 22px;
-    font-family: var(--font-text);
-    font-weight: 700;
-    font-size: 1.5rem;
-    transform: skewX(-10deg);
-  }
-  .live-card-head > span {
-    display: block;
-    transform: skewX(10deg);
-  }
-  .live-card :global(svg) {
-    border: 5px solid var(--ink);
-    box-shadow: 12px 12px 0 var(--ink);
-  }
-  .live-card-url {
-    margin-top: 8px;
-    font-family: var(--font-text);
-    font-weight: 800;
-    font-size: 1.6rem;
-    color: var(--gold);
-  }
-
-  /* Corner QR on the other scenes. Below the intro (40) and the operator's
-     marks (60); fixed, no animation. */
-  .corner-qr {
-    position: fixed;
-    right: 14px;
-    bottom: 14px;
-    z-index: 30;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--ink);
-    padding: 6px 6px 6px 12px;
-  }
-  /* Caption beside the code, not under it: the card stays short enough to sit
-     below the group slabs, level with the "On now" strip. */
-  .corner-qr span {
-    font-family: var(--font-text);
-    font-weight: 700;
-    font-size: 1rem;
-    line-height: 1.2;
-    text-align: right;
-    color: var(--paper);
-  }
-  /* Clear of the "sound is blocked" button and the operator bar, which share
-     this corner. The button sits on top of the bar, so above the bar clears
-     both. */
-  .corner-qr.lifted {
-    bottom: 50px;
-  }
-  .tv.bar-open .corner-qr {
-    bottom: 76px;
   }
 
   /* Operator bar */
@@ -2413,65 +1852,4 @@
   .offline.sound::before {
     background: var(--gold);
   }
-  /* Awards: four gold telop slabs, black title bar on each. */
-  .aw {
-    width: 100%;
-    max-width: 1640px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 34px;
-  }
-  .aw-grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px 48px;
-  }
-  .aw-card {
-    background: var(--gold);
-    color: var(--ink);
-    border: 5px solid var(--ink);
-    box-shadow: 12px 12px 0 var(--ink);
-    min-width: 0;
-  }
-  /* An odd one out sits centred on its own row. */
-  .aw-card:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-    justify-self: center;
-    width: calc(50% - 24px);
-  }
-  .aw-title {
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 2.2rem;
-    line-height: 1;
-    background: var(--ink);
-    color: var(--gold);
-    padding: 10px 24px 12px;
-  }
-  .aw-name {
-    font-family: var(--font-display);
-    font-stretch: 62%;
-    text-transform: uppercase;
-    font-size: 6rem;
-    line-height: 1;
-    padding: 18px 24px 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 0.3em; /* italic overhang */
-  }
-  .aw-detail {
-    font-family: var(--font-text);
-    font-weight: 700;
-    font-size: 1.9rem;
-    padding: 0 24px 18px;
-  }
-  .aw-note {
-    color: var(--on-field-soft);
-    font-size: 1.6rem;
-  }
-  /* This round's stadium, in the status line: round tag, numeral block in the
-     stadium's colour, name. Pops in when a draw lands (it's keyed on the draw). */
 </style>

@@ -184,6 +184,12 @@
   -webkit-background-clip: text;
   background-clip: text;
 }
+/* Crimson: only for Death's Door. */
+.tf-carved.blood::after {
+  background: linear-gradient(180deg, #ffe1d6 6%, #ff5a4a 34%, #c1121f 58%, #4c0509 82%, #ff7a66 97%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
 .tf-carved.stone::after {
   background: var(--tf-carved-stone);
   -webkit-background-clip: text;
