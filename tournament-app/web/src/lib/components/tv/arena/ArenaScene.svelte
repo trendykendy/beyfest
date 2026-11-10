@@ -852,11 +852,28 @@
     font-size: 65px;
     letter-spacing: 0.05em;
     color: var(--ink);
-    background: rgba(6, 7, 12, 0.85);
-    padding: 12px 31px 8px;
-    border-top: 3.5px solid var(--gold);
-    border-bottom: 3.5px solid var(--gold);
-    filter: drop-shadow(0 6px 0 #2b1806) drop-shadow(0 0 31px rgba(255, 160, 60, 0.7));
+    /* The same gold lozenge as the tag it lands on, just bigger (65px to the
+       tag's 28px), so it reads as one thing flying down, not two shapes. */
+    --tip: 35px;
+    line-height: 1.2;
+    padding: 23px 56px 19px;
+    background: var(--gold);
+    clip-path: polygon(var(--tip) 0, calc(100% - var(--tip)) 0, 100% 50%, calc(100% - var(--tip)) 100%, var(--tip) 100%, 0 50%);
+  }
+  .callout::before {
+    content: "";
+    position: absolute;
+    inset: 7px 10px;
+    z-index: -1;
+    background: linear-gradient(180deg, #23262d, #121418);
+    clip-path: polygon(
+      calc(var(--tip) - 5px) 0,
+      calc(100% - var(--tip) + 5px) 0,
+      100% 50%,
+      calc(100% - var(--tip) + 5px) 100%,
+      calc(var(--tip) - 5px) 100%,
+      0 50%
+    );
   }
   .callout.l {
     left: 422px;
@@ -868,9 +885,8 @@
   }
   .callout em {
     font-style: normal;
-    font-size: 0.7em;
-    margin-left: 19px;
-    color: #fff;
+    margin-left: 23px;
+    color: #ffcf73;
   }
 
   /* ── Speech ─────────────────────────────────────────────────────── */
