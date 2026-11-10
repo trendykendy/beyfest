@@ -3,7 +3,7 @@
   import { invalidateAll } from "$app/navigation";
   import { liveUpdates } from "$lib/pbBrowser";
   import { EVENT, browserPbUrl } from "$lib/config";
-  import { EVENT_SUBTITLE, STAGES, circleName } from "$lib/terms";
+  import { SCREENS, STAGES, circleName } from "$lib/terms";
   import { books, leaderboard } from "$lib/betting";
   import FlowHold from "$lib/components/tv/FlowHold.svelte";
   import {
@@ -67,6 +67,7 @@
   import StadiumDraw from "$lib/components/tv/StadiumDraw.svelte";
   import StadiumTag from "$lib/components/tv/StadiumTag.svelte";
   import VsIntro from "$lib/components/tv/VsIntro.svelte";
+  import TvHeader from "$lib/components/tv/TvHeader.svelte";
   import ChampionScene from "$lib/components/tv/ChampionScene.svelte";
   import WinnerScreen from "$lib/components/tv/WinnerScreen.svelte";
   import RoyaleBoard from "$lib/components/tv/RoyaleBoard.svelte";
@@ -94,23 +95,6 @@
     const gf = data.matches.find((m) => m.stage === "gf");
     return gf && gf.matchStatus === "done" ? gf.winner : "";
   });
-
-  // Katakana shown above each scene title. Every glyph here must exist in the
-  // font subset (static/fonts/zenkaku_kana.woff2) — see theme.css header.
-  const SCENE_KANA: Record<Scene, string> = {
-    standby: "スタンバイ",
-    groups: "グループステージ",
-    rr: "ラウンドロビン",
-    respite: "ブレイク",
-    bracket: "ノックアウト",
-    spotlight: "マッチセンター",
-    awards: "アワード",
-    eve: "ファイナル",
-    champion: "チャンピオン",
-    lordOfGold: "ハイローラー",
-    royale: "バトルロイヤル",
-    royaleChampion: "チャンピオン",
-  };
 
   // The organiser's flow buttons and the clock, for the holds (tvHold).
   // `now` ticks every second (tick() below), so the Lord of Gold ends on time.
@@ -1277,23 +1261,14 @@
 </script>
 
 <div class="tv" class:cursor-hide={!barVisible} class:bar-open={barVisible} class:blank class:qr-corner={cornerQr}>
-  <header class="strip">
-    <div class="brand">
-      <img class="blogo" src="/logo-beyfest.webp" alt="Beyfest" />
-      <span class="bkana">{EVENT_SUBTITLE}</span>
-    </div>
-    <div class="scene-name">
-      <!-- Standby, Champion and the flow holds carry their own giant title; don't repeat it. -->
-      {#if profileOn}
-        <span class="scene-kana" lang="ja">ブレーダープロフィール</span>
-        <span class="scene-en">Blader profile</span>
-      {:else if !["standby", "champion", "respite", "eve", "lordOfGold"].includes(scene)}
-        <span class="scene-kana" lang="ja">{SCENE_KANA[scene]}</span>
-        <span class="scene-en">{SCENE_TITLE[scene]}</span>
-      {/if}
-    </div>
-    <div class="meta">{#if data.tournament}{data.tournament.playerCount} bladers{/if}</div>
-  </header>
+  <!-- Standby, Champion and the flow holds carry their own giant title; don't repeat it. -->
+  <TvHeader
+    title={profileOn
+      ? SCREENS.profile
+      : ["standby", "champion", "respite", "eve", "lordOfGold"].includes(scene)
+        ? ""
+        : SCENE_TITLE[scene]}
+  />
 
   <main class="stage">
     {#if profileOn}
@@ -1861,64 +1836,10 @@
   .cursor-hide {
     cursor: none;
   }
-  .strip,
   .stage,
   .opbar {
     position: relative;
     z-index: 1;
-  }
-
-  .strip {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    padding: 16px 46px;
-    background: var(--field-deep);
-    border-bottom: var(--outline) solid var(--ink);
-  }
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  /* The chrome BEYFEST logo (the BEYFEST part of static/logo.webp). */
-  .blogo {
-    display: block;
-    height: 58px;
-    width: auto;
-    margin: -6px 0;
-  }
-  .bkana {
-    text-transform: uppercase;
-    font-family: var(--disp);
-    font-size: 1.05rem;
-    color: var(--on-field-soft);
-  }
-  .scene-name {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    line-height: 1;
-  }
-  .scene-kana {
-    text-transform: uppercase;
-    font-family: var(--disp);
-    font-size: 0.95rem;
-    color: var(--gold);
-  }
-  .scene-en {
-    text-transform: uppercase;
-    font-family: var(--disp);
-    font-size: 2.3rem;
-    color: var(--paper);
-  }
-  .meta {
-    font-family: var(--font-text);
-    font-weight: 600;
-    font-size: 1.3rem;
-    color: var(--on-field-soft);
-    text-align: right;
   }
 
   /* ── Blader profile sheet ───────────────────────────────────────── */
@@ -1967,13 +1888,13 @@
   /* Blank page for Start match's build-up. Hidden by opacity, so the layout
      (and the draw's place in it) doesn't move; gone at once, back with a fade
      once LET IT RIP has folded away. */
-  .strip,
+  .tv :global(.tv-header),
   .mc-status,
   .mc-duel,
   .onnow {
     transition: opacity 0.3s ease-out;
   }
-  .tv.blank .strip,
+  .tv.blank :global(.tv-header),
   .tv.blank .mc-status,
   .tv.blank .mc-duel,
   .tv.blank .onnow {
