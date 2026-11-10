@@ -2,11 +2,13 @@
   import { royaleView, type Battle, type PBRoyale } from "$lib/royale";
   import { faceCrop, type Face } from "$lib/fighters";
   import FighterSilhouette from "./FighterSilhouette.svelte";
+  import { SCREENS, TITLES } from "$lib/terms";
 
-  // The TV's battle royale scene: every battle as a white slab (heats along
-  // the top, then the sudden death and the final), each fighter with their
-  // picture and combat name. Winners get the gold, runners-up the silver;
-  // battles still waiting on results show who'll fill them ("Heat 1 winner").
+  // The TV's Grand Mêlée scene, in the Carved look: every battle as a stone
+  // tablet (the Skirmishes along the top, then the Last Stand and the Final
+  // Mêlée), each fighter with their picture in a gold ring and their combat
+  // name. Battles still waiting on results show who'll fill them
+  // ("Skirmish I victor"); the fallen are dimmed.
   // face: where the face is in the picture; the round picture zooms onto it.
   type Who = { name: string; kana: string; img: string; mirror?: boolean; face?: Face | null };
   let { royale, fighter }: { royale: PBRoyale; fighter: (name: string) => Who } = $props();
@@ -21,11 +23,12 @@
   function placeholders(b: Battle): string[] {
     if (!view) return [];
     const n = heats.length;
-    const heat = (i: number, what: string) => `Heat ${i + 1} ${what}`;
+    const NUMERALS = ["I", "II", "III", "IV", "V", "VI"];
+    const heat = (i: number, what: string) => `${TITLES.royaleHeat} ${NUMERALS[i] ?? i + 1} ${what}`;
     if (b.kind === "sudden") return heats.map((_, i) => heat(i, "runner-up"));
-    const winners = heats.map((_, i) => heat(i, "winner"));
+    const winners = heats.map((_, i) => heat(i, "victor"));
     const rest = view.plan.finalSize - n;
-    if (view.plan.sudden) return [...winners, ...Array.from({ length: view.plan.suddenPlaces }, () => "From the sudden death")];
+    if (view.plan.sudden) return [...winners, ...Array.from({ length: view.plan.suddenPlaces }, () => `From the ${TITLES.royaleSuddenDeath}`)];
     return [...winners, ...(rest > 0 ? heats.map((_, i) => heat(i, "runner-up")) : [])];
   }
 
@@ -34,16 +37,16 @@
     if (b.kind === "sudden") return b.result.advancing?.includes(name) ? "through" : "out";
     return b.result.winner === name ? "win" : b.result.runnerUp === name ? "second" : "out";
   }
-  const MARK = { win: "Winner", second: "Runner-up", through: "Through", out: "", "": "" };
+  const MARK = { win: "Victor", second: "Runner-up", through: TITLES.royaleQualified, out: "Fallen", "": "" };
 </script>
 
 {#snippet card(b: Battle)}
   <section class="slab {b.kind} {b.status}">
     <header>
       <h3>{b.label}</h3>
-      {#if b.status === "live"}<span class="chip live"><i></i>Live</span>
-      {:else if b.status === "ready" && view?.next?.key === b.key}<span class="chip next">Up next</span>
-      {:else if b.status === "waiting"}<span class="chip">Waiting</span>{/if}
+      {#if b.status === "live"}<span class="chip live"><i></i>{SCREENS.live}</span>
+      {:else if b.status === "ready" && view?.next?.key === b.key}<span class="chip next">{SCREENS.upNext}</span>
+      {:else if b.status === "waiting"}<span class="chip">Awaits</span>{/if}
       {#if b.kind === "sudden"}<span class="places">{b.places} through</span>{/if}
     </header>
     <ul>
@@ -305,5 +308,149 @@
     to {
       opacity: 0.3;
     }
+  }
+
+  /* ── The Carved look ─────────────────────────────────────────────────
+     Stone tablets edged in gold (the Final Mêlée in brighter gold, the one in
+     battle torch-lit), carved names, fighters in gold rings. These rules
+     come after the old ones above and replace their colours and type. */
+  .arrow {
+    color: #eab13a;
+  }
+  .slab {
+    background: linear-gradient(180deg, #3d4049, #1b1d23);
+    color: #f3e6c4;
+    border: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 4px #eab13a,
+      0 0 0 8px #1c0c04,
+      0 12px 0 #000;
+  }
+  .slab.live {
+    box-shadow:
+      0 0 0 4px #ff9d2e,
+      0 0 0 8px #1c0c04,
+      0 12px 0 #000,
+      0 0 30px rgba(255, 140, 40, 0.7);
+  }
+  .slab.final {
+    box-shadow:
+      0 0 0 5px #ffd257,
+      0 0 0 10px #1c0c04,
+      0 12px 0 #000,
+      0 0 50px rgba(255, 160, 50, 0.35);
+  }
+  header,
+  .final header {
+    background: linear-gradient(180deg, #17181d, #0c0d10);
+    color: #ffd257;
+    border-bottom: 4px solid #eab13a;
+  }
+  h3 {
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 1.8rem;
+    text-shadow: 0 3px 0 #1c0c04;
+  }
+  .chip,
+  .places {
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-stretch: 100%;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    background: #2a2c33;
+    color: #b9ab8c;
+  }
+  .chip.live {
+    color: #fff;
+    background: linear-gradient(180deg, #c8651c, #7a3408);
+    box-shadow: 0 0 16px rgba(255, 140, 40, 0.7);
+  }
+  .chip.next {
+    color: #2a1606;
+    background: linear-gradient(180deg, #ffe08a, #c98a1c);
+  }
+  .places {
+    background: transparent;
+    color: #ffd257;
+  }
+  li {
+    border-top: 2px solid rgba(255, 255, 255, 0.07);
+  }
+  .pic {
+    background: radial-gradient(circle at 50% 35%, #3a3f55, #101218 78%);
+    border: 0;
+    box-shadow:
+      0 0 0 2px #eab13a,
+      0 0 0 4px #1c0c04;
+  }
+  .sil {
+    --lite: #e9b75a;
+  }
+  .nm b {
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 1.3rem;
+    color: #f6ecd2;
+    text-shadow: 0 2px 0 #000;
+    padding-right: 0;
+  }
+  .nm small {
+    font-family: var(--tf-font-text);
+    font-weight: 400;
+    font-size: 1.1rem;
+    color: #b9ab8c;
+  }
+  .tbd .pic {
+    background: #17181d;
+    box-shadow: 0 0 0 2px #5a5446;
+  }
+  .tbd .nm b {
+    font-family: var(--tf-font-text);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.3rem;
+    color: #8d8577;
+    text-shadow: none;
+  }
+  .tag,
+  .tag.win,
+  .tag.second,
+  .tag.through {
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-stretch: 100%;
+    font-size: 0.85rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #ffd257;
+  }
+  .tag.second {
+    color: #aab3bf;
+  }
+  .tag.out {
+    color: #8d8577;
+  }
+  li.win {
+    background: linear-gradient(90deg, rgba(234, 177, 58, 0.22), transparent 70%);
+  }
+  li.out {
+    opacity: 1;
+  }
+  li.out .pic {
+    filter: grayscale(0.7) brightness(0.5);
+  }
+  li.out .nm b {
+    color: #8d8577;
+  }
+  .dense .nm b {
+    font-size: 1.05rem;
+  }
+  .dense h3 {
+    font-size: 1.4rem;
   }
 </style>

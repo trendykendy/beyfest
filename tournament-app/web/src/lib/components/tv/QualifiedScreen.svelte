@@ -1,27 +1,25 @@
 <script lang="ts">
-  import { artFor, facePan, type Face } from "$lib/fighters";
+  import { artFor, faceCrop, type Face } from "$lib/fighters";
+  import { TITLES } from "$lib/terms";
   import FighterSilhouette from "./FighterSilhouette.svelte";
-  import RoyaleBackdrop from "./RoyaleBackdrop.svelte";
-  import SlamBurst from "./SlamBurst.svelte";
-  import PanelStreaks from "./PanelStreaks.svelte";
 
-  // The battle royale's Qualified screen, after a heat or the sudden death:
-  // the battle's name, 予選突破 / QUALIFIED slamming down, then everyone it
-  // sends through to the final drops in, a slanted panel each (RoyaleIntro's
-  // look). A heat whose runner-up goes to the sudden death says so in a strip
-  // along the bottom. The call ("[A] and [B]… qualified!") starts as the
-  // panels land (QUALIFIED_CALL in sounds.ts). It then holds until `leaving`
-  // is set, plays its exit, and calls ondone.
+  // STILL STANDING: the Grand Mêlée's screen after a Skirmish or the Last
+  // Stand, in the Carved look. The battle's name on a stone plate, STILL
+  // STANDING slamming down over a turning gold burst, then everyone it sends
+  // through to the Final Mêlée lands in a gold ring each. A Skirmish whose
+  // runner-up goes to the Last Stand says so along the bottom. The call
+  // ("[A] and [B]… still standing!") starts as the rings land (QUALIFIED_CALL
+  // in sounds.ts). It then holds until `leaving` is set, plays its exit, and
+  // calls ondone.
   //
-  // Same conventions as RoyaleIntro: a fixed 1920×1080 canvas scaled to fit;
-  // every time is `calc(Nms * var(--k))`, so `slow` stretches it (lab only).
-  // face: where the face is in the cut-out; it's slid sideways so the face
-  // sits in the middle of its narrow panel.
-  type Fighter = { name: string; kana: string; img: string; imgMirrored?: string; mirror?: boolean; face?: Face | null };
+  // A fixed 1920×1080 canvas scaled to fit; every time is
+  // `calc(Nms * var(--k))`, so `slow` stretches it (lab only).
+  // face: where the face is in the cut-out, to centre it in the ring.
+  type Fighter = { name: string; kana?: string; img: string; imgMirrored?: string; mirror?: boolean; face?: Face | null };
   let {
     fighters,
-    label = "", // "Heat 1", "Sudden death"
-    toSudden = "", // a heat's runner-up who goes to the sudden death
+    label = "", // "Skirmish I", "Last Stand"
+    toSudden = "", // a Skirmish's runner-up who goes to the Last Stand
     slow = 1,
     leaving = false, // set to play the exit; ondone fires when it's over
     ondone,
@@ -35,16 +33,24 @@
   } = $props();
 
   // Timeline (ms at normal speed). Keep in step with the CSS delays below:
-  //    0  backdrop, the label · 150 QUALIFIED slams, flash
-  //  550+ a panel every 110 ms · then the sudden death strip
+  //    0  backdrop, the plate · 150 STILL STANDING slams, flash
+  //  550+ a ring every 110 ms · then the line along the bottom
   //   then it holds until `leaving`; the exit takes EXIT ms.
   const EXIT = 600;
 
-  // Panel colours, as the intro's.
-  const COLOURS = ["#e63329", "#1f6fff", "#19b25a", "#ffc700", "#9b4dff", "#ff7a1a", "#00b8d4", "#ff4fa3"];
   const n = $derived(fighters.length);
-  // Narrower panels get smaller names.
-  const nameSize = $derived(n <= 2 ? 72 : n <= 3 ? 64 : n <= 4 ? 56 : 40);
+  // More fighters, smaller rings and names, so the row still fits.
+  const ring = $derived(n <= 2 ? 340 : n <= 3 ? 300 : n <= 4 ? 250 : 200);
+  const nameSize = $derived(n <= 2 ? 46 : n <= 3 ? 38 : n <= 4 ? 30 : 24);
+
+  // The ring's portrait: the cut-out zoomed onto the face, the left half of
+  // the row turned to face the middle (cut-outs face left).
+  function art(f: Fighter, i: number) {
+    const wantFlip = (i < n / 2) !== !!f.mirror;
+    const a = artFor(f, wantFlip);
+    const face = f.face && wantFlip && !a.flip ? { ...f.face, x: 1 - f.face.x } : (f.face ?? null);
+    return { src: a.src, style: faceCrop(face, 0.42, a.flip) };
+  }
 
   let w = $state(1920);
   const scale = $derived(w / 1920);
@@ -56,61 +62,37 @@
   });
 </script>
 
-<div class="q" class:leaving class:with-strip={!!toSudden} bind:clientWidth={w} style:--k={slow} style:--n={n}>
+<div class="q" class:leaving bind:clientWidth={w} style:--k={slow}>
   <div class="canvas" style:transform="scale({scale})">
-    <!-- The winner screen's dressing: pinstripes, rays behind QUALIFIED, the
-         slam's rings and shards, streaks across the panels. -->
-    <RoyaleBackdrop rayY={230} {leaving} />
+    <div class="backdrop"></div>
+    <div class="burst-wrap"><div class="burst"></div></div>
     <div class="shake">
-      <div class="panels">
+      {#if label}<div class="ctx"><span>{TITLES.royale} · {label}</span></div>{/if}
+      <div class="head">
+        <span class="tf-carved" data-t={TITLES.royaleQualified}>{TITLES.royaleQualified}</span>
+      </div>
+      <div class="row" style:--d="{ring}px" style:--name="{nameSize}px">
         {#each fighters as f, i (i)}
-          <div
-            class="panel"
-            class:up={i % 2 === 0}
-            style:--i={i}
-            style:--c={COLOURS[i % COLOURS.length]}
-            style:--name-size="{nameSize}px"
-          >
-            <div class="panel-in">
-              <div class="pic">
-                {#if f.img}
-                  {@const flip = (i < n / 2) !== !!f.mirror}
-                  <!-- Cut-outs face left: the left half turn to face the middle. -->
-                  {@const art = artFor(f, flip)}
-                  <img
-                    src={art.src}
-                    alt=""
-                    style:transform="translateX({facePan(f.face ?? null, flip)}%){art.flip ? ' scaleX(-1)' : ''}"
-                  />
-                {:else}
-                  <div class="sil"><FighterSilhouette flip={i < n / 2} /></div>
-                {/if}
-              </div>
-              <!-- Over the picture, under the name tag, as on the winner's banner. -->
-              <PanelStreaks rev={i >= n / 2} />
-              <div class="tag">
-                {#if f.kana}<div class="kana" lang="ja">{f.kana}</div>{/if}
-                <div class="name"><span>{f.name}</span></div>
-              </div>
+          <div class="who" style:--i={i}>
+            <div class="ring">
+              {#if f.img}
+                {@const a = art(f, i)}
+                <img src={a.src} alt="" style={a.style} />
+              {:else}
+                <div class="sil"><FighterSilhouette flip={i < n / 2} /></div>
+              {/if}
             </div>
+            <span class="tf-carved stone" data-t={f.name}>{f.name}</span>
           </div>
         {/each}
       </div>
-
-      <SlamBurst y={230} />
-      <div class="mark">
-        {#if label}<div class="label"><span>Battle royale · {label}</span></div>{/if}
-        <div class="mark-kana" lang="ja">予選突破</div>
-        <div class="words">
-          <span class="ghost g1" aria-hidden="true">Qualified</span>
-          <span class="ghost g2" aria-hidden="true">Qualified</span>
-          <span class="main">Qualified</span>
-        </div>
-      </div>
-
-      {#if toSudden}
-        <div class="strip"><span><b>{toSudden}</b> → sudden death</span></div>
-      {/if}
+      <p class="foot" style:--at="{700 + n * 110}ms">
+        {#if toSudden}
+          <b>{toSudden}</b> fights on in the <b>{TITLES.royaleSuddenDeath}</b>
+        {:else}
+          {n === 1 ? "Goes" : n === 2 ? "Both go" : "All go"} on to the <b>{TITLES.royaleFinal}</b>
+        {/if}
+      </p>
     </div>
     <div class="flash"></div>
   </div>
@@ -123,261 +105,23 @@
     overflow: hidden;
   }
   .canvas {
+    --gold: #eab13a;
+    --edge: #1c0c04;
     position: absolute;
     left: 0;
     top: 0;
     width: 1920px;
     height: 1080px;
     transform-origin: 0 0;
+    font-family: var(--tf-font-text);
+    color: #f3e6c4;
   }
-  .shake {
+  .backdrop {
     position: absolute;
     inset: 0;
-    animation: shake calc(380ms * var(--k)) ease-out calc(150ms * var(--k)) both;
+    background: radial-gradient(ellipse 80% 75% at 50% 55%, #23232b, #08080b 78%);
+    animation: fade-in calc(160ms * var(--k)) linear both;
   }
-
-  /* ── Fighter panels: centred, each at most 520px wide ── */
-  .panels {
-    position: absolute;
-    left: 66px;
-    right: 66px;
-    top: 330px;
-    bottom: 30px;
-    display: flex;
-    justify-content: center;
-  }
-  .with-strip .panels {
-    bottom: 130px;
-  }
-  .panel {
-    flex: 0 1 520px;
-    position: relative;
-    margin-left: -6px; /* overlapping, so the slants meet */
-    transform: skewX(-9deg);
-    background: linear-gradient(180deg, color-mix(in srgb, var(--c) 70%, #000) 0%, var(--c) 55%, color-mix(in srgb, var(--c) 60%, #000) 100%);
-    border-left: 8px solid var(--ink);
-    border-right: 8px solid var(--ink);
-    overflow: hidden;
-    animation: drop-down calc(320ms * var(--k)) cubic-bezier(0.2, 0.9, 0.3, 1.15) calc((550ms + var(--i) * 110ms) * var(--k)) both;
-  }
-  .panel.up {
-    animation-name: drop-up;
-  }
-  /* Content stands upright inside the slanted panel. */
-  .panel-in {
-    position: absolute;
-    inset: 0 -60px;
-    transform: skewX(9deg);
-  }
-  .pic {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 10px;
-    bottom: 120px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-  }
-  .pic img {
-    height: 100%;
-    width: auto;
-    max-width: none;
-    filter: drop-shadow(0 10px 0 rgb(0 0 0 / 0.35));
-  }
-  .sil {
-    height: 80%;
-    aspect-ratio: 3 / 4;
-    --lite: color-mix(in srgb, var(--c) 40%, #fff);
-  }
-  /* Down here the slant has moved the panel left, so the tag moves with it. */
-  .tag {
-    position: absolute;
-    left: 23px;
-    right: 117px;
-    bottom: 26px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-  .kana {
-    font-family: var(--font-display);
-    font-size: calc(var(--name-size) * 0.45);
-    color: var(--c);
-    background: var(--ink);
-    padding: 2px 12px;
-    line-height: 1.2;
-    white-space: nowrap;
-    max-width: 100%;
-    overflow: hidden;
-  }
-  .name {
-    max-width: 100%;
-    background: var(--paper);
-    color: var(--ink);
-    border: 5px solid var(--ink);
-    box-shadow: 6px 6px 0 var(--ink);
-    padding: 2px 14px 4px;
-  }
-  /* Long names wrap onto a second line rather than being cut short. */
-  .name span {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    overflow: hidden;
-    font-family: var(--font-display);
-    font-size: var(--name-size);
-    line-height: 1.02;
-    text-align: center;
-    text-transform: uppercase;
-    overflow-wrap: anywhere;
-    padding-right: 0.12em; /* italic overhang */
-  }
-
-  /* ── The label, 予選突破 / QUALIFIED ── */
-  .mark {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 28px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .label {
-    background: var(--ink);
-    border: 4px solid var(--gold);
-    padding: 4px 34px 8px;
-    transform: skewX(-10deg);
-    animation: fade-in calc(200ms * var(--k)) ease-out both;
-  }
-  .label span {
-    display: block;
-    transform: skewX(10deg);
-    font-family: var(--font-display);
-    font-size: 44px;
-    line-height: 1;
-    text-transform: uppercase;
-    color: var(--paper);
-    padding-right: 0.1em;
-  }
-  .mark-kana {
-    margin-top: 12px;
-    font-family: var(--font-display);
-    font-size: 34px;
-    letter-spacing: 0.3em;
-    color: var(--gold);
-    animation: fade-in calc(250ms * var(--k)) ease-out calc(300ms * var(--k)) both;
-  }
-  .words {
-    position: relative;
-    font-family: var(--font-display);
-    font-size: 168px;
-    line-height: 0.95;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .words span {
-    display: block;
-    padding-right: 0.08em;
-  }
-  /* WINNER's metallic fill over a heavy ink outline, then its glow pulse
-     while it holds. Padded so the background-clip fill covers the italic
-     lean (see VsIntro). */
-  .words .main {
-    position: relative;
-    padding: 0.1em 0.12em;
-    margin: -0.1em -0.12em;
-    background: linear-gradient(180deg, #fff 0%, #fff 36%, #ffe27a 56%, #ff8a1f 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    -webkit-text-stroke: 10px var(--ink);
-    paint-order: stroke fill;
-    filter: drop-shadow(8px 8px 0 var(--ink));
-    animation:
-      slam calc(300ms * var(--k)) cubic-bezier(0.2, 0.9, 0.3, 1.2) calc(150ms * var(--k)) both,
-      glow calc(1300ms * var(--k)) ease-in-out calc(1200ms * var(--k)) infinite alternate;
-  }
-  @keyframes glow {
-    from {
-      filter: drop-shadow(8px 8px 0 var(--ink)) drop-shadow(0 0 10px rgb(255 255 255 / 0.5)) drop-shadow(0 0 22px rgb(255 200 80 / 0.4));
-    }
-    to {
-      filter: drop-shadow(8px 8px 0 var(--ink)) drop-shadow(0 0 18px #fff) drop-shadow(0 0 44px rgb(255 200 80 / 0.9));
-    }
-  }
-  .ghost {
-    position: absolute;
-    inset: 0;
-    -webkit-text-stroke: 0;
-    opacity: 0;
-  }
-  .g1 {
-    color: var(--red);
-    animation: ghost-l calc(500ms * var(--k)) ease-out calc(200ms * var(--k)) both;
-  }
-  .g2 {
-    color: #1f6fff;
-    animation: ghost-r calc(500ms * var(--k)) ease-out calc(200ms * var(--k)) both;
-  }
-
-  /* ── "TADHG → SUDDEN DEATH", along the bottom ── */
-  .strip {
-    position: absolute;
-    left: 50%;
-    bottom: 34px;
-    translate: -50% 0;
-    max-width: 1500px;
-    background: var(--ink);
-    border: 4px solid var(--red);
-    padding: 6px 40px 10px;
-    transform: skewX(-10deg);
-    animation: strip-in calc(300ms * var(--k)) cubic-bezier(0.2, 0.9, 0.3, 1.2) calc((800ms + var(--n) * 110ms) * var(--k)) both;
-  }
-  .strip span {
-    display: block;
-    transform: skewX(10deg);
-    font-family: var(--font-display);
-    font-size: 52px;
-    line-height: 1;
-    text-transform: uppercase;
-    color: rgb(255 255 255 / 0.7);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 0.1em;
-  }
-  .strip b {
-    font-weight: inherit;
-    color: var(--paper);
-  }
-
-  .flash {
-    position: absolute;
-    inset: 0;
-    background: #fff;
-    opacity: 0;
-    pointer-events: none;
-    animation: flash calc(260ms * var(--k)) ease-out calc(150ms * var(--k)) both;
-  }
-
-  /* ── Exit (the next battle starting, or time up) ── */
-  .leaving .panel {
-    animation: leave-down calc(380ms * var(--k)) ease-in calc(var(--i) * 40ms * var(--k)) both;
-  }
-  .leaving .panel.up {
-    animation-name: leave-up;
-  }
-  .leaving .mark {
-    animation: mark-out calc(320ms * var(--k)) ease-in both;
-  }
-  .leaving .strip {
-    animation: fade-out calc(250ms * var(--k)) ease-in both;
-  }
-
   @keyframes fade-in {
     from {
       opacity: 0;
@@ -388,84 +132,173 @@
       opacity: 0;
     }
   }
+  .burst-wrap {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2400px;
+    height: 2400px;
+    margin: -1200px 0 0 -1200px;
+    opacity: 0.35;
+    mix-blend-mode: screen;
+    mask: radial-gradient(circle, #000 0, transparent 60%);
+    animation: fade-in calc(500ms * var(--k)) linear calc(150ms * var(--k)) both;
+  }
+  .burst {
+    position: absolute;
+    inset: 0;
+    background: repeating-conic-gradient(rgba(255, 200, 90, 0.85) 0 4deg, transparent 4deg 12deg);
+    animation: turn calc(70s * var(--k)) linear infinite;
+  }
+  @keyframes turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .shake {
+    position: absolute;
+    inset: 0;
+    animation: shake calc(360ms * var(--k)) linear calc(150ms * var(--k)) both;
+  }
   @keyframes shake {
     0%,
     100% {
       transform: none;
     }
     20% {
-      transform: translate(-14px, 8px);
+      transform: translate(-14px, 9px);
     }
-    40% {
-      transform: translate(12px, -6px);
+    45% {
+      transform: translate(11px, -7px);
     }
-    60% {
-      transform: translate(-7px, 4px);
-    }
-    80% {
-      transform: translate(4px, -2px);
+    70% {
+      transform: translate(-6px, 4px);
     }
   }
-  @keyframes drop-down {
-    from {
-      transform: skewX(-9deg) translateY(-110%);
-    }
+
+  .ctx {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50px;
+    text-align: center;
   }
-  @keyframes drop-up {
-    from {
-      transform: skewX(-9deg) translateY(110%);
-    }
+  .ctx span {
+    display: inline-block;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 27px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #ffe6ad;
+    padding: 9px 28px 7px;
+    background: linear-gradient(180deg, #4a4d58, #1d1f26);
+    border: 4px solid var(--gold);
+    border-radius: 6px;
+    box-shadow:
+      0 0 0 3px var(--edge),
+      inset 0 2px 0 rgba(255, 255, 255, 0.25),
+      0 6px 0 #000;
   }
-  @keyframes leave-down {
-    to {
-      transform: skewX(-9deg) translateY(115%);
-    }
+  .head {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 150px;
+    text-align: center;
+    animation: slam calc(300ms * var(--k)) cubic-bezier(0.2, 1.5, 0.4, 1) calc(150ms * var(--k)) both;
   }
-  @keyframes leave-up {
-    to {
-      transform: skewX(-9deg) translateY(-115%);
-    }
+  .head .tf-carved {
+    font-size: 130px;
+    --stroke: 16px;
+    --drop: 10px;
   }
   @keyframes slam {
     from {
-      transform: scale(2.4);
       opacity: 0;
-    }
-    60% {
-      opacity: 1;
+      transform: scale(2.2);
     }
   }
-  @keyframes ghost-l {
-    0% {
-      opacity: 0.9;
-      transform: translateX(-60px);
-    }
-    100% {
-      opacity: 0;
-      transform: translateX(-14px);
-    }
+
+  .row {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 400px;
+    display: flex;
+    justify-content: center;
+    gap: calc(var(--d) * 0.3);
   }
-  @keyframes ghost-r {
-    0% {
-      opacity: 0.9;
-      transform: translateX(60px);
-    }
-    100% {
-      opacity: 0;
-      transform: translateX(14px);
-    }
+  .who {
+    text-align: center;
+    animation: land calc(360ms * var(--k)) cubic-bezier(0.2, 1.4, 0.4, 1) calc((550ms + var(--i) * 110ms) * var(--k)) both;
   }
-  @keyframes strip-in {
+  @keyframes land {
     from {
-      transform: skewX(-10deg) translateY(60px);
       opacity: 0;
+      transform: translateY(-120px) scale(1.3);
     }
   }
-  @keyframes mark-out {
-    to {
-      transform: translateY(-120%);
-      opacity: 0;
-    }
+  .ring {
+    position: relative;
+    width: var(--d);
+    height: var(--d);
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 35%, #3a3f55, #101218 78%);
+    box-shadow:
+      0 0 0 9px var(--gold),
+      0 0 0 15px var(--edge),
+      0 0 70px rgba(255, 170, 50, 0.5);
+  }
+  /* Without a face point: full height, centred. faceCrop's inline style wins. */
+  .ring img {
+    position: absolute;
+    left: 50%;
+    top: -10%;
+    height: 180%;
+    transform: translateX(-50%);
+  }
+  .sil {
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    top: 22%;
+    --lite: #e9b75a;
+  }
+  .who .tf-carved {
+    display: block;
+    width: max-content;
+    margin: 28px auto 0;
+    font-size: var(--name);
+    --stroke: 7px;
+  }
+
+  .foot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 60px;
+    text-align: center;
+    font-size: 36px;
+    color: #e9cf8e;
+    animation: fade-in calc(400ms * var(--k)) linear calc(var(--at) * var(--k)) both;
+  }
+  .foot b {
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #f6ecd2;
+  }
+
+  .flash {
+    position: absolute;
+    inset: 0;
+    background: #fff3c9;
+    opacity: 0;
+    pointer-events: none;
+    animation: flash calc(320ms * var(--k)) ease-out calc(150ms * var(--k)) both;
   }
   @keyframes flash {
     0% {
@@ -476,9 +309,13 @@
     }
   }
 
+  .leaving .canvas {
+    animation: fade-out calc(600ms * var(--k)) ease-in both;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .q * {
-      animation-duration: 1ms !important;
+    .burst {
+      animation: none;
     }
   }
 </style>

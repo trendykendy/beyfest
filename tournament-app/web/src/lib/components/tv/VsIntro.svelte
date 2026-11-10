@@ -589,30 +589,38 @@
   }
   .medallion span {
     position: relative;
-    font-family: var(--tf-font-display);
-    font-size: 161px;
+    /* Carved capitals, as on the Arena. */
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 138px;
     line-height: 1;
-    margin-top: 12px;
-    color: #fff1cc;
+    margin-top: 6px;
+    color: #ffe9a8;
     text-shadow:
       0 0 15px #ffb347,
-      0 5px 0 #3a1d05;
+      0 7px 0 #1c0c04;
   }
 
   /* ── Names ──────────────────────────────────────────────── */
   .plate {
     position: absolute;
     bottom: 46px;
-    font-family: var(--tf-font-display);
-    font-size: 84px;
-    letter-spacing: 0.05em;
+    /* Carved capitals with a dark edge, as on the Arena. */
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 74px;
+    letter-spacing: 0.02em;
     line-height: 1;
     white-space: nowrap;
     color: #ffe6ad;
+    text-shadow:
+      0 6px 0 #1c0c04,
+      0 0 24px rgb(0 0 0 / 0.9);
     animation: rise calc(350ms * var(--k)) ease-out calc(860ms * var(--k)) both;
   }
   .plate.long {
-    font-size: 66px;
+    font-size: 56px;
   }
   .plate.l {
     left: 77px;
@@ -625,6 +633,9 @@
   .plate small {
     display: block;
     font-family: var(--tf-font-text);
+    font-weight: 400;
+    text-transform: none;
+    text-shadow: none;
     font-size: 33px;
     letter-spacing: 0.2em;
     font-variant: small-caps;

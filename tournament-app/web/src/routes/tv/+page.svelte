@@ -3,7 +3,7 @@
   import { invalidateAll } from "$app/navigation";
   import { liveUpdates } from "$lib/pbBrowser";
   import { EVENT, browserPbUrl } from "$lib/config";
-  import { SCREENS, STAGES, circleName } from "$lib/terms";
+  import { SCREENS, STAGES, TITLES, circleName } from "$lib/terms";
   import { books, leaderboard } from "$lib/betting";
   import FlowHold from "$lib/components/tv/FlowHold.svelte";
   import {
@@ -57,6 +57,7 @@
     matchContext,
     computeAwards,
     championRun,
+    playerRecord,
     SCENE_TITLE,
     type PBMatch,
     type Scene,
@@ -107,7 +108,7 @@
   });
   // The scenes rebuilt in the Tetrafatalis look so far (dark stone, not the
   // old blue field behind them). Each joins as it's rebuilt.
-  const TF_SCENES: Scene[] = ["standby", "groups", "rr", "bracket", "spotlight", "awards"];
+  const TF_SCENES: Scene[] = ["standby", "groups", "rr", "respite", "bracket", "spotlight", "awards", "eve", "champion", "lordOfGold", "royale", "royaleChampion"];
   const scenes = $derived(availableScenes(!!data.tournament, data.matches, data.royale, flow));
 
   // For the Respite and the Lord of Gold: the wagerers, richest first.
@@ -132,9 +133,15 @@
   const finalists = $derived.by(() => {
     const gf = data.matches.find((m) => m.stage === "gf");
     if (!gf?.p1 || !gf.p2) return null;
-    return [gf.p1, gf.p2].map((id) => {
+    return [gf.p1, gf.p2].map((id, i) => {
       const name = names.get(id) ?? "?";
-      return { name, fighter: fighterFor(name, data.fighters)?.name ?? "" };
+      const rec = playerRecord(id, data.matches);
+      return {
+        name,
+        fighter: fighterFor(name, data.fighters)?.name ?? "",
+        art: arenaArt(name, i === 0 ? "left" : "right"),
+        record: `${rec.wins}–${rec.losses}`,
+      };
     });
   });
   const awards = $derived(computeAwards(data.matches));
@@ -1359,7 +1366,7 @@
      old blue field). Each scene joins the list as it's rebuilt. -->
 <div
   class="tv"
-  class:tf={TF_SCENES.includes(scene) && !profileOn}
+  class:tf={TF_SCENES.includes(scene) || profileOn}
   class:cursor-hide={!barVisible}
   class:bar-open={barVisible}
   class:blank
@@ -1473,7 +1480,7 @@
       {/if}
 
     {:else if scene === "respite"}
-      <FlowHold kind="respite" {circles} {wagerers} />
+      <FlowHold kind="respite" {circles} {wagerers} wagersOpen />
 
     {:else if scene === "eve"}
       <FlowHold kind="eve" {finalists} />
@@ -1491,7 +1498,7 @@
         <ChampionScene
           champion={royaleSceneFighter(royaleChamp)}
           runnerUp={royaleRunnerUp ? royaleSceneFighter(royaleRunnerUp) : null}
-          kicker="Battle royale champion"
+          kicker={TITLES.royaleChampion}
         />
       {/if}
     {/if}
@@ -1694,8 +1701,13 @@
     margin: auto;
     max-width: 100%;
     max-height: 100%;
-    border: var(--outline) solid var(--ink);
-    box-shadow: 14px 14px 0 var(--ink);
+    /* A gold frame with a dark edge, as round the champion's picture. */
+    border-radius: 8px;
+    box-shadow:
+      0 0 0 5px #eab13a,
+      0 0 0 10px #1c0c04,
+      0 14px 0 #000,
+      0 0 60px rgba(255, 170, 50, 0.35);
     /* Pops in, then holds still. */
     animation: profile-in 0.6s cubic-bezier(0.2, 1.2, 0.4, 1) both;
   }
