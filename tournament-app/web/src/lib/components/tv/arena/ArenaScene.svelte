@@ -19,13 +19,13 @@
 </script>
 
 <script lang="ts">
-  import { tick, untrack } from "svelte";
+  import { tick, untrack, type Snippet } from "svelte";
   import { SCREENS } from "$lib/terms";
   import { HEARTBEAT_MS } from "$lib/sounds";
   import RuneRing from "../RuneRing.svelte";
   import FighterSilhouette from "../FighterSilhouette.svelte";
   import StadiumTag from "../StadiumTag.svelte";
-  import PixelBubble from "../speech/PixelBubble.svelte";
+  import ScrollBubble from "../speech/ScrollBubble.svelte";
 
   // The Arena (Match centre) in the Tetrafatalis look (locked style frame:
   // fighter-art/style-frames/arena, "R2, gem in the frame"). Purely
@@ -44,9 +44,11 @@
     onspindone,
     door = false,
     zoomed = false,
+    blank = false,
     ticker = {},
     callout = null,
     speech = { left: { id: 0, text: "", show: false }, right: { id: 0, text: "", show: false } },
+    corner,
   }: {
     left: ArenaSide;
     right: ArenaSide;
@@ -56,11 +58,15 @@
     // This round's arena (null while its draw plays). key remounts the tag for a new draw.
     arena?: { stadium: string; round: number; spin: boolean; key: string | number } | null;
     onspindone?: () => void;
-    door?: boolean; // Death's Door: crimson glow and pill
+    // Death's Door: crimson glow and pill. Who is one point from winning also
+    // gets a crimson pulse on their score; true is the glow alone.
+    door?: boolean | "left" | "right" | "both";
     zoomed?: boolean; // match point after the slam: the portraits push in
+    blank?: boolean; // Start match's build-up: only the backdrop shows
     ticker?: ArenaTicker;
     callout?: ArenaCallout | null;
     speech?: { left: ArenaSpeech; right: ArenaSpeech };
+    corner?: Snippet; // something small for the top right corner (the TV's phone QR)
   } = $props();
 
   const PILL: Record<ArenaStatus, string> = {
@@ -100,13 +106,55 @@
   }
   bumper(() => scoreL, () => left.score);
   bumper(() => scoreR, () => right.score);
+  // A score in double figures (the Reckoning is first to 9, so up to 11)
+  // doesn't fit the column at full size: both scores step down together.
+  const twoDigits = $derived((left.score ?? 0) > 9 || (right.score ?? 0) > 9);
+
+  // ── Finish tags ─────────────────────────────────────────────────────
+  // One tag per round won, in order, while they fit in two rows. A long match
+  // (more than GROUP_OVER tags on a side, Winner included) counts them by
+  // finish instead ("Endurance ×4 +4"), so they stay big enough to read
+  // however long the match runs.
+  const GROUP_OVER = 5;
+  type Tag = { key: string; label: string; n: number; pts: number; rounds: number[] };
+  function tagsOf(s: ArenaSide): { count: number; tags: Tag[] } {
+    const extra = s.won ? 1 : 0;
+    if (s.pills.length + extra <= GROUP_OVER) {
+      const tags = s.pills.map((p) => ({ key: `r${p.i}`, label: p.label, n: 1, pts: p.pts, rounds: [p.i] }));
+      return { count: tags.length + extra, tags };
+    }
+    const by = new Map<string, Tag>(); // in the order each finish first happened
+    for (const p of s.pills) {
+      const t = by.get(p.label) ?? { key: `g${p.label}`, label: p.label, n: 0, pts: 0, rounds: [] };
+      t.n++;
+      t.pts += p.pts;
+      t.rounds.push(p.i);
+      by.set(p.label, t);
+    }
+    return { count: by.size + extra, tags: [...by.values()] };
+  }
+  // Which tag each round is on, for the call-out to land on.
+  const tagEls = new Map<number, HTMLElement>();
+  function tagRef(el: HTMLElement, rounds: number[]) {
+    let mine = rounds;
+    const add = () => mine.forEach((i) => tagEls.set(i, el));
+    const drop = () => mine.forEach((i) => tagEls.get(i) === el && tagEls.delete(i));
+    add();
+    return {
+      update(next: number[]) {
+        drop();
+        mine = next;
+        add();
+      },
+      destroy: drop,
+    };
+  }
 
   // ── The finish call-out ─────────────────────────────────────────────
-  // Keep in step with the TV's CALLOUT_MS (the speech bubbles wait on it).
+  // Keep in step with the TV's CALLOUT_MS (the speech scrolls wait on it).
   const CALLOUT_MS = 1500;
   let fx = $state<ArenaCallout | null>(null); // the call-out in flight
   let fxEl = $state<HTMLElement>();
-  const tagEls: HTMLElement[] = $state([]); // finish tags by round index
   let fxAnim: Animation | null = null;
   let playedId = 0;
 
@@ -122,7 +170,7 @@
     fx = c;
     await tick();
     const big = fxEl;
-    const tag = tagEls[c.i];
+    const tag = tagEls.get(c.i);
     if (!big || !tag) {
       fx = null;
       return;
@@ -166,7 +214,7 @@
   }
 </script>
 
-{#snippet portrait(s: ArenaSide, lr: "l" | "r", bubble: ArenaSpeech)}
+{#snippet portrait(s: ArenaSide, lr: "l" | "r")}
   <div class="portrait {lr}" class:won-side={s.won} class:lost-side={s.lost}>
     <svg class="band" viewBox="0 0 200 200" aria-hidden="true">
       <RuneRing r={89} size={12} circles={[98, 80]} />
@@ -188,76 +236,95 @@
         <div class="engr {s.side === 'North' ? 'ruby' : 'sapph'}">{s.side}</div>
       {/key}
     {/if}
-    {#if s.art}
-      {#key bubble.id}
-        <PixelBubble side={lr === "l" ? "left" : "right"} text={bubble.text} show={bubble.show} />
-      {/key}
-    {/if}
   </div>
 {/snippet}
 
 {#snippet who(s: ArenaSide, lr: "l" | "r")}
+  {@const { count, tags } = tagsOf(s)}
   <div class="who {lr}" class:won-side={s.won} class:lost-side={s.lost}>
     <div class="name" class:long={s.name.length > 16}>{s.name}</div>
-    {#if s.won || s.pills.length}
-      <!-- Smaller tags as they pile up, so two rows still clear the ticker. -->
-      {@const count = s.pills.length + (s.won ? 1 : 0)}
-      <div class="pills" class:compact={count > 3} class:tiny={count > 5}>
+    {#if count}
+      <!-- Two full-size tags fit a row; any more go compact, in two rows at most. -->
+      <div class="pills" class:compact={count > 2}>
         {#if s.won}<span class="fin winner">Winner</span>{/if}
-        {#each s.pills as p (p.i)}
-          <span class="fin" class:waiting={fx?.i === p.i} bind:this={tagEls[p.i]}>{p.label}<b>+{p.pts}</b></span>
+        {#each tags as t (t.key)}
+          <!-- The round in flight isn't counted until its call-out lands: a
+               new tag hides, a counted one shows the count before it. -->
+          {@const flying = !!fx && t.rounds.includes(fx.i)}
+          {@const held = flying && t.n > 1 && fx ? fx.pts : 0}
+          <span class="fin" class:waiting={flying && t.n === 1} use:tagRef={t.rounds}>
+            {t.label}{#if t.n - (held ? 1 : 0) > 1}<i>×{t.n - (held ? 1 : 0)}</i>{/if}<b>+{t.pts - held}</b>
+          </span>
         {/each}
       </div>
     {/if}
   </div>
 {/snippet}
 
-<div class="arena" class:door class:zoomed bind:clientWidth={w} style:--beat="{HEARTBEAT_MS}ms">
+<!-- A fighter's line, on a scroll under their portrait. Only fighters with a
+     portrait speak. Outside the portrait's box, so the won/lost tints skip it. -->
+{#snippet say(s: ArenaSide, lr: "l" | "r", line: ArenaSpeech)}
+  {#if s.art}
+    <div class="say {lr}">
+      {#key line.id}<ScrollBubble text={line.text} show={line.show} />{/key}
+    </div>
+  {/if}
+{/snippet}
+
+<div class="arena" class:door={!!door} class:zoomed class:blank bind:clientWidth={w} style:--beat="{HEARTBEAT_MS}ms">
   <div class="canvas" style:transform="scale({scale})">
     <div class="rays"></div>
-    <div class="dust"></div>
+    <div class="dust" aria-hidden="true"><i></i><i></i><i></i></div>
 
-    <div class="mstat">
-      <span class="pill {status}" class:battle={status === "battle" || status === "door"}>{PILL[status]}</span>
-      {#if context}<span>{context}</span>{/if}
-      {#if arena}
-        {#key arena.key}
-          <StadiumTag stadium={arena.stadium} round={arena.round} spin={arena.spin} ondone={onspindone} />
-        {/key}
+    <!-- Everything but the backdrop: hidden for Start match's build-up. -->
+    <div class="fg">
+      <div class="mstat">
+        <span class="pill {status}" class:battle={status === "battle" || status === "door"}>{PILL[status]}</span>
+        {#if context}<span>{context}</span>{/if}
+        {#if arena}
+          {#key arena.key}
+            <StadiumTag stadium={arena.stadium} round={arena.round} spin={arena.spin} ondone={onspindone} />
+          {/key}
+        {/if}
+      </div>
+
+      {@render portrait(left, "l")}
+      {@render portrait(right, "r")}
+
+      <div class="center" class:two={twoDigits}>
+        <span class="score gold-text" class:brink={door === "left" || door === "both"} bind:this={scoreL}>{left.score ?? "–"}</span>
+        <div class="orn"></div>
+        <span class="score gold-text" class:brink={door === "right" || door === "both"} bind:this={scoreR}>{right.score ?? "–"}</span>
+        <div class="ft">First to<b>{target}</b></div>
+      </div>
+
+      {@render who(left, "l")}
+      {@render who(right, "r")}
+
+      {@render say(left, "l", speech.left)}
+      {@render say(right, "r", speech.right)}
+
+      {#if corner}<div class="corner">{@render corner()}</div>{/if}
+
+      {#if fx}
+        <div class="callout {fx.who === 'left' ? 'l' : 'r'}" bind:this={fxEl} aria-hidden="true">
+          {fx.label}<em>+{fx.pts}</em>
+        </div>
+      {/if}
+
+      {#if ticker.live || ticker.next}
+        <div class="ticker">
+          {#if ticker.live}
+            <span class="lab">Also in battle</span>
+            <span>{ticker.live.a} <b>{ticker.live.sa}–{ticker.live.sb}</b> {ticker.live.b}</span>
+          {/if}
+          {#if ticker.next}
+            <span class="lab">{SCREENS.upNext}</span>
+            <span>{ticker.next.a} <em>v</em> {ticker.next.b}</span>
+          {/if}
+        </div>
       {/if}
     </div>
-
-    {@render portrait(left, "l", speech.left)}
-    {@render portrait(right, "r", speech.right)}
-
-    <div class="center">
-      <span class="score gold-text" bind:this={scoreL}>{left.score ?? "–"}</span>
-      <div class="orn"></div>
-      <span class="score gold-text" bind:this={scoreR}>{right.score ?? "–"}</span>
-      <div class="ft">First to<b>{target}</b></div>
-    </div>
-
-    {@render who(left, "l")}
-    {@render who(right, "r")}
-
-    {#if fx}
-      <div class="callout {fx.who === 'left' ? 'l' : 'r'}" bind:this={fxEl} aria-hidden="true">
-        {fx.label}<em>+{fx.pts}</em>
-      </div>
-    {/if}
-
-    {#if ticker.live || ticker.next}
-      <div class="ticker">
-        {#if ticker.live}
-          <span class="lab">Also in battle</span>
-          <span>{ticker.live.a} <b>{ticker.live.sa}–{ticker.live.sb}</b> {ticker.live.b}</span>
-        {/if}
-        {#if ticker.next}
-          <span class="lab">{SCREENS.upNext}</span>
-          <span>{ticker.next.a} <em>v</em> {ticker.next.b}</span>
-        {/if}
-      </div>
-    {/if}
 
     <div class="door-glow"></div>
   </div>
@@ -301,32 +368,68 @@
     );
     mask: linear-gradient(180deg, #000 10%, transparent 80%);
   }
+  /* Gold motes rising through the light. Three sheets of scattered specks,
+     each a different size, tile and speed, so no grid or rhythm shows. Each
+     sheet is painted once, one tile taller than the screen, and only moved
+     (transform), rising exactly one tile per loop. */
   .dust {
     position: absolute;
     inset: 0;
     z-index: 0;
+    overflow: hidden;
     pointer-events: none;
-    opacity: 0.5;
-    mix-blend-mode: screen;
-    background-image:
-      radial-gradient(circle, rgba(255, 220, 160, 0.9) 0 2.3px, transparent 3.8px),
-      radial-gradient(circle, rgba(255, 220, 160, 0.6) 0 1.5px, transparent 2.7px);
-    background-size:
-      173px 211px,
-      115px 134px;
-    animation: dust 18s linear infinite;
   }
-  @keyframes dust {
-    from {
-      background-position:
-        0 0,
-        58px 77px;
-    }
+  .dust i {
+    --tile-w: 613px;
+    --tile-h: 587px;
+    --mote: rgba(255, 222, 165, 0.55);
+    --r: 1.6px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: calc(100% + var(--tile-h));
+    background-size: var(--tile-w) var(--tile-h);
+    background-image:
+      radial-gradient(circle at 9% 14%, var(--mote) 0 var(--r), transparent calc(var(--r) + 1.4px)),
+      radial-gradient(circle at 31% 71%, var(--mote) 0 calc(var(--r) * 0.7), transparent calc(var(--r) * 0.7 + 1.2px)),
+      radial-gradient(circle at 48% 33%, var(--mote) 0 calc(var(--r) * 1.3), transparent calc(var(--r) * 1.3 + 1.6px)),
+      radial-gradient(circle at 66% 88%, var(--mote) 0 var(--r), transparent calc(var(--r) + 1.4px)),
+      radial-gradient(circle at 79% 47%, var(--mote) 0 calc(var(--r) * 0.6), transparent calc(var(--r) * 0.6 + 1.2px)),
+      radial-gradient(circle at 93% 6%, var(--mote) 0 calc(var(--r) * 1.1), transparent calc(var(--r) * 1.1 + 1.4px));
+    animation: rise 64s linear infinite;
+  }
+  .dust i:nth-child(2) {
+    --tile-w: 431px;
+    --tile-h: 467px;
+    --mote: rgba(255, 214, 150, 0.4);
+    --r: 1.1px;
+    animation-duration: 97s;
+    animation-delay: -31s;
+  }
+  .dust i:nth-child(3) {
+    --tile-w: 877px;
+    --tile-h: 743px;
+    --mote: rgba(255, 236, 196, 0.8);
+    --r: 2.4px;
+    animation-duration: 53s;
+    animation-delay: -17s;
+  }
+  @keyframes rise {
     to {
-      background-position:
-        77px -845px,
-        19px -461px;
+      transform: translate3d(0, calc(-1 * var(--tile-h)), 0);
     }
+  }
+  /* The screen's parts fade back in after Start match's build-up, which
+     plays over the bare backdrop. Gone at once, back with a fade. */
+  .fg {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.3s ease-out;
+  }
+  .blank .fg {
+    opacity: 0;
+    transition: none;
   }
   .gold-text {
     color: transparent;
@@ -409,9 +512,6 @@
     height: 518px;
     z-index: 2;
     transition: filter 0.6s;
-    /* Speech bubbles hang from the top of the portrait, over its middle. */
-    --pb-anchor: 259px;
-    --pb-gap: -40px;
   }
   .portrait.l {
     left: 154px;
@@ -574,6 +674,23 @@
     filter: drop-shadow(0 7px 0 #2b1806);
     display: inline-block;
   }
+  .two .score {
+    font-size: 168px;
+  }
+  /* One point from winning: the score throbs crimson with the heartbeat, so
+     the room can see whose door it is. */
+  .score.brink {
+    animation: brink var(--beat) ease-in-out infinite;
+  }
+  @keyframes brink {
+    0%,
+    100% {
+      filter: drop-shadow(0 7px 0 #2b1806) drop-shadow(0 0 20px rgba(225, 30, 40, 0.6));
+    }
+    50% {
+      filter: drop-shadow(0 7px 0 #2b1806) drop-shadow(0 0 30px rgba(255, 44, 54, 1)) drop-shadow(0 0 60px rgba(255, 44, 54, 0.8));
+    }
+  }
   .orn {
     width: 4px;
     height: 250px;
@@ -653,40 +770,64 @@
     flex-wrap: wrap;
     margin-top: 17px;
   }
+  /* A gold lozenge with a dark face. The face is a second, smaller lozenge
+     (::before), so the gold edge runs all the way round the points; a border
+     would be cut off there by the clip. */
   .fin {
+    --tip: 15px;
+    position: relative;
+    z-index: 0;
     font-family: var(--tf-font-display);
     font-size: 28px;
+    line-height: 1.2;
     letter-spacing: 0.05em;
-    padding: 9px 19px 7px;
+    padding: 10px 24px 8px;
     color: var(--ink);
-    background: linear-gradient(180deg, #23262d, #121418);
-    border: 3px solid var(--gold);
-    clip-path: polygon(15px 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 15px 100%, 0 50%);
+    background: var(--gold);
+    clip-path: polygon(var(--tip) 0, calc(100% - var(--tip)) 0, 100% 50%, calc(100% - var(--tip)) 100%, var(--tip) 100%, 0 50%);
     animation: pop 0.4s cubic-bezier(0.2, 1.6, 0.4, 1) both;
   }
+  .fin::before {
+    content: "";
+    position: absolute;
+    inset: 3px 4.5px;
+    z-index: -1;
+    background: linear-gradient(180deg, #23262d, #121418);
+    clip-path: polygon(
+      calc(var(--tip) - 2px) 0,
+      calc(100% - var(--tip) + 2px) 0,
+      100% 50%,
+      calc(100% - var(--tip) + 2px) 100%,
+      calc(var(--tip) - 2px) 100%,
+      0 50%
+    );
+  }
   .pills.compact {
-    gap: 7px 9px;
-    margin-top: 8px;
+    gap: 8px 9px;
+    margin-top: 9px;
   }
   .compact .fin {
+    --tip: 12px;
     font-size: 22px;
-    padding: 7px 15px 5px;
-  }
-  .pills.tiny {
-    gap: 6px;
-  }
-  .tiny .fin {
-    font-size: 18px;
-    padding: 6px 13px 4px;
+    padding: 8px 19px 6px;
   }
   .fin b {
     font-weight: 400;
     color: #ffcf73;
     margin-left: 10px;
   }
+  /* How many of this finish, once a long match counts them. */
+  .fin i {
+    font-style: normal;
+    margin-left: 8px;
+    color: #f3e6c4;
+  }
   .fin.winner {
-    background: linear-gradient(180deg, #f6d27a, #b8801f);
+    background: #fff1c4;
     color: #2a1606;
+  }
+  .fin.winner::before {
+    background: linear-gradient(180deg, #f6d27a, #b8801f);
   }
   /* Hidden while the call-out flies onto it. */
   .fin.waiting {
@@ -730,6 +871,35 @@
     font-size: 0.7em;
     margin-left: 19px;
     color: #fff;
+  }
+
+  /* ── Speech ─────────────────────────────────────────────────────── */
+  /* The scroll rests just above the name and grows upwards, over the foot of
+     the portrait (the face is in the middle of the ring, so it stays clear).
+     It covers North/South while it's up; the gem still shows the side. */
+  .say {
+    position: absolute;
+    bottom: 276px; /* the names start at 710 of 972 */
+    width: 640px;
+    z-index: 7;
+    pointer-events: none;
+    --sb-max: 500px;
+  }
+  .say.l {
+    left: 93px; /* centred on the portrait: 154 + 259 − 320 */
+  }
+  .say.r {
+    right: 93px;
+  }
+
+  /* ── Top right corner ───────────────────────────────────────────── */
+  /* Clear of the right portrait's ring (its edge is at 1761) and the status
+     line. The bottom corners are taken by the finish tags and the strip. */
+  .corner {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    z-index: 3;
   }
 
   /* ── Ticker ─────────────────────────────────────────────────────── */
@@ -786,8 +956,9 @@
   @media (prefers-reduced-motion: reduce) {
     .band,
     .slow,
-    .dust,
+    .dust i,
     .door .door-glow,
+    .score.brink,
     .pill.battle::before {
       animation: none;
     }

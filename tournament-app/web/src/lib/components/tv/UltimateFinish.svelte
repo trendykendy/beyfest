@@ -43,6 +43,7 @@
     event = null, // the moment to play
     eventId = 0, // bump to play it again
     announced = true, // false: dims, but no banner until the moment has played
+    banner = true, // false: no held banner at all (the Arena marks match point itself)
     p1,
     p2,
     score,
@@ -54,6 +55,7 @@
     event?: MatchPointEvent | null;
     eventId?: number;
     announced?: boolean;
+    banner?: boolean;
     p1: Fighter;
     p2: Fighter;
     score: [number, number];
@@ -144,7 +146,7 @@
   <div class="canvas" style:transform="scale({scale})">
     {#if tension}
       <div class="tension who-{mp}">
-        {#if announced || playing}
+        {#if banner && (announced || playing)}
           {#key bannerMoment ? eventId : "held"}
             <div class="banner side-{bannerSide}" class:pop={bannerMoment}>
               <span class="b-title">{bannerTitle}</span>

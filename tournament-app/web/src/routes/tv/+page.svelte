@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick as svelteTick, untrack } from "svelte";
+  import { onMount, untrack } from "svelte";
   import { invalidateAll } from "$app/navigation";
   import { liveUpdates } from "$lib/pbBrowser";
   import { EVENT, browserPbUrl } from "$lib/config";
@@ -65,7 +65,7 @@
   import { stadiumOf } from "$lib/stadia";
   import BroadcastBracket from "$lib/components/tv/BroadcastBracket.svelte";
   import StadiumDraw from "$lib/components/tv/StadiumDraw.svelte";
-  import StadiumTag from "$lib/components/tv/StadiumTag.svelte";
+  import ArenaScene, { type ArenaCallout, type ArenaSide, type ArenaStatus } from "$lib/components/tv/arena/ArenaScene.svelte";
   import VsIntro from "$lib/components/tv/VsIntro.svelte";
   import TvHeader from "$lib/components/tv/TvHeader.svelte";
   import ChampionScene from "$lib/components/tv/ChampionScene.svelte";
@@ -74,15 +74,12 @@
   import RoyaleIntro from "$lib/components/tv/RoyaleIntro.svelte";
   import RoyaleDraw from "$lib/components/tv/RoyaleDraw.svelte";
   import QualifiedScreen from "$lib/components/tv/QualifiedScreen.svelte";
-  import Trophy from "$lib/components/Trophy.svelte";
   import LiveQr from "$lib/components/tv/LiveQr.svelte";
   import IntroPlayer from "$lib/components/tv/IntroPlayer.svelte";
   import { introImages } from "$lib/intro";
-  import PixelBubble from "$lib/components/tv/speech/PixelBubble.svelte";
-  import TensionGlow from "$lib/components/tv/TensionGlow.svelte";
   import UltimateFinish, { eventLanding, type Variant } from "$lib/components/tv/UltimateFinish.svelte";
   import { matchPointEvent, matchPointState, type MatchPointEvent, type MatchPointState } from "$lib/matchPoint";
-  import { leftSide } from "$lib/arena";
+  import { leftSide, mpToLR, sideOf } from "$lib/arena";
   import { pickSpeech } from "$lib/speech/pick";
 
   let { data } = $props();
@@ -317,14 +314,15 @@
     data.matches.filter((m) => m.stage === stage).sort((a, b) => a.orderIndex - b.orderIndex);
 
   // ── Finish call-out ─────────────────────────────────────────────────
-  // When a round is logged, Match centre calls the finish out big across the
-  // top ("KNOCKOUT +2"), then flies it down into a new pill under the scorer's
-  // card. Every round won stays as a pill for the rest of the match. Undo (the
-  // log shrinks) just drops the last pill — no animation. Only
-  // transform/opacity animate.
+  // When a round is logged, the Arena calls the finish out big beside the
+  // scorer's portrait ("Banishment +2"), then flies it down into a new tag
+  // under their name (ArenaScene plays it). Every round won stays as a tag
+  // for the rest of the match. Undo (the log shrinks) just drops the last
+  // tag, with no animation.
   const FINISH_BY_KEY = new Map(FINISHES.map((f) => [f.key, f]));
   const CALLOUT_FRESH_MS = 6000; // don't replay a call-out the rotation lands on later
-  const CALLOUT_MS = 1500; // the call-out's slam, hold and flight onto the pill
+  const CALLOUT_MS = 1500; // the call-out's burst, hold and flight onto the tag (ArenaScene's)
+  const CALLOUT_CLEAR_MS = 2000; // then forgotten, so coming back to the Arena doesn't replay it
 
   let logSeen = new Map<string, number>();
   let logPrimed = false;
@@ -352,10 +350,10 @@
   });
   const lastRound = $derived(rounds[rounds.length - 1] ?? null);
 
-  let fx = $state<{ label: string; pts: number } | null>(null);
-  let fxEl = $state<HTMLElement>();
-  let pillEls = $state<HTMLElement[]>([]); // by round index
-  let fxAnim: Animation | null = null;
+  // The call-out for ArenaScene to play: a new id plays it once.
+  let callout = $state<ArenaCallout | null>(null);
+  let calloutSeq = 0;
+  let calloutTimer: ReturnType<typeof setTimeout>;
   let played = "";
 
   $effect(() => {
@@ -365,66 +363,26 @@
     if (key === played) return;
     played = key;
     if (Date.now() - ev.at > CALLOUT_FRESH_MS) return;
-    if (spotMatch.liveLog.length !== ev.n || !lastRound) return; // undone since
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // pill only
-    void playCallout(lastRound.label, lastRound.pts);
+    const last = lastRound;
+    if (spotMatch.liveLog.length !== ev.n || !last) return; // undone since
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; // tag only
+    const who = last.who === leftSide(spotMatch) ? "left" : "right";
+    untrack(() => {
+      callout = { id: ++calloutSeq, who, i: last.i, label: last.label, pts: last.pts };
+      clearTimeout(calloutTimer);
+      calloutTimer = setTimeout(() => (callout = null), CALLOUT_CLEAR_MS);
+    });
   });
 
-  async function playCallout(label: string, pts: number) {
-    fxAnim?.cancel();
-    fx = { label, pts };
-    await svelteTick();
-    const big = fxEl;
-    const pill = lastRound ? pillEls[lastRound.i] : undefined;
-    if (!big || !pill) {
-      fx = null;
-      return;
-    }
-    // Fly from the big slab's resting place onto the pill (centre to centre),
-    // shrinking to the pill's height.
-    const b = big.getBoundingClientRect();
-    const t = pill.getBoundingClientRect();
-    const dx = t.left + t.width / 2 - (b.left + b.width / 2);
-    const dy = t.top + t.height / 2 - (b.top + b.height / 2);
-    const sc = t.height / b.height;
-    const anim = big.animate(
-      [
-        // slam in from above, oversized
-        { offset: 0, opacity: 0, transform: "translate(0, -70px) scale(1.5)", easing: "cubic-bezier(.2, .9, .3, 1.1)" },
-        { offset: 0.16, opacity: 1, transform: "translate(0, 0) scale(0.97)", easing: "ease-out" },
-        { offset: 0.22, opacity: 1, transform: "translate(0, 0) scale(1)", easing: "linear" },
-        // hold so the room can read it
-        { offset: 0.58, opacity: 1, transform: "translate(0, 0) scale(1)", easing: "cubic-bezier(.65, 0, .25, 1)" },
-        // fly down onto the pill
-        { offset: 1, opacity: 1, transform: `translate(${dx}px, ${dy}px) scale(${sc})` },
-      ],
-      { duration: CALLOUT_MS, fill: "forwards" },
-    );
-    fxAnim = anim;
-    // Safety net: a hidden/throttled tab can pause animations indefinitely,
-    // which would leave the pill hidden. Force the landing if it overruns.
-    setTimeout(() => {
-      if (fxAnim === anim && anim.playState !== "finished") anim.finish();
-    }, 1900);
-    anim.onfinish = () => {
-      if (fxAnim !== anim) return;
-      fx = null;
-      fxAnim = null;
-      pill.animate([{ transform: "scale(1.18)" }, { transform: "scale(1)" }], {
-        duration: 220,
-        easing: "cubic-bezier(.2, .9, .3, 1.3)",
-      });
-    };
-  }
-
-  // ── Speech bubbles ──────────────────────────────────────────────────
-  // After a round, the scorer's fighter says a line (lib/speech) in a pixel
-  // bubble over their art panel, once the call-out has landed on its pill.
+  // ── Speech ──────────────────────────────────────────────────────────
+  // After a round, the scorer's fighter says a line (lib/speech) on a scroll
+  // under their portrait, once the call-out has landed on its tag.
   // Sometimes it's a rival exchange and the other fighter answers on the
-  // other side. Same gating as the call-out (Match centre, this match, fresh),
-  // but reduced motion still gets the bubbles, just with no pop and straight
-  // away (there's no call-out to wait for). A side without an art panel (no
-  // fighter) never speaks; a fighter with no lines (custom) stays quiet.
+  // other side. Same gating as the call-out (the Arena, this match, fresh),
+  // but reduced motion still gets the lines, just with no unrolling and
+  // straight away (there's no call-out to wait for). A side without a
+  // portrait (no fighter) never speaks; a fighter with no lines (custom)
+  // stays quiet.
   // Lines don't repeat within a match. A newer round, undo, another match or
   // leaving Match centre clears them (a line still waiting too).
   // A round that cues the "next stadium" shuffle holds the line back until
@@ -476,11 +434,13 @@
       if (m.liveLog.length !== ev.n || !round || (round.who !== 1 && round.who !== 2)) return; // undone since
       const who = round.who as 1 | 2;
       const other = who === 1 ? 2 : 1;
-      const sideOf = (w: 1 | 2) => (w === 1 ? "left" : "right") as "left" | "right";
-      // Only fighters with an art panel speak (that's where the bubble hangs).
+      // Screen sides: round one's North player is on the left (lib/arena.ts).
+      const left = leftSide(m);
+      const lr = (w: 1 | 2) => (w === left ? "left" : "right") as "left" | "right";
+      // Only fighters with a portrait speak (the scroll hangs under it).
       const speaker = (w: 1 | 2) => {
         const name = sideName(m, w);
-        return slabArt(name, sideOf(w)) ? (fighterFor(name, data.fighters)?.name ?? null) : null;
+        return arenaArt(name, lr(w)) ? (fighterFor(name, data.fighters)?.name ?? null) : null;
       };
       const scorer = speaker(who);
       if (!scorer) return;
@@ -493,8 +453,8 @@
       speechFor = { code: m.code, n: ev.n };
       const at = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? SPEECH_AFTER_CALM_MS : SPEECH_AFTER_MS;
       const say = () => {
-        sayAt(sideOf(who), said.lead.text, 0);
-        if (said.reply) sayAt(sideOf(other), said.reply.text, SPEECH_REPLY_MS);
+        sayAt(lr(who), said.lead.text, 0);
+        if (said.reply) sayAt(lr(other), said.reply.text, SPEECH_REPLY_MS);
       };
       // By now the draw effect has seen the same update, so drawHold says
       // whether this round's shuffle is on (or about to be).
@@ -518,12 +478,6 @@
     if (!f) return;
     if (scene !== "spotlight" || spotMatch?.code !== f.code || spotMatch.liveLog.length < f.n) untrack(clearSpeech);
   });
-  // The art panel is skewed -10deg about its centre, so its top edge sits
-  // tan(10deg)*h/2 toward the VS from its box (half the 190px panel = 95px).
-  // Aim each bubble's tail at the middle of that top edge.
-  const ART_SKEW = Math.tan((10 * Math.PI) / 180);
-  let cardHA = $state(0);
-  let cardHB = $state(0);
 
   // ── Stadium draw ────────────────────────────────────────────────────
   // The server draws a stadium (on Start match, after each round that doesn't
@@ -590,11 +544,12 @@
     // The intro shows the combat name; players without a fighter keep their own.
     return { name: f?.name || name, kana: f?.kana ?? "", img: fighterImageUrl(browserPbUrl(), f), imgMirrored: fighterMirroredUrl(browserPbUrl(), f), mirror: !!f?.mirror, face: f?.face ?? null };
   }
-  // Match centre's art panel beside each slab: the fighter's cut-out zoomed
-  // onto the face, turned to face the VS like the intro (cut-outs face left,
-  // so the left side is flipped; the mirror flag swaps that). null for a
-  // player without a fighter, who gets no panel.
-  function slabArt(name: string, side: "left" | "right"): { src: string; style: string } | null {
+  // The Arena's portrait for each side: the fighter's cut-out zoomed onto the
+  // face, turned to face the middle like the intro (cut-outs face left, so
+  // the left side is flipped; the mirror flag swaps that). null for a player
+  // without a fighter, who gets the silhouette.
+  const PORTRAIT_FILL = 0.42; // the face's share of the ring
+  function arenaArt(name: string, side: "left" | "right"): { src: string; style: string } | null {
     const f = fighterFor(name, data.fighters);
     // data.pbUrl, not browserPbUrl(): this also runs on the server.
     const img = fighterImageUrl(data.pbUrl, f);
@@ -603,7 +558,7 @@
     const art = artFor({ img, imgMirrored: fighterMirroredUrl(data.pbUrl, f) }, wantFlip);
     // A hand-made mirror image is already flipped, so its face sits mirrored too.
     const face = f.face && wantFlip && !art.flip ? { ...f.face, x: 1 - f.face.x } : f.face;
-    return { src: art.src, style: faceCrop(face, 0.34, art.flip) };
+    return { src: art.src, style: faceCrop(face, PORTRAIT_FILL, art.flip) };
   }
   function endIntro() {
     const next = introShow?.then ?? null;
@@ -1143,10 +1098,91 @@
     else announcer.stopTension();
   });
 
+  // ── The Arena (ArenaScene) ──────────────────────────────────────────
+  // Everything the Arena shows for the match on screen, already in screen
+  // order: round one's North player on the left for the whole match
+  // (lib/arena.ts), whichever of p1 and p2 that is. null with no match.
+  const arenaView = $derived.by(() => {
+    const m = spotMatch;
+    if (!m) return null;
+    const target = pointsToWin(m.stage, m.roundLabel);
+    const done = m.matchStatus === "done";
+    const live = isLive(m);
+    const L = leftSide(m);
+    const R: 1 | 2 = L === 1 ? 2 : 1;
+    const scoreOf = (w: 1 | 2) => (done ? (w === 1 ? m.p1Score : m.p2Score) : w === 1 ? m.liveP1 : m.liveP2) ?? 0;
+    const decided = done || (live && (scoreOf(1) >= target || scoreOf(2) >= target));
+    const walkover = done && m.walkover;
+    const showScore = (done && !walkover) || live;
+    // This round's arena and sides are on screen (not while their draw plays).
+    const placeShown = live && !decided && drawHold !== m.code && !(reel?.code === m.code && !reel.spinning);
+    const side = (w: 1 | 2, lr: "left" | "right"): ArenaSide => {
+      const other = w === 1 ? 2 : 1;
+      return {
+        name: sideName(m, w),
+        art: arenaArt(sideName(m, w), lr),
+        score: showScore ? scoreOf(w) : null,
+        side: placeShown ? sideOf(m, w) : "",
+        pills: rounds.filter((r) => r.who === w),
+        won: decided && scoreOf(w) > scoreOf(other),
+        lost: decided && scoreOf(w) < scoreOf(other),
+      };
+    };
+    const status: ArenaStatus = walkover
+      ? "walkover"
+      : done
+        ? "result"
+        : decided
+          ? "won"
+          : !live
+            ? "summoned"
+            : mpNow !== "none"
+              ? "door"
+              : "battle";
+    // The strip along the bottom: the other table's match, and who's next.
+    // The live one in its own screen order, so it reads the same when the
+    // Arena cuts to it.
+    const otherLive = onNow && onNow.code !== m.code ? onNow : null;
+    const otherNext = nextUp && nextUp.code !== m.code ? nextUp : null;
+    const oL = otherLive ? leftSide(otherLive) : 1;
+    const oR: 1 | 2 = oL === 1 ? 2 : 1;
+    const liveScore = (o: PBMatch, w: 1 | 2) => (w === 1 ? o.liveP1 : o.liveP2);
+    return {
+      L,
+      R,
+      left: side(L, "left"),
+      right: side(R, "right"),
+      target,
+      status,
+      context: matchContext(m, data.matches),
+      arena:
+        placeShown && stadiumOf(m.stadium)
+          ? { stadium: m.stadium, round: m.liveLog.length + 1, spin: reel?.code === m.code, key: m.stadiumAt }
+          : null,
+      ticker: {
+        live: otherLive
+          ? { a: sideName(otherLive, oL), b: sideName(otherLive, oR), sa: liveScore(otherLive, oL), sb: liveScore(otherLive, oR) }
+          : undefined,
+        next: otherNext ? { a: sideName(otherNext, 1), b: sideName(otherNext, 2) } : undefined,
+      },
+      // Match point in screen order, and the score with it, for UltimateFinish.
+      mp: mpToLR(mpNow, L),
+      liveScore: [liveScore(m, L), liveScore(m, R)] as [number, number],
+      // Death's Door, and whose it is on screen (false when nobody's).
+      door: (mpNow === "both" ? "both" : mpNow === "none" || mpNow === "decided" ? false : (mpNow === "p1") === (L === 1) ? "left" : "right") as
+        | false
+        | "left"
+        | "right"
+        | "both",
+    };
+  });
+
   // The phone page's QR in the corner: not on Standby (it has a big one),
-  // Champion, or while the intro / stadium draw / blank build-up is on.
+  // Champion, the Arena (which carries its own, top right), or while the
+  // intro / stadium draw / blank build-up is on.
   const cornerQr = $derived(
     scene !== "standby" &&
+      (scene !== "spotlight" || profileOn) &&
       scene !== "champion" &&
       scene !== "royaleChampion" &&
       !introShow &&
@@ -1260,7 +1296,16 @@
   });
 </script>
 
-<div class="tv" class:cursor-hide={!barVisible} class:bar-open={barVisible} class:blank class:qr-corner={cornerQr}>
+<!-- tf: the scene on screen is in the Tetrafatalis look (dark stone, not the
+     old blue field). Each scene joins the list as it's rebuilt. -->
+<div
+  class="tv"
+  class:tf={scene === "spotlight" && !profileOn}
+  class:cursor-hide={!barVisible}
+  class:bar-open={barVisible}
+  class:blank
+  class:qr-corner={cornerQr}
+>
   <!-- Standby, Champion and the flow holds carry their own giant title; don't repeat it. -->
   <TvHeader
     title={profileOn
@@ -1444,159 +1489,47 @@
       {/if}
 
     {:else if scene === "spotlight"}
-      <!-- Under each card: the Winner chip at the outer end, then one pill per
-           round this side has won, oldest first. Kept on the Result too, as a recap. -->
-      {#snippet sideFoot(who: number, won: boolean, showPills: boolean)}
-        {@const mine = showPills ? rounds.filter((r) => r.who === who) : []}
-        {#if won || mine.length}
-          <div class="mc-finishes" class:compact={mine.length > 4} class:tiny={mine.length > 7}>
-            {#if won}<span class="mc-winner">Winner</span>{/if}
-            {#each mine as r (r.i)}
-              <span class="mc-finish" class:waiting={fx && r.i === lastRound?.i} bind:this={pillEls[r.i]}>
-                <span class="fx-card"><span class="fx-label"><b>{r.label}</b></span><span class="fx-pts"><b>+{r.pts}</b></span></span>
-              </span>
-            {/each}
-          </div>
+      <!-- The Arena: the match on screen (ArenaScene), with the stadium draw
+           over it. `blank` leaves only its backdrop for Start match's build-up. -->
+      {#if arenaView}
+        <ArenaScene
+          left={arenaView.left}
+          right={arenaView.right}
+          target={arenaView.target}
+          status={arenaView.status}
+          context={arenaView.context}
+          arena={arenaView.arena}
+          onspindone={() => (reel = null)}
+          door={arenaView.door}
+          zoomed={mpZoom}
+          {blank}
+          ticker={arenaView.ticker}
+          {callout}
+          speech={{ left: speechL, right: speechR }}
+        >
+          <!-- The phone page's QR: up here, as the tags and the strip have the bottom. -->
+          {#snippet corner()}
+            <div class="arena-qr">
+              <LiveQr size={data.liveQr.size} path={data.liveQr.path} px={104} />
+              <span>Scan for<br />live results</span>
+            </div>
+          {/snippet}
+        </ArenaScene>
+        {#if drawShow}
+          {#key drawShow.id}
+            <StadiumDraw
+              stadium={drawShow.stadium}
+              kind={drawShow.kind}
+              round={drawShow.round}
+              look={drawShow.look}
+              {...drawSides(drawShow)}
+              ondone={endDraw}
+            />
+          {/key}
         {/if}
-      {/snippet}
-      <!-- The fighter's art in its own slanted panel at the card's outer end. -->
-      {#snippet artPanel(art: { src: string; style: string })}
-        <div class="mc-art" aria-hidden="true">
-          <div class="mc-art-pic">
-            <div class="mc-art-bg"></div>
-            <div class="mc-art-zoom"><img src={art.src} alt="" style={art.style} /></div>
-          </div>
-        </div>
-      {/snippet}
-      <TensionGlow mp={mpNow} />
-      <div class="mc" class:zoomed={mpZoom}>
-        {#if spotMatch}
-          {@const t = pointsToWin(spotMatch.stage, spotMatch.roundLabel)}
-          {@const done = spotMatch.matchStatus === "done"}
-          {@const live = isLive(spotMatch)}
-          {@const av = (done ? spotMatch.p1Score : spotMatch.liveP1) ?? 0}
-          {@const bv = (done ? spotMatch.p2Score : spotMatch.liveP2) ?? 0}
-          {@const decided = done || (live && (av >= t || bv >= t))}
-          {@const wonA = decided && av > bv}
-          {@const wonB = decided && bv > av}
-          {@const walkover = done && spotMatch.walkover}
-          {@const showScore = (done && !walkover) || live}
-          <!-- This round's arena and sides are on screen (not while their draw plays). -->
-          {@const placeShown = live && !decided && drawHold !== spotMatch.code && !(reel?.code === spotMatch.code && !reel.spinning)}
-          {@const sideOfA = placeShown && spotMatch.north ? (spotMatch.north === 1 ? "North" : "South") : ""}
-          {@const sideOfB = placeShown && spotMatch.north ? (spotMatch.north === 2 ? "North" : "South") : ""}
-          <div class="mc-status">
-            {#if walkover}<span class="mc-tag result">Walkover</span>
-            {:else if done}<span class="mc-tag result">Result</span>
-            {:else if decided}<span class="mc-tag won"><Trophy /> Match won</span>
-            {:else if live}<span class="mc-tag live">Live</span>
-            {:else}<span class="mc-tag next">Up next</span>{/if}
-            <span class="mc-context">{matchContext(spotMatch, data.matches)}</span>
-            <!-- This round's stadium, held back while its draw is playing. -->
-            {#if placeShown && stadiumOf(spotMatch.stadium)}
-              {#key spotMatch.stadiumAt}
-                <StadiumTag
-                  stadium={spotMatch.stadium}
-                  round={spotMatch.liveLog.length + 1}
-                  spin={reel?.code === spotMatch.code}
-                  ondone={() => (reel = null)}
-                />
-              {/key}
-            {/if}
-            <!-- The finish call-out hangs above this line (see .fx-wrap). -->
-            {#if fx}
-              <div class="fx-wrap" aria-hidden="true">
-                <div class="fx" bind:this={fxEl}>
-                  <span class="fx-card"><span class="fx-label"><b>{fx.label}</b></span><span class="fx-pts"><b>+{fx.pts}</b></span></span>
-                </div>
-              </div>
-            {/if}
-          </div>
-
-
-          {#if drawShow}
-            {#key drawShow.id}
-              <StadiumDraw
-                stadium={drawShow.stadium}
-                kind={drawShow.kind}
-                round={drawShow.round}
-                look={drawShow.look}
-                {...drawSides(drawShow)}
-                ondone={endDraw}
-              />
-            {/key}
-          {/if}
-
-          {@const artA = slabArt(sideName(spotMatch, 1), "left")}
-          {@const artB = slabArt(sideName(spotMatch, 2), "right")}
-          <div class="mc-duel tier-{tierOf(spotMatch.stage)}">
-            <div class="mc-side left" class:won={wonA} class:lost={wonB}>
-              <div
-                class="mc-card"
-                bind:clientHeight={cardHA}
-                style:--pb-anchor="{Math.round(95 + (ART_SKEW * cardHA) / 2)}px"
-              >
-                {#if artA}{@render artPanel(artA)}{/if}
-                {#if sideOfA}
-                  {#key spotMatch.stadiumAt}<span class="mc-pos" class:north={sideOfA === "North"}>{sideOfA}</span>{/key}
-                {/if}
-                <div class="mc-slab">
-                  <div class="mc-name">{sideName(spotMatch, 1)}</div>
-                  <div class="mc-score">{showScore ? av : "–"}</div>
-                </div>
-                {#if artA}
-                  {#key speechL.id}<PixelBubble side="left" text={speechL.text} show={speechL.show} />{/key}
-                {/if}
-              </div>
-              {@render sideFoot(1, wonA, true)}
-            </div>
-            <div class="mc-mid">
-              <div class="mc-vs" aria-label="versus">VS</div>
-              <!-- The target, between the two scores it's read against. -->
-              <div class="mc-ft">First to <b>{t}</b></div>
-            </div>
-            <div class="mc-side right" class:won={wonB} class:lost={wonA}>
-              <div
-                class="mc-card"
-                bind:clientHeight={cardHB}
-                style:--pb-anchor="{Math.round(95 - (ART_SKEW * cardHB) / 2)}px"
-              >
-                {#if sideOfB}
-                  {#key spotMatch.stadiumAt}<span class="mc-pos" class:north={sideOfB === "North"}>{sideOfB}</span>{/key}
-                {/if}
-                <div class="mc-slab">
-                  <div class="mc-score">{showScore ? bv : "–"}</div>
-                  <div class="mc-name">{sideName(spotMatch, 2)}</div>
-                </div>
-                {#if artB}{@render artPanel(artB)}{/if}
-                {#if artB}
-                  {#key speechR.id}<PixelBubble side="right" text={speechR.text} show={speechR.show} />{/key}
-                {/if}
-              </div>
-              {@render sideFoot(2, wonB, true)}
-            </div>
-          </div>
-
-          {@const otherLive = onNow && onNow.code !== spotMatch.code ? onNow : null}
-          {@const otherNext = nextUp && nextUp.code !== spotMatch.code ? nextUp : null}
-          {#if otherLive || otherNext}
-            <div class="onnow">
-              {#if otherLive}
-                <span class="onnow-tag live">On now</span>
-                <span class="onnow-match">
-                  {sideName(otherLive, 1)} <b>{otherLive.liveP1}–{otherLive.liveP2}</b> {sideName(otherLive, 2)}
-                </span>
-              {/if}
-              {#if otherNext}
-                <span class="onnow-tag">Next up</span>
-                <span class="onnow-match soft">{sideName(otherNext, 1)} <em>v</em> {sideName(otherNext, 2)}</span>
-              {/if}
-            </div>
-          {/if}
-        {:else}
-          <div class="empty-scene">No matches yet. They'll appear here once the groups are drawn.</div>
-        {/if}
-      </div>
+      {:else}
+        <div class="arena-empty">No matches yet. They'll appear here once the Circles are drawn.</div>
+      {/if}
 
     {:else if scene === "awards"}
       <!-- Built from how every round was won. "So far" until the grand final. -->
@@ -1655,18 +1588,21 @@
     {/if}
   </main>
 
-  <!-- Match point: the banner, and the moment over the whole screen. -->
-  {#if mpNow !== "none" && spotMatch}
+  <!-- Match point: the moment over the whole screen, in the Arena's screen
+       order (its p1 is whoever is on the left). No held banner: the Arena
+       marks Death's Door itself (the pill, the glow, the pulsing score). -->
+  {#if mpNow !== "none" && arenaView}
     <div class="mp-layer">
       <UltimateFinish
         variant={MP_VARIANT}
-        mp={mpNow}
+        mp={arenaView.mp}
         event={mp?.go ? mp.event : null}
         eventId={mp?.go ? mp.n : 0}
         announced={!mp}
-        p1={{ name: sideName(spotMatch, 1), img: "" }}
-        p2={{ name: sideName(spotMatch, 2), img: "" }}
-        score={[spotMatch.liveP1, spotMatch.liveP2]}
+        banner={false}
+        p1={{ name: arenaView.left.name, img: "" }}
+        p2={{ name: arenaView.right.name, img: "" }}
+        score={arenaView.liveScore}
         ondone={clearMoment}
       />
     </div>
@@ -1885,21 +1821,13 @@
     z-index: 39; /* under the intro and winner screens */
     pointer-events: none;
   }
-  /* Blank page for Start match's build-up. Hidden by opacity, so the layout
-     (and the draw's place in it) doesn't move; gone at once, back with a fade
-     once LET IT RIP has folded away. */
-  .tv :global(.tv-header),
-  .mc-status,
-  .mc-duel,
-  .onnow {
-    transition: opacity 0.3s ease-out;
-  }
-  .tv.blank :global(.tv-header),
-  .tv.blank .mc-status,
-  .tv.blank .mc-duel,
-  .tv.blank .onnow {
-    opacity: 0;
-    transition: none;
+  /* Start match's build-up (the stadium draw, then LET IT RIP) plays over the
+     Arena's bare backdrop: ArenaScene hides its own parts while `blank` is
+     set. The top bar stays, so the backdrop has no seam under it. */
+
+  /* Scenes in the Tetrafatalis look sit on dark stone, not the blue field. */
+  .tv.tf {
+    background: #090b11;
   }
   .stage {
     flex: 1;
@@ -2226,492 +2154,36 @@
     color: var(--ink-soft);
   }
 
-  /* ── Match centre: anime face-off ──────────────────────────────────
-     Two slanted white slabs (skewX, so the border and hard shadow survive —
-     clip-path would cut them), scores facing the gold VS in the middle. */
-  .mc {
-    position: relative; /* in front of TensionGlow */
-    width: 100%;
-    height: 100%;
+  /* ── The Arena ──────────────────────────────────────────────────────
+     The match itself is ArenaScene (it fills the stage). This is only the
+     line shown when there is no match to put in it yet. */
+  .arena-empty {
+    font-family: var(--tf-font-text);
+    font-size: 2.2rem;
+    font-style: italic;
+    color: #d9c79b;
+  }
+  /* The phone QR in the Arena's top right corner: the code in a gold rim
+     like the portraits', its caption underneath. Sized in the Arena's own
+     1920-wide canvas, so it scales with it. */
+  .arena-qr {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 48px;
-  }
-  .mc-status {
-    position: relative; /* for the call-out above it */
-    display: flex;
-    align-items: center;
-    gap: 22px;
-    font-family: var(--font-text);
-    font-size: 1.9rem;
-    font-weight: 600;
-  }
-  .mc-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 2.2rem;
-    line-height: 1;
-    padding: 10px 26px 12px 20px;
-    clip-path: polygon(0 0, 100% 0, calc(100% - var(--cut)) 100%, 0 100%);
-    /* Its own layer: without this the browser drops the clip for odd frames
-       while the arena tag beside it rolls, so the cut corner flickers. */
-    will-change: transform;
-  }
-  .mc-tag.live {
-    background: var(--red);
-    color: var(--paper);
-  }
-  .mc-tag.next,
-  .mc-tag.won {
-    background: var(--gold);
-    color: var(--ink);
-  }
-  .mc-tag.result {
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .mc-context {
-    color: var(--paper);
-  }
-
-  .mc-duel {
-    --tier: var(--gold);
-    width: 100%;
-    max-width: 1720px;
-    display: grid;
-    grid-template-columns: 1fr 200px 1fr;
-    align-items: center;
-    /* Room below the cards for two rows of finish pills, always reserved so
-       the band underneath doesn't jump when a second row appears. */
-    padding-bottom: 72px;
-  }
-  .mc-duel.tier-wb {
-    --tier: var(--wb);
-  }
-  .mc-duel.tier-lb {
-    --tier: var(--lb);
-  }
-  .mc-side {
-    position: relative;
-    min-width: 0;
-  }
-  .mc-slab {
-    transform: skewX(-10deg);
-    background: var(--paper);
-    color: var(--ink);
-    border: 4px solid var(--ink);
-    border-top: 16px solid var(--tier);
-    box-shadow: 12px 12px 0 var(--ink);
-    display: flex;
-    flex-direction: column;
-    padding: 26px 48px 20px;
-    min-width: 0;
-  }
-  /* Un-skew the text so letters stay true italic, not sheared twice. */
-  .mc-slab > * {
-    transform: skewX(10deg);
-  }
-  .mc-name {
-    font-family: var(--font-display);
-    font-stretch: 62%;
-    text-transform: uppercase;
-    font-size: 7.5rem;
-    line-height: 1;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 8px;
-  }
-  /* Name on top, huge score underneath pushed toward the VS. */
-  .right .mc-name {
-    order: -1;
-    text-align: right;
-  }
-  .mc-score {
-    font-family: var(--font-display);
-    font-size: 17rem;
-    line-height: 0.82;
-    font-variant-numeric: tabular-nums;
-    align-self: flex-end;
-    padding-right: 12px;
-  }
-  .right .mc-score {
-    align-self: flex-start;
-  }
-  .mc-side.lost .mc-slab {
-    background: #dfe3f2;
-    color: var(--ink-soft);
-  }
-  /* Slab + art panel side by side; the finish pills stay underneath both. */
-  /* The speech bubbles hang off the card, the tail's tip on the middle of the
-     art panel's top. They share the height of the status row above, so each
-     bubble spreads OUT over its panel toward the screen edge (--pb-tail-x:
-     the bubble's near edge sits --pb-out beyond the card's) and stops short
-     of LIVE / the stadium chip (--pb-max; long lines wrap to 2–3 rows). */
-  .mc-card {
-    position: relative;
-    --pb-gap: 8px;
-    --pb-out: clamp(0px, (100vw - 1720px) / 2 - 24px, 56px);
-    --pb-max: 390px;
-    --pb-tail-x: calc(var(--pb-anchor) + var(--pb-out));
-    display: flex;
-    align-items: stretch;
-  }
-  .mc-card .mc-slab {
-    flex: 1;
-    /* Above the art panel, so the panel can slide out from behind it. */
-    position: relative;
-    z-index: 1;
-  }
-  /* Art panel: its own slanted slab (same border, tier band and shadow) at
-     the card's outer end, the cut-out zoomed onto the face by faceCrop(). */
-  .mc-art {
-    position: relative;
-    flex: none;
-    width: 190px;
-    transform: skewX(-10deg);
-    border: 4px solid var(--ink);
-    border-top: 16px solid var(--tier);
-    box-shadow: 12px 12px 0 var(--ink);
-    background: var(--field-deep);
-    overflow: hidden;
-  }
-  .left .mc-art {
-    margin-right: 18px;
-  }
-  .right .mc-art {
-    margin-left: 18px;
-  }
-  /* Start match: while the build-up has the page blank, each panel waits
-     tucked behind its slab (moved its own width + gap toward the VS). When
-     the page comes back, it slides out with a little overshoot, just after
-     the slabs have faded in. Nothing else blanks the page, so browsing or
-     switching scenes shows the panels already out. */
-  .mc-art {
-    transition:
-      transform 0.55s cubic-bezier(0.2, 1.35, 0.4, 1) 0.35s,
-      opacity 0.15s linear 0.35s;
-  }
-  .tv.blank .left .mc-art {
-    transform: translateX(208px) skewX(-10deg);
-  }
-  .tv.blank .right .mc-art {
-    transform: translateX(-208px) skewX(-10deg);
-  }
-  .tv.blank .mc-art {
-    opacity: 0;
-    transition: none;
-  }
-  /* Straightened back up and 50px wider each side, so the slanted panel's
-     corners stay filled. */
-  .mc-art-pic {
-    position: absolute;
-    inset: 0 -50px;
-    overflow: hidden;
-    transform: skewX(10deg);
-  }
-  .mc-art-pic img {
-    display: block;
-    position: absolute;
-    /* Without a face point; faceCrop() replaces this when there is one.
-       (left/top only, not inset: faceCrop's width:auto would stretch
-       between left and right.) */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 20%;
-  }
-  /* Match point: faceCrop() puts the face in the middle of this box, so
-     scaling it from the middle zooms straight onto the face. */
-  .mc-art-zoom {
-    position: absolute;
-    inset: 0;
-    transition: transform 0.7s cubic-bezier(0.2, 1.3, 0.4, 1);
-  }
-  .mc.zoomed .mc-art-zoom {
-    transform: scale(2.2);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .mc-art-zoom {
-      transition: none;
-    }
-  }
-  /* Behind the cut-out: slow sunburst rays plus a tier-colour glow that
-     breathes. Transforms and opacity only, so it's cheap to draw. */
-  .mc-art-bg,
-  .mc-art-bg::before,
-  .mc-art-bg::after {
-    position: absolute;
-  }
-  .mc-art-bg {
-    inset: 0;
-    overflow: hidden;
-  }
-  .mc-art-bg::before {
-    content: "";
-    width: 900px;
-    aspect-ratio: 1;
-    left: 50%;
-    top: 35%;
-    margin: -450px 0 0 -450px;
-    background: repeating-conic-gradient(rgb(255 255 255 / 0.1) 0 6deg, transparent 6deg 18deg);
-    mask: radial-gradient(circle, #000 0 15%, transparent 55%);
-    animation: mc-art-spin 40s linear infinite;
-  }
-  .mc-art-bg::after {
-    content: "";
-    inset: -10%;
-    background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--tier) 75%, transparent), transparent 70%);
-    animation: mc-art-glow 3.2s ease-in-out infinite;
-  }
-  /* The two panels breathe out of step, so they don't pulse as a pair. */
-  .right .mc-art-bg::after {
-    animation-delay: -1.6s;
-  }
-  @keyframes mc-art-spin {
-    to {
-      transform: rotate(1turn);
-    }
-  }
-  @keyframes mc-art-glow {
-    0%,
-    100% {
-      opacity: 0.55;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.9;
-      transform: scale(1.06);
-    }
-  }
-  /* The loser's panel goes grey and still. */
-  .mc-side.lost .mc-art-pic {
-    filter: grayscale(1) brightness(0.8);
-  }
-  .mc-side.lost .mc-art-bg::before,
-  .mc-side.lost .mc-art-bg::after {
-    animation: none;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .mc-art-bg::before,
-    .mc-art-bg::after {
-      animation: none;
-    }
-  }
-  /* North / South: which side of the arena each player stands on this round.
-     A tag on the card's top edge at the inner end (near the VS), clear of the
-     fighter art at the outer end. Absolutely placed, so nothing else moves. */
-  .mc-pos {
-    position: absolute;
-    top: -26px;
-    z-index: 3;
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 2.2rem;
-    line-height: 1;
-    padding: 8px 22px 10px;
-    background: var(--ink);
-    color: var(--paper);
-    border: 3px solid var(--paper);
-    transform: skewX(-10deg);
-    animation: mc-pos-in 450ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
-  }
-  .mc-pos.north {
-    background: var(--paper);
-    color: var(--ink);
-    border-color: var(--ink);
-  }
-  .left .mc-pos {
-    right: 40px;
-  }
-  .right .mc-pos {
-    left: 40px;
-  }
-  @keyframes mc-pos-in {
-    from {
-      opacity: 0;
-      transform: skewX(-10deg) translateY(-14px);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .mc-pos {
-      animation: none;
-    }
-  }
-  .mc-winner {
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 1.9rem;
-    line-height: 1;
-    background: var(--gold);
-    color: var(--ink);
-    border: 3px solid var(--ink);
-    padding: 8px 22px 10px;
-  }
-  /* First in the row and pushed to the card's outer end; the pills take the
-     rest of the row. */
-  .left .mc-winner {
-    order: -1;
-    margin-right: auto;
-  }
-  .right .mc-winner {
-    order: 1;
-    margin-left: auto;
-  }
-  /* Finish call-out: one gold telop slab. The big one (.fx) slams in across
-     the top, then flies down and shrinks onto the pill (.mc-finish) — same
-     build at two sizes, so the hand-off reads as one object. */
-  .mc {
-    position: relative;
-  }
-  .fx-wrap {
-    position: absolute;
-    /* Hangs above the status line it sits in, bottom-anchored and clear of
-       it by the slab's 16px shadow plus 8px, so neither the slam-in nor the
-       hold ever covers LIVE. */
-    bottom: calc(100% + 24px);
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: center;
-    z-index: 5;
-    pointer-events: none;
-  }
-  /* .fx / .mc-finish are the boxes that move (transform is animated); the
-     skewed .fx-card inside carries the slab look, text straightened back up. */
-  .fx,
-  .mc-finish {
-    display: inline-flex;
-    transform-origin: center center;
-  }
-  .fx {
-    font-size: 6.75rem; /* fits the 152px between the header and the status line */
-    will-change: transform, opacity;
-  }
-  .fx-card {
-    display: inline-flex;
-    align-items: stretch;
-    transform: skewX(-10deg);
-    background: var(--gold);
-    color: var(--ink);
-    border: var(--outline) solid var(--ink);
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    line-height: 1;
-    white-space: nowrap;
-  }
-  .fx .fx-card {
-    border-width: 6px;
-    box-shadow: 16px 16px 0 var(--ink);
-  }
-  .fx-label,
-  .fx-pts {
-    display: grid;
-    place-items: center;
-  }
-  /* Straighten only the letters; the blocks stay slanted with the card. */
-  .fx-card b {
-    display: block;
-    font-weight: inherit;
-    transform: skewX(10deg);
-  }
-  .fx-label {
-    padding: 0.06em 0.34em 0.1em 0.3em;
-  }
-  .fx-pts {
-    background: var(--red);
-    color: var(--paper);
-    padding: 0.06em 0.3em 0.1em;
-  }
-  /* Slanted ink divider between the finish and its points. */
-  .fx-pts {
-    border-left: var(--outline) solid var(--ink);
-  }
-  .fx .fx-pts {
-    border-left-width: 6px;
-  }
-  /* The row straddles the card's bottom edge: pills gather at the VS end,
-     under the score, and wrap downward as rounds pile up. It's absolutely
-     placed (in room .mc-duel reserves) so a new row never nudges anything. */
-  .mc-finishes {
-    position: absolute;
-    top: calc(100% - 26px);
-    left: 40px;
-    right: 80px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 14px;
-    justify-content: flex-end;
-    font-size: 1.9rem;
-    z-index: 2;
-  }
-  .right .mc-finishes {
-    left: 80px;
-    right: 40px;
-    justify-content: flex-start;
-  }
-  /* A long match (up to 9 rounds a side in the grand final) steps down in
-     size so it stays within two rows. */
-  .mc-finishes.compact {
-    font-size: 1.45rem;
-    gap: 10px;
-  }
-  .mc-finishes.tiny {
-    font-size: 1.2rem;
-    gap: 8px;
-  }
-  .mc-finish .fx-card {
-    box-shadow: 5px 5px 0 var(--ink);
-  }
-  /* In place (for measuring) but hidden while the big call-out flies to it. */
-  .mc-finish.waiting {
-    opacity: 0;
-  }
-
-  /* Outlined gold VS — a text stroke, not a blur/glow filter, so it's cheap. */
-  .mc-vs {
+    gap: 12px;
+    font-family: var(--tf-font-text);
+    font-size: 21px;
+    line-height: 1.1;
+    letter-spacing: 0.08em;
+    font-variant: small-caps;
     text-align: center;
-    font-family: var(--font-display);
-    font-size: 8rem;
-    line-height: 1;
-    color: var(--gold);
-    -webkit-text-stroke: 4px var(--ink);
-    paint-order: stroke fill;
+    color: #e9cf8e;
   }
-  .mc-mid {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-  }
-  /* Black telop slab under the VS: "FIRST TO" in white, the number in gold. */
-  .mc-ft {
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 1.7rem;
-    line-height: 1;
-    white-space: nowrap;
-    background: var(--ink);
-    color: var(--paper);
-    padding: 8px 14px 10px;
-  }
-  .mc-ft b {
-    color: var(--gold);
-    font-size: 2.3rem;
-    margin-left: 4px;
-  }
-  .empty-scene {
-    color: var(--on-field-soft);
-    font-size: 1.8rem;
+  .arena-qr :global(svg) {
+    box-shadow:
+      0 0 0 4px #e5b452,
+      0 0 0 7px #5a3a12,
+      0 0 26px rgba(255, 150, 40, 0.3);
   }
 
   /* ── Standby: the event logo with the date and place ─────────────── */

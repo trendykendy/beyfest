@@ -17,7 +17,8 @@
   // scripted match (fighter-art/style-frames/arena): Buzzsaw v Pugilist.
   //   ?at=<ms>   jump to that moment of the script and hold (for screenshots)
   //   ?sides=off|left|right|alt   who's North (alt swaps each round)
-  //   ?long      the longest match, ?noimg silhouettes, ?fill=<n> face fill
+  //   ?long      the longest first-to-5, ?gf the longest Reckoning (first to 9)
+  //   ?noimg     silhouettes, ?fill=<n> face fill
   //   ?clean     hide the controls
   //   R / space replays, H hides the controls.
   const q = page.url.searchParams;
@@ -52,8 +53,14 @@
     ["left", "Banishment", 2],
   ];
   const LONG_MATCH: Play[] = Array.from({ length: 9 }, (_, k) => [k % 2 ? "right" : "left", "Endurance", 1]);
-  const MATCH = q.has("long") ? LONG_MATCH : FRAME_MATCH;
-  const TARGET = 5;
+  // ?gf: the Reckoning (first to 9) at its longest, single points traded to
+  // 8 all, then an Annihilation: the tags count up and the score reaches 11.
+  const GF_MATCH: Play[] = [
+    ...Array.from({ length: 16 }, (_, k): Play => [k % 2 ? "right" : "left", k % 6 === 4 ? "Banishment" : "Endurance", 1]),
+    ["left", "Annihilation", 3],
+  ];
+  const MATCH = q.has("gf") ? GF_MATCH : q.has("long") ? LONG_MATCH : FRAME_MATCH;
+  const TARGET = q.has("gf") ? 9 : 5;
   const START = 1500;
   const STEP = 2600;
   const LINES = ["Let it rip!", "Is that all you've got?", "If it's stupid and it works, it's not stupid."];
@@ -82,7 +89,13 @@
   const sl = $derived(scoreOf("left"));
   const sr = $derived(scoreOf("right"));
   const decided = $derived(sl >= TARGET || sr >= TARGET);
-  const door = $derived(!decided && (forceDoor || sl >= TARGET - 1 || sr >= TARGET - 1));
+  // Death's Door, and whose: one point from the target (the tick box forces the glow alone).
+  const door = $derived.by(() => {
+    if (decided) return false;
+    const l = sl === TARGET - 1;
+    const r = sr === TARGET - 1;
+    return l && r ? "both" : l ? "left" : r ? "right" : forceDoor;
+  });
   const status = $derived<ArenaStatus>(decided ? "won" : door ? "door" : "battle");
 
   // Who's North this round, by the sides control.
