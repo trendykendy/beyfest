@@ -5,6 +5,7 @@
   import MatchRow from "./MatchRow.svelte";
   import RoyaleCard from "./RoyaleCard.svelte";
   import type { PBRoyale } from "$lib/royale";
+  import { SCREENS } from "$lib/terms";
 
   // Now & next: what's being played, the next few to be called (in the TV's
   // order) and the latest results. The champion on top once it's all over.
@@ -46,7 +47,7 @@
 {/if}
 
 <section>
-  <h2 class="lv-h">Live now</h2>
+  <h2 class="lv-h">{SCREENS.live}</h2>
   {#each live as m (m.code)}
     <div class="gap"><LiveMatch match={m} {matches} {names} {groupCount} {followId} /></div>
   {:else}
@@ -56,7 +57,7 @@
 
 {#if next.length}
   <section>
-    <h2 class="lv-h">Up next</h2>
+    <h2 class="lv-h">{SCREENS.upNext}</h2>
     <div class="lv-slab">
       {#each next as m (m.code)}
         <MatchRow match={m} {names} {groupCount} {followId} nextCode={next[0].code} label={matchContext(m, matches)} />
@@ -65,7 +66,7 @@
   </section>
 {:else if !final}
   <section>
-    <h2 class="lv-h">Up next</h2>
+    <h2 class="lv-h">{SCREENS.upNext}</h2>
     <p class="lv-note">The next matches are waiting on results still being played.</p>
   </section>
 {/if}
@@ -93,7 +94,7 @@
     background: var(--ink);
     color: var(--paper);
     border: var(--outline) solid var(--gold);
-    box-shadow: 5px 5px 0 var(--gold);
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
     padding: 14px 16px;
   }
   .champ div {
@@ -112,6 +113,7 @@
   }
   .champ-name {
     font-family: var(--font-display);
+    font-weight: 900;
     font-stretch: 62%;
     font-size: 2.4rem;
     line-height: 1;

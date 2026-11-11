@@ -535,8 +535,8 @@
     font-weight: 900;
     font-size: 1.35rem;
     letter-spacing: 0.04em;
-    color: #ffd257;
-    text-shadow: 0 3px 0 #1c0c04;
+    color: var(--bb-head, #ffd257);
+    text-shadow: var(--bb-head-shadow, 0 3px 0 #1c0c04);
   }
   .carved .link {
     stroke: #8d8577;

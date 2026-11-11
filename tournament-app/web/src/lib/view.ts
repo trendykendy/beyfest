@@ -1,6 +1,6 @@
 import { computeStandings, type Match, type Slot, type Stage, type StandingRow } from "@beyfest/engine";
 import { royaleView, type PBRoyale } from "./royale";
-import { AWARD_NAMES, SCREENS, STAGES, TITLES } from "./terms";
+import { AWARD_NAMES, SCREENS, STAGES, TITLES, circleName } from "./terms";
 
 // Plain shapes as they arrive from PocketBase (superset of engine fields).
 export interface PBPlayer {
@@ -69,21 +69,33 @@ export function tierOf(stage: Stage): "wb" | "mb" | "lb" | "gf" | "group" {
   return "group";
 }
 
-// Plain-words round name for screens, from the engine's internal label:
-// "Phase 4 — MB R2" → "Mid bracket round 2", "Phase 7 — Grand Final" → "Grand final".
+// A group's stored name or label in the screens' words: "Group 2" → "Circle II".
+// Anything else comes back unchanged.
+export function circleLabel(groupName: string): string {
+  const n = /^Group (\d+)$/.exec(groupName);
+  return n ? circleName(Number(n[1]) - 1) : groupName;
+}
+
+// The in-world round name for screens, from the engine's internal label:
+// "Phase 4 — MB R2" → "Iron Path round 2", "Phase 7 — Grand Final" → "The Reckoning".
+// The Winners bracket is the Gilded Path, the Mid the Iron, the Losers the
+// Ashen; with 8 players (double elimination) the upper bracket is the Gilded
+// Path and the lower the Ashen.
 export function roundName(roundLabel: string): string {
   let s = roundLabel.replace(/^Phase \w+ — /, "");
-  if (s === "WB SF Losers Playoff") return "Winners 3rd-place play-off";
+  if (s === "WB SF Losers Playoff") return `${STAGES.winners} 3rd-place play-off`;
+  if (/^Grand Final$/i.test(s)) return STAGES.grandFinal;
   s = s
-    // 8 players (double elimination): "Upper Bracket — Quarterfinals" → "Upper bracket quarter-finals"
-    .replace(/^(Upper|Lower) Bracket — /, "$1 bracket ")
+    // 8 players: "Upper Bracket — Quarterfinals" → "Gilded Path quarter-finals"
+    .replace(/^Upper Bracket — /, "WB ")
+    .replace(/^Lower Bracket — /, "LB ")
     .replace(/\bQuarterfinals\b/, "quarter-finals")
     .replace(/\bSemifinals\b/, "semi-finals")
     .replace(/\bSemifinal\b/, "semi-final")
-    .replace(/\bWB\b/, "Winners")
-    .replace(/\bMB\b/, "Mid bracket")
-    .replace(/\bLB\b/, "Losers")
-    .replace(/\bMini-RR\b/, "mini round-robin")
+    .replace(/\bWB\b/, STAGES.winners)
+    .replace(/\bMB\b/, STAGES.mid)
+    .replace(/\bLB\b/, STAGES.losers)
+    .replace(/\bMini-RR\b/, "round-robin")
     .replace(/\bR(\d)\b/, "round $1")
     .replace(/\bRound\b/, "round")
     .replace(/\bSemis\b/, "semi-finals")
@@ -98,14 +110,14 @@ export function roundName(roundLabel: string): string {
 export const isLive = (m: PBMatch) =>
   m.matchStatus === "ready" && (m.liveP1 > 0 || m.liveP2 > 0 || !!m.startedAt);
 
-// Where a match sits, in words: "Group 3, match 2 of 6" or "Mid bracket round 2".
+// Where a match sits, in words: "Circle III, match 2 of 6" or "Iron Path round 2".
 export function matchContext(m: PBMatch, matches: PBMatch[]): string {
   if (m.stage !== "group") return roundName(m.roundLabel);
   const list = matches
     .filter((x) => x.stage === "group" && x.groupIndex === m.groupIndex)
     .sort((a, b) => a.orderIndex - b.orderIndex);
   const n = list.findIndex((x) => x.code === m.code) + 1;
-  return `${m.roundLabel}, match ${n} of ${list.length}`;
+  return `${circleLabel(m.roundLabel)}, match ${n} of ${list.length}`;
 }
 
 // Group sizes in words: [4, 4, 4] → "3 groups of 4", [5, 4, 4] → "1 group of 5 and 2 of 4".
@@ -124,7 +136,7 @@ export function slotLabel(slot: Slot | null, groupCount: number): string {
   if (!slot) return "TBD";
   switch (slot.k) {
     case "groupRank": {
-      const g = `Group ${slot.group + 1}`;
+      const g = circleName(slot.group);
       if (slot.rank === 1) return `${g} winner`;
       return `${g} ${ordinal(slot.rank)}`;
     }
@@ -136,11 +148,11 @@ export function slotLabel(slot: Slot | null, groupCount: number): string {
       return `Loser of ${slot.match}`;
     case "rrRank": {
       // Placement in a mini round-robin, in words people can read off a TV.
-      const rr = slot.stage === "wb_rr" ? "Winners round-robin" : "Losers round-robin";
+      const rr = `${slot.stage === "wb_rr" ? STAGES.winners : STAGES.losers} round-robin`;
       return slot.rank === 1 ? `${rr} winner` : `${rr} ${ordinal(slot.rank)}`;
     }
     case "poolDraw":
-      return "Drawn from group middles";
+      return "Drawn from the Circles' middles";
   }
 }
 

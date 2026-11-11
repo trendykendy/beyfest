@@ -26,8 +26,8 @@
   } = $props();
 
   const RR = [
-    { tier: "wb", stage: "wb_rr", title: "Winners round-robin", note: "Winner goes straight to the grand final" },
-    { tier: "lb", stage: "lb_rr", title: "Losers round-robin", note: "Last chance to stay in" },
+    { tier: "wb", stage: "wb_rr", title: "Gilded Path round-robin", note: "The winner goes straight to The Reckoning" },
+    { tier: "lb", stage: "lb_rr", title: "Ashen Path round-robin", note: "The last chance to stay in" },
   ] as const;
   const rrs = $derived(RR.filter((r) => hasStage(matches, r.stage)));
   const rrPlayed = (stage: string) => {
@@ -191,17 +191,22 @@
         />
       </section>
     {/each}
-    <BroadcastBracket {matches} {players} {structure} {groupCount} {followId} fit="swipe" bind:pages={columns} />
+    <BroadcastBracket {matches} {players} {structure} {groupCount} {followId} fit="swipe" carved bind:pages={columns} />
   </div>
 {/if}
 
 <style>
+  /* The TV's stone plates, on parchment: the round names go dark to read. */
+  :global(.live) {
+    --bb-head: #5a3a0c;
+    --bb-head-shadow: none;
+  }
   /* ── Round bar: where you are, and taps to get elsewhere ── */
   /* Sticks under the page header (52px + its outline), so it stays in view
      down a tall column. Full width, so plates scroll away behind it. */
   .rb {
     position: sticky;
-    top: calc(52px + var(--outline) + env(safe-area-inset-top));
+    top: calc(64px + env(safe-area-inset-top));
     z-index: 10;
     display: flex;
     align-items: center;
@@ -241,6 +246,7 @@
     display: flex;
     flex-direction: column;
     font-family: var(--font-display);
+    font-weight: 900;
     text-transform: uppercase;
     font-size: 1.15rem;
     line-height: 1.1;

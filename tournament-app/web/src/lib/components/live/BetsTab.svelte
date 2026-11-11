@@ -260,7 +260,7 @@
   {/if}
 
   <section>
-    <h2 class="lv-h">Bet now</h2>
+    <h2 class="lv-h">Place a wager</h2>
     {#each open as m (m.id)}
       {@const o = matchOdds(m, matches)}
       {@const live = isLive(m)}
@@ -311,13 +311,13 @@
         {#if slip?.match === m.id && !closed}{@render slipBox()}{/if}
       </div>
     {:else}
-      <p class="lv-note">No matches taking bets right now. Bets open once both bladers are known and close on match point.</p>
+      <p class="lv-note">No matches are taking wagers right now. Wagers open once both of the Bladesworn are known and close at Death's Door.</p>
     {/each}
   </section>
 
   {#if mine.bets.length}
     <section>
-      <h2 class="lv-h">Your bets</h2>
+      <h2 class="lv-h">Your wagers</h2>
       <div class="lv-slab">
         {#each mine.bets as b (b.id)}
           <div class="bet {b.state}">
@@ -338,7 +338,7 @@
   {/if}
 
   <section>
-    <h2 class="lv-h">Leaderboard</h2>
+    <h2 class="lv-h">{WAGERS.leaderboard}</h2>
     <div class="lv-slab">
       {#each board.slice(0, 10) as r (r.bettor.id)}
         <div class="lb" class:me={r.bettor.id === me.id}>
@@ -365,7 +365,7 @@
     background: var(--ink);
     color: var(--paper);
     border: var(--outline) solid var(--gold);
-    box-shadow: 5px 5px 0 var(--gold);
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
     padding: 12px 16px;
   }
   .wallet div {
@@ -388,6 +388,7 @@
   }
   .w-cash {
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 2.6rem;
     line-height: 1;
     font-variant-numeric: tabular-nums;
@@ -443,6 +444,7 @@
     align-items: center;
     gap: 6px;
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.1rem;
     color: var(--red);
   }
@@ -468,10 +470,11 @@
   .side.on {
     background: var(--ink);
     color: var(--paper);
-    box-shadow: 3px 3px 0 var(--gold);
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
   }
   .nm {
     font-family: var(--font-display);
+    font-weight: 900;
     font-stretch: 62%;
     font-size: 1.2rem;
     line-height: 1.1;
@@ -484,6 +487,7 @@
   }
   .od {
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.4rem;
     line-height: 1;
     color: var(--red);
@@ -495,7 +499,7 @@
   /* On match point: the bladers stay up, greyed, until the result is in. */
   .side:disabled {
     cursor: default;
-    color: #8a90ad;
+    color: var(--ink-soft);
     border-color: #c5c9dc;
     min-height: 48px;
   }
@@ -635,12 +639,13 @@
   .go {
     min-height: 52px;
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.25rem;
     text-transform: uppercase;
     background: var(--gold);
     color: var(--ink);
     border: 2px solid var(--ink);
-    box-shadow: 3px 3px 0 var(--ink);
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
     cursor: pointer;
   }
   .go:disabled {
@@ -655,7 +660,7 @@
     gap: 10px;
     min-height: 52px;
     padding: 6px 12px;
-    border-top: 2px solid #e3e6f3;
+    border-top: 2px solid var(--field-line);
   }
   .bet:first-child,
   .lb:first-child {
@@ -669,6 +674,7 @@
   }
   .b-who {
     font-family: var(--font-display);
+    font-weight: 900;
     font-stretch: 62%;
     font-size: 1.15rem;
     text-transform: uppercase;
@@ -683,16 +689,17 @@
   }
   .b-state {
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.05rem;
     padding: 5px 8px 6px;
     white-space: nowrap;
-    background: #e3e6f3;
+    background: var(--field-line);
   }
   .won .b-state {
     background: var(--gold);
   }
   .lost {
-    color: #8a90ad;
+    color: var(--ink-soft);
   }
   .open .b-state {
     background: var(--ink);
@@ -700,6 +707,7 @@
   }
   .lb {
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.15rem;
     font-variant-numeric: tabular-nums;
   }

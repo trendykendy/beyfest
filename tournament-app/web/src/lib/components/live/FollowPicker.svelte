@@ -21,13 +21,13 @@
 </script>
 
 <section>
-  <h2 class="lv-h">Follow a blader</h2>
+  <h2 class="lv-h">Raise a banner</h2>
   <p class="lv-note">
     Their matches are highlighted everywhere, and their next match stays at the top. This phone remembers who you
     picked.
   </p>
   {#if followId}
-    <button class="stop" onclick={() => onpick(null)}>Stop following</button>
+    <button class="stop" onclick={() => onpick(null)}>Lower your banner</button>
   {/if}
   <div class="lv-slab list">
     {#each sorted as p (p.id)}
@@ -38,12 +38,12 @@
           <span class="name">{p.name}</span>
           {#if f || p.withdrawn}
             <span class="sub">
-              {#if f}{f.name}{#if f.kana}<span class="kana">{f.kana}</span>{/if}{/if}
+              {#if f}{f.name}{/if}
               {#if p.withdrawn}<span class="out">Withdrew</span>{/if}
             </span>
           {/if}
         </span>
-        <span class="act">{on ? "Following" : "Follow"}</span>
+        <span class="act">{on ? "Your banner" : "Follow"}</span>
       </button>
     {/each}
   </div>
@@ -61,8 +61,9 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     background: transparent;
-    color: var(--paper);
-    border: 2px solid var(--paper);
+    color: var(--ink);
+    border: 2px solid var(--ink-soft);
+    border-radius: 6px;
     cursor: pointer;
   }
   .list {
@@ -77,7 +78,7 @@
     padding: 8px 12px;
     background: none;
     border: 0;
-    border-top: 2px solid #e3e6f3;
+    border-top: 2px solid var(--field-line);
     color: var(--ink);
     text-align: left;
     cursor: pointer;
@@ -96,6 +97,7 @@
   }
   .name {
     font-family: var(--font-display);
+    font-weight: 900;
     font-stretch: 62%;
     font-size: 1.45rem;
     line-height: 1.1;
@@ -113,9 +115,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  .kana {
-    margin-left: 8px;
   }
   .out {
     margin-left: 8px;

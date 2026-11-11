@@ -34,7 +34,7 @@
         <div class="battle {b.status} {b.kind}">
           <div class="b-head">
             <span class="b-label">{b.label}</span>
-            {#if b.status === "live"}<span class="chip live"><span class="lv-dot"></span>Live</span>
+            {#if b.status === "live"}<span class="chip live"><span class="lv-dot"></span>In battle</span>
             {:else if b.status === "ready" && view.next?.key === b.key}<span class="chip next">Next</span>{/if}
             {#if b.kind === "sudden"}<span class="places">{b.places} go through</span>{/if}
           </div>
@@ -65,7 +65,7 @@
     background: var(--ink);
     color: var(--paper);
     border: var(--outline) solid var(--gold);
-    box-shadow: 5px 5px 0 var(--gold);
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
     padding: 12px 16px;
     margin-bottom: 14px;
   }
@@ -84,6 +84,7 @@
   }
   .champ-name {
     font-family: var(--font-display);
+    font-weight: 900;
     font-stretch: 62%;
     font-size: 2.1rem;
     line-height: 1;
@@ -92,7 +93,7 @@
     padding-right: 4px;
   }
   .battle {
-    border-top: 2px solid #e3e6f3;
+    border-top: 2px solid var(--field-line);
     padding: 8px 12px 10px;
   }
   .battle:first-child {
@@ -109,6 +110,7 @@
   }
   .b-label {
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.25rem;
     text-transform: uppercase;
     flex: 1;
@@ -154,10 +156,11 @@
     align-items: center;
     gap: 6px;
     padding: 4px 8px;
-    border: 2px solid #e3e6f3;
+    border: 2px solid var(--field-line);
   }
   .nm {
     font-family: var(--font-display);
+    font-weight: 900;
     font-stretch: 62%;
     font-size: 1.1rem;
     text-transform: uppercase;
@@ -187,7 +190,7 @@
     color: var(--ink);
   }
   .tag.second {
-    background: #d9dde9;
+    background: var(--field-line);
   }
   .tag.through {
     background: var(--green);

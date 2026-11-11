@@ -2,9 +2,11 @@
   import { pointsToWin } from "@beyfest/engine";
   import { FINISHES } from "$lib/finishes";
   import { isNorth, southOf, stadiumOf } from "$lib/stadia";
+  import { SCREENS } from "$lib/terms";
   import { matchContext, sideName, tierOf, type PBMatch } from "$lib/view";
 
-  // A match being played, as a phone-sized Match centre: both bladers stacked
+  // A match being played, as a phone-sized Arena: the one dark stone card on
+  // the parchment page, so it stands out. Both bladers stacked
   // with their running score, a pill for every round each has won, the target
   // between them, and this round's stadium once it's drawn.
   let {
@@ -45,7 +47,7 @@
 
 <article class="lm tier-{tierOf(match.stage)}">
   <header class="lm-top">
-    {#if decided}<span class="tag won">Match won</span>{:else}<span class="tag live">Live</span>{/if}
+    {#if decided}<span class="tag won">Match won</span>{:else}<span class="tag live">{SCREENS.live}</span>{/if}
     <span class="ctx">{matchContext(match, matches)}</span>
   </header>
 
@@ -83,146 +85,143 @@
 </article>
 
 <style>
+  /* Dark stone edged in gold, gold numerals: the TV's Arena in miniature. */
   .lm {
-    --tier: var(--gold);
-    background: var(--paper);
-    color: var(--ink);
-    border: var(--outline) solid var(--ink);
-    box-shadow: 5px 5px 0 var(--ink);
-    border-left: 10px solid var(--tier);
+    --tier: #eab13a;
+    background: linear-gradient(180deg, #2f3139, #15161b);
+    color: #f3e6c4;
+    border-radius: 6px;
+    box-shadow:
+      0 0 0 3px var(--tier),
+      0 0 0 5px #1c0c04,
+      0 6px 0 rgba(0, 0, 0, 0.45);
+    margin: 5px;
+    overflow: hidden;
   }
-  .tier-wb {
-    --tier: var(--wb);
+  .tier-mb {
+    --tier: #aab3bf;
   }
   .tier-lb {
-    --tier: var(--lb);
+    --tier: #b0694f;
   }
   .tier-gf {
-    --tier: var(--ink);
+    --tier: #ffd257;
   }
   .lm-top {
     display: flex;
     align-items: center;
     gap: 10px;
-    background: var(--ink);
-    color: var(--paper);
-    padding-right: 10px;
-    min-height: 36px;
+    padding: 9px 12px 8px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.08);
   }
   .tag {
     font-family: var(--font-display);
+    font-weight: 900;
     text-transform: uppercase;
-    font-size: 1.05rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
     line-height: 1;
-    align-self: stretch;
-    display: grid;
-    place-items: center;
-    padding: 0 18px 0 10px;
-    clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
-  }
-  .tag.live {
-    background: var(--red);
-    color: var(--paper);
-  }
-  .tag.won {
-    background: var(--gold);
-    color: var(--ink);
-  }
-  .ctx {
-    font-size: 0.85rem;
-    font-weight: 600;
-    line-height: 1.2;
-    min-width: 0;
-  }
-  /* Round tag, numeral block in the stadium's colour, name: the TV's chip. */
-  .stadium {
-    display: flex;
-    align-items: stretch;
-    width: fit-content;
-    max-width: calc(100% - 20px);
-    margin: 10px 10px 2px;
-    border: 2px solid var(--ink);
-    box-shadow: 3px 3px 0 var(--st);
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 0.95rem;
-    line-height: 1;
-    transform: skewX(-8deg);
-  }
-  .sides {
-    margin: 6px 0 10px;
-    font-size: 0.9rem;
-    color: var(--ink-soft);
-  }
-  .sides b {
-    color: var(--ink);
-  }
-  .stadium > span {
-    display: grid;
-    place-items: center;
-    padding: 5px 10px 6px;
+    padding: 5px 9px 4px;
+    border-radius: 3px;
     white-space: nowrap;
   }
+  .tag.live {
+    color: #fff;
+    background: linear-gradient(180deg, #c8651c, #7a3408);
+    box-shadow: 0 0 12px rgba(255, 140, 40, 0.6);
+  }
+  .tag.won {
+    color: #2a1606;
+    background: linear-gradient(180deg, #ffe08a, #c98a1c);
+  }
+  .ctx {
+    font-size: 0.95rem;
+    font-variant: small-caps;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    min-width: 0;
+    color: #e9cf8e;
+  }
+  /* This round's arena: its numeral in the arena's colour, then its name. */
+  .stadium {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin: 10px 12px 0;
+    font-size: 0.95rem;
+    color: #b9ab8c;
+  }
   .stadium .rd {
-    background: var(--ink);
-    color: var(--paper);
-    font-family: var(--font-text);
-    font-stretch: 75%;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    font-size: 0.8rem;
+    font-variant: small-caps;
+    letter-spacing: 0.05em;
   }
   .stadium .num {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 0.8rem;
+    line-height: 1;
+    padding: 3px 7px 2px;
+    border-radius: 3px;
     background: var(--st);
     color: var(--st-ink);
-    border-right: 2px solid var(--ink);
-    min-width: 2.2em;
   }
   .stadium .nm {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #f6ecd2;
+  }
+  .sides {
+    margin: 4px 12px 0;
+    font-size: 0.9rem;
+    color: #b9ab8c;
+  }
+  .sides b {
+    color: #f6ecd2;
   }
   .side {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     column-gap: 10px;
-    padding: 8px 12px 8px 12px;
+    padding: 10px 12px;
   }
   .side.me {
-    background: color-mix(in srgb, var(--gold) 26%, var(--paper));
+    background: linear-gradient(90deg, rgba(234, 177, 58, 0.28), transparent 80%);
+    box-shadow: inset 4px 0 0 #eab13a;
   }
   .name {
     font-family: var(--font-display);
-    font-stretch: 62%;
-    font-size: 1.7rem;
-    line-height: 1.05;
+    font-weight: 900;
+    font-size: 1.35rem;
+    line-height: 1.1;
     text-transform: uppercase;
+    color: #f6ecd2;
+    text-shadow: 0 2px 0 #000;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 4px; /* italic overhang */
-  }
-  .me .name {
-    text-decoration: underline 3px var(--ink);
-    text-underline-offset: 4px;
   }
   .score {
     font-family: var(--font-display);
-    font-size: 2.6rem;
+    font-weight: 900;
+    font-size: 2.8rem;
     line-height: 1;
-    min-width: 1.4em;
+    min-width: 1.2em;
     text-align: center;
-    font-variant-numeric: tabular-nums;
-    padding-right: 4px;
+    color: transparent;
+    background: linear-gradient(180deg, #fffbe0 8%, #ffd257 40%, #b96a10 75%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: drop-shadow(0 3px 0 #1c0c04);
   }
-  .won .score {
-    color: var(--ink);
-    background: var(--gold);
-    border: 2px solid var(--ink);
+  .lost .name {
+    color: #8d8577;
   }
-  .lost {
-    color: #8a90ad;
+  .lost .score {
+    opacity: 0.5;
   }
   .pills {
     grid-column: 1 / -1;
@@ -232,18 +231,20 @@
     margin-top: 6px;
   }
   .pill {
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 0.62rem;
     line-height: 1;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    padding: 4px 7px 5px;
-    background: var(--ink);
-    color: var(--paper);
-    transform: skewX(-8deg);
+    padding: 4px 7px 3px;
+    border-radius: 3px;
+    color: #ffe6ad;
+    background: #1c0c04;
+    box-shadow: 0 0 0 1.5px #eab13a;
   }
   .pill b {
-    color: var(--gold);
+    color: #ffcf73;
   }
   /* "First to 5" sits on the line between the two sides. */
   .ft {
@@ -251,17 +252,18 @@
     align-items: center;
     gap: 8px;
     padding: 0 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--ink-soft);
+    font-size: 0.85rem;
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+    color: #b9ab8c;
   }
   .ft::before,
   .ft::after {
     content: "";
     flex: 1;
-    border-top: 2px solid #e3e6f3;
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
   }
   .ft b {
-    color: var(--ink);
+    color: #fff1c4;
   }
 </style>

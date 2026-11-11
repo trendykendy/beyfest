@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    circleLabel,
     destinationOf,
     groupStandings,
     isLive,
@@ -56,7 +57,7 @@
         aria-selected={g.index === group.index}
         onclick={() => (picked = g.index)}
       >
-        {g.name}
+        {circleLabel(g.name)}
         {#if fixturesOf(g.index).some(isLive)}<span class="lv-dot" title="Match on now"></span>{/if}
         {#if g.index === followedGroup}<span class="lv-star" title="Followed blader's group">★</span>{/if}
       </button>
@@ -65,8 +66,8 @@
 
   <section class="lv-slab">
     <header class="lv-slab-head">
-      <h2>{group.name}</h2>
-      <span>{group.complete ? "Final standings" : `${played} of ${fixtures.length} played`}</span>
+      <h2>{circleLabel(group.name)}</h2>
+      <span>{group.complete ? "Final standings" : `${played} of ${fixtures.length} fought`}</span>
     </header>
     <StandingsTable
       rows={groupStandings(players, matches, group.index)}
@@ -76,7 +77,7 @@
       {followId}
     />
     {#if !group.complete}
-      <p class="key">Dashed: where they'd go if the group ended now.</p>
+      <p class="key">Dashed: where they'd go if the Circle ended now.</p>
     {/if}
   </section>
 
@@ -95,6 +96,6 @@
     font-size: 0.8rem;
     color: var(--ink-soft);
     padding: 6px 12px 8px;
-    border-top: 2px solid #e3e6f3;
+    border-top: 2px solid var(--field-line);
   }
 </style>

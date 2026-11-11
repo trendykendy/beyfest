@@ -295,6 +295,13 @@
   .carved .side.won .nm {
     color: #fff1c4;
   }
+  .carved .side.me {
+    background: linear-gradient(90deg, rgba(234, 177, 58, 0.3), transparent 80%);
+    box-shadow: inset 4px 0 0 #eab13a;
+  }
+  .carved .side.me .nm {
+    text-decoration: none;
+  }
   .carved .side.lost {
     color: #8d8577;
   }
