@@ -46,7 +46,7 @@
 
 <aside class="yn" class:live={next?.state === "live"} class:soon={next?.state === "ready" && next.ahead === 0}>
   <header class="yn-top">
-    <span class="yn-tag">Following</span>
+    <span class="yn-tag">Your banner</span>
     <span class="yn-name">{player.name}</span>
   </header>
   <div class="yn-body">
@@ -78,7 +78,8 @@
     background: var(--paper);
     color: var(--ink);
     border: var(--outline) solid var(--ink);
-    box-shadow: 5px 5px 0 var(--gold);
+    border-radius: 6px;
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
     overflow: hidden;
   }
   .yn-top {
@@ -102,10 +103,10 @@
     text-transform: uppercase;
     letter-spacing: 0.12em;
     padding: 0 18px 0 10px;
-    clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   }
   .yn-name {
     font-family: var(--font-display);
+    font-weight: 900;
     font-stretch: 62%;
     font-size: 1.15rem;
     text-transform: uppercase;
@@ -148,6 +149,7 @@
     flex-wrap: wrap;
     gap: 8px;
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.35rem;
     line-height: 1.1;
     text-transform: uppercase;
@@ -170,6 +172,7 @@
   }
   .yn-vs b {
     font-family: var(--font-display);
+    font-weight: 900;
     font-stretch: 62%;
     font-size: 1.15rem;
     text-transform: uppercase;
@@ -188,6 +191,6 @@
   }
   /* Called next: the whole card says so. */
   .soon {
-    box-shadow: 5px 5px 0 var(--red);
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
   }
 </style>

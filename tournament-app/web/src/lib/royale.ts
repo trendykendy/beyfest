@@ -13,6 +13,7 @@
 // Only the drawn order of entrants and each battle's result are stored (one
 // `royales` record); every battle's line-up is worked out here, so fixing a
 // heat result re-flows into the battles after it. Plain logic, tested.
+import { TITLES } from "./terms";
 
 export type BattleResult = {
   startedAt?: string; // ISO: Start pressed (the TV plays the intro)
@@ -70,7 +71,7 @@ export type BattleStatus = "waiting" | "ready" | "live" | "done";
 export type Battle = {
   key: string; // H1…, SD, F
   kind: BattleKind;
-  label: string; // "Heat 1", "Sudden death", "Final"
+  label: string; // "Skirmish I", "Last Stand", "Final Mêlée"
   entrants: string[]; // empty while waiting on earlier battles
   status: BattleStatus;
   result: BattleResult;
@@ -120,7 +121,7 @@ export function royaleView(r: PBRoyale): RoyaleView | null {
     const heats = plan.heats.map((size, i) => {
       const entrants = r.entrants.slice(at, at + size);
       at += size;
-      return make(`H${i + 1}`, "heat", `Heat ${i + 1}`, entrants, true);
+      return make(`H${i + 1}`, "heat", `${TITLES.royaleHeat} ${["I", "II", "III", "IV", "V", "VI"][i] ?? i + 1}`, entrants, true);
     });
     const heatsDone = heats.every((h) => h.status === "done");
     const winners = heats.map((h) => h.result.winner ?? "");
@@ -129,7 +130,7 @@ export function royaleView(r: PBRoyale): RoyaleView | null {
     let extra: string[] = [];
     let extraDone = heatsDone;
     if (plan.sudden) {
-      const sd = make("SD", "sudden", "Sudden death", runnersUp, heatsDone, plan.suddenPlaces);
+      const sd = make("SD", "sudden", TITLES.royaleSuddenDeath, runnersUp, heatsDone, plan.suddenPlaces);
       extra = sd.result.advancing ?? [];
       extraDone = sd.status === "done";
     } else if (placesLeft > 0) {
@@ -138,7 +139,7 @@ export function royaleView(r: PBRoyale): RoyaleView | null {
     finalists = [...winners, ...extra];
     finalReady = extraDone;
   }
-  const final = make("F", "final", "Final", finalists, finalReady);
+  const final = make("F", "final", TITLES.royaleFinal, finalists, finalReady);
 
   return {
     plan,

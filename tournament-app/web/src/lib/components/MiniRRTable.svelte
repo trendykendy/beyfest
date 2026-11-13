@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PBMatch, PBPlayer } from "$lib/view";
   import { miniRRStandings, nameMap, ordinal } from "$lib/view";
+  import { STAGES } from "$lib/terms";
 
   let {
     matches,
@@ -15,7 +16,7 @@
   } = $props();
 
   const tier = $derived(stage === "wb_rr" ? "wb" : "lb");
-  const title = $derived(stage === "wb_rr" ? "Winners round-robin" : "Losers round-robin");
+  const title = $derived(`${stage === "wb_rr" ? STAGES.winners : STAGES.losers} round-robin`);
   const names = $derived(nameMap(players));
   const rows = $derived(miniRRStandings(matches, stage));
   const stageMatches = $derived(matches.filter((m) => m.stage === stage));
@@ -24,8 +25,8 @@
 
   // Where each place goes next, in words (matches the TV's round-robin scene).
   function fate(rank: number): { text: string; tier: "gf" | "mb" | "out" } {
-    if (stage === "wb_rr") return rank === 1 ? { text: "Grand final", tier: "gf" } : { text: "Mid bracket", tier: "mb" };
-    return rank <= advancers ? { text: "Mid bracket", tier: "mb" } : { text: "Out", tier: "out" };
+    if (stage === "wb_rr") return rank === 1 ? { text: STAGES.grandFinal, tier: "gf" } : { text: STAGES.mid, tier: "mb" };
+    return rank <= advancers ? { text: STAGES.mid, tier: "mb" } : { text: "Out", tier: "out" };
   }
 </script>
 
@@ -49,7 +50,7 @@
         </tr>
       {/each}
       {#if rows.length === 0}
-        <tr><td class="empty" colspan="5">Waiting for the group stage to finish.</td></tr>
+        <tr><td class="empty" colspan="5">Waiting for The Proving to finish.</td></tr>
       {/if}
     </tbody>
   </table>

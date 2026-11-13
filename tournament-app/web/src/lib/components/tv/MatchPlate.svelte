@@ -12,11 +12,13 @@
     names,
     groupCount,
     followId = "",
+    carved = false,
   }: {
     match: PBMatch;
     names: Map<string, string>;
     groupCount: number;
     followId?: string; // the phone's followed blader, washed gold
+    carved?: boolean; // the TV's Carved look: a stone plate edged in its Path's metal
   } = $props();
 
   const tier = $derived(tierOf(match.stage));
@@ -38,7 +40,7 @@
   const won2 = $derived(done && match.winner === match.p2);
 </script>
 
-<div class="plate tier-{tier}" class:pending={match.matchStatus === "pending"} class:live>
+<div class="plate tier-{tier}" class:carved class:pending={match.matchStatus === "pending"} class:live>
   <div class="phead">
     <span class="pcode">{match.code}</span>
     {#if live}
@@ -200,5 +202,107 @@
   .side.me .nm {
     text-decoration: underline 3px var(--ink);
     text-underline-offset: 3px;
+  }
+
+  /* ── The TV's Carved look ────────────────────────────────────────────
+     A stone plate edged in its Path's metal (gilded, iron, ashen; bright gold
+     for The Reckoning). In battle it's torch-lit; waiting on results it's dim. */
+  .plate.carved {
+    --tier: var(--tf-path-gilded);
+    --tier-ink: #1c0c04;
+    background: linear-gradient(180deg, #3d4049, #1b1d23);
+    color: #f6ecd2;
+    border: 0;
+    border-radius: 5px;
+    box-shadow:
+      0 0 0 3px var(--tier),
+      0 0 0 6px #1c0c04,
+      0 8px 0 #000;
+    overflow: hidden;
+  }
+  .carved.tier-mb {
+    --tier: #aab3bf;
+  }
+  .carved.tier-lb {
+    --tier: #b0694f;
+  }
+  .carved.tier-gf {
+    --tier: #ffd257;
+  }
+  .plate.carved.live {
+    outline: 0;
+    box-shadow:
+      0 0 0 3px #ff9d2e,
+      0 0 0 6px #1c0c04,
+      0 8px 0 #000,
+      0 0 26px rgba(255, 140, 40, 0.7);
+  }
+  .plate.carved.pending {
+    background: linear-gradient(180deg, #2a2c33, #15161b);
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--tier) 45%, #1c0c04),
+      0 0 0 6px #1c0c04;
+  }
+  .carved .phead {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--tier) 88%, #fff), color-mix(in srgb, var(--tier) 70%, #000));
+    color: var(--tier-ink);
+    border-bottom: 3px solid #1c0c04;
+    font-family: var(--tf-font-text);
+    font-size: 1.1rem;
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+  }
+  .carved .plive {
+    background: #1c0c04;
+    color: #ffe6ad;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-variant: normal;
+  }
+  .carved .dot {
+    background: #ff9d2e;
+  }
+  .carved .side + .side {
+    border-top: 2px solid rgba(255, 255, 255, 0.08);
+  }
+  .carved .nm {
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-stretch: 100%;
+    font-size: 1.55rem;
+    text-shadow: 0 2px 0 #000;
+  }
+  .carved .side.tbd .nm {
+    font-family: var(--tf-font-text);
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1.35rem;
+    color: #8d8577;
+    text-shadow: none;
+  }
+  .carved .sc {
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 1.8rem;
+    border-left: 2px solid rgba(255, 255, 255, 0.08);
+    color: #a99f8b;
+  }
+  .carved .side.won .sc {
+    background: none;
+    color: #ffd257;
+    border-left-color: rgba(255, 255, 255, 0.08);
+  }
+  .carved .side.won .nm {
+    color: #fff1c4;
+  }
+  .carved .side.me {
+    background: linear-gradient(90deg, rgba(234, 177, 58, 0.3), transparent 80%);
+    box-shadow: inset 4px 0 0 #eab13a;
+  }
+  .carved .side.me .nm {
+    text-decoration: none;
+  }
+  .carved .side.lost {
+    color: #8d8577;
   }
 </style>

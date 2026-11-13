@@ -43,7 +43,7 @@ describe("sideName", () => {
 
   test("where they come from until then", () => {
     const m = match("MB1", 1, "pending", "", "", { slot2: { k: "groupRank", group: 0, rank: 1 } });
-    expect(sideName(m, 2, names, 3)).toBe("Group 1 winner");
+    expect(sideName(m, 2, names, 3)).toBe("Circle I winner");
   });
 });
 

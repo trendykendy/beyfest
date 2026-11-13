@@ -92,6 +92,7 @@
   }
   .you-name {
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.8rem;
     line-height: 1;
   }

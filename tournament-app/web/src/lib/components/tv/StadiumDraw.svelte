@@ -5,7 +5,7 @@
   // The stadium draw over Match centre. Three looks, all built from the old
   // launch countdown's black band and slam-in cards:
   //   reel      — the name card rolls like a slot reel onto the stadium
-  //   spotlight — all three slam in; a highlight hops between them and stops
+  //   spotlight — every arena slams in; a highlight hops between them and stops
   //   spin      — a bey-top disc twirls and winds down under a pointer
   // "launch" (Start match) ends on ゴーシュート / LET IT RIP; "next" (every
   // later round, and a redraw) is a ~3s shuffle then the name. Transform and
@@ -45,10 +45,14 @@
   let landed = $state(false);
   let leaving = $state(false);
 
-  // Reel: enough loops of I/II/III to roll for a while, ending on the draw.
+  // However many arenas there are (three in 2026, four now): nothing below
+  // may assume a number, or the draw breaks on the arena it didn't count.
+  const N = STADIA.length;
+
+  // Reel: enough turns through the arenas to roll for a while, ending on the draw.
   const seq: number[] = [];
-  for (let k = 0; k < (launch ? 5 : 4) * 3; k++) seq.push(k % 3);
-  while (seq[seq.length - 1] !== idx) seq.push(seq.length % 3);
+  for (let k = 0; k < (launch ? 15 : 12); k++) seq.push(k % N);
+  while (seq[seq.length - 1] !== idx) seq.push(seq.length % N);
   let numReel = $state<HTMLElement>();
   let nameReel = $state<HTMLElement>();
   let rolling = $state(STADIA[seq[0]].key); // colour follows the name in the window
@@ -88,8 +92,8 @@
       }, 40);
     }
     if (LOOK === "spotlight") {
-      let k = (((idx - hops.length) % 3) + 3) % 3;
-      for (const t of hops) at(START + t, () => (hot = k = (k + 1) % 3));
+      let k = (((idx - hops.length) % N) + N) % N;
+      for (const t of hops) at(START + t, () => (hot = k = (k + 1) % N));
     }
     if (LOOK === "spin" && disc) {
       disc.animate([{ transform: "rotate(0deg)" }, { transform: `rotate(${spinTo}deg)` }], {
@@ -160,7 +164,7 @@
   {:else if look === "spotlight"}
     <div class="layer" class:fade={leaving}>
       {@render heading()}
-      <div class="trio" bind:this={trio} style="--slide: {slide}px">
+      <div class="trio" class:many={N > 3} bind:this={trio} style="--slide: {slide}px">
         {#each STADIA as st, k (st.key)}
           <div
             class="opt"
@@ -409,7 +413,7 @@
     white-space: nowrap;
   }
 
-  /* Spotlight: three slabs; the lit one lifts and turns gold-edged. */
+  /* Spotlight: a slab per arena; the lit one lifts and turns gold-edged. */
   .trio {
     display: flex;
     gap: 60px;
@@ -422,6 +426,13 @@
     transition:
       transform 90ms ease-out,
       opacity 200ms;
+  }
+  /* Four or more: smaller and closer, so the row still fits a 1920 screen. */
+  .trio.many {
+    gap: 40px;
+  }
+  .trio.many .opt {
+    font-size: 3.5rem;
   }
   .opt-in {
     animation: slam-hold 520ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;

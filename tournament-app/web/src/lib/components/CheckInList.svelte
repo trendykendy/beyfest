@@ -27,7 +27,7 @@
 
 <div class="checkin">
   <div class="head">
-    <span class="field">Bladers <b>{players.length}</b></span>
+    <span class="field">Bladesworn <b>{players.length}</b></span>
     <StarterPicker {starters} {people} />
   </div>
 
@@ -75,7 +75,7 @@
       {#each players as p (p.id)}{@render row(p)}{/each}
     </ol>
   {:else}
-    <p class="empty">Nobody yet. Bladers sign in on their phones from the QR code on the TV, or add them here.</p>
+    <p class="empty">Nobody yet. The Bladesworn sign in on their phones from the QR code on the TV, or add them here.</p>
   {/if}
 
   <form
@@ -89,7 +89,7 @@
       };
     }}
   >
-    <input name="name" bind:value={addName} maxlength="16" placeholder="Add a blader" aria-label="Add a blader by name" />
+    <input name="name" bind:value={addName} maxlength="16" placeholder="Add someone" aria-label="Add one of the Bladesworn by name" />
     <button class="mini" disabled={addName.trim().length < 2}>Add</button>
   </form>
 

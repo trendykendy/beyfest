@@ -1,19 +1,25 @@
 <script lang="ts">
-  import Trophy from "$lib/components/Trophy.svelte";
   import { artFor } from "$lib/fighters";
   import FighterSilhouette from "./FighterSilhouette.svelte";
   import { FINISHES } from "$lib/finishes";
-  import { TITLES } from "$lib/terms";
+  import { ARENA_NAME, SCREENS, STAGES, TITLES } from "$lib/terms";
   import type { ChampionRun } from "$lib/view";
 
-  // The Champion scene: the winner's fighter in a gold frame with rays turning
-  // behind it, their combat name on the big gold slab, how their tournament
-  // went, and the runner-up. It plays its reveal each time the scene comes up
-  // (slam-in, flash, confetti), then idles with a shine, a bobbing trophy and
-  // falling confetti.
+  // The champion's scene, in the Carved look: the winner's picture in a gold
+  // frame over a turning gold burst, with a crack of light through the Ring
+  // behind it (the way home opening); their title in carved gold and their
+  // name in slate; how their tournament went, in stone tiles; and who fell to
+  // them in the final. It plays its reveal each time the scene comes up
+  // (frame slams in, flash, the words land), then idles with the burst
+  // turning and gold motes falling. The Deeds run along the bottom.
+  //
+  // Used for the Hero of Gyrondor and, with a different `kicker` and no run,
+  // for the Grand Mêlée's Last One Standing.
+  //
   // victory: the fighter's victory pose, if they have one: shown in the frame
   // instead of the cut-out, and never flipped (it has writing on it).
-  type Fighter = { name: string; player: string; kana: string; img: string; imgMirrored?: string; victory?: string; mirror?: boolean };
+  // On a 1920×972 canvas (the screen under the top bar), scaled to the width.
+  type Fighter = { name: string; player: string; kana?: string; img: string; imgMirrored?: string; victory?: string; mirror?: boolean };
   // An award for the ticker, names already filled in.
   type TickerAward = { key: string; title: string; name: string; detail: string };
   let {
@@ -25,12 +31,12 @@
   }: {
     champion: Fighter; // name: combat name (or the player's own); player: as typed for the tournament
     runnerUp?: Fighter | null;
-    run?: ChampionRun | null; // their tournament, for the stat tiles (none: no tiles, e.g. the battle royale)
-    kicker?: string;
-    awards?: TickerAward[]; // the awards ticker along the bottom (none: no ticker)
+    run?: ChampionRun | null; // their tournament, for the stat tiles (none: no tiles, e.g. the Grand Mêlée)
+    kicker?: string; // the title they've won
+    awards?: TickerAward[]; // the Deeds along the bottom (none: no strip)
   } = $props();
 
-  // The ticker scrolls at a steady speed whatever the number of awards: the
+  // The strip scrolls at a steady speed whatever the number of deeds: the
   // list is drawn twice and slides by one copy's width per loop.
   const tickerSeconds = $derived(Math.max(12, awards.length * 7));
 
@@ -55,59 +61,54 @@
     !run?.final ? "" : run.final.walkover ? "W/O" : `${run.final.score[0]}–${run.final.score[1]}`,
   );
 
-  // Long combat names step down in size so the slab fits its column.
-  const nameSize = (n: string) => (n.length <= 10 ? "" : n.length <= 14 ? "long" : "longer");
+  // Long names step down in size so they fit their column.
+  const nameSize = (n: string) => (n.length <= 12 ? "" : n.length <= 16 ? "long" : "longer");
   const showPlayer = (f: Fighter) => !!f.player && f.player.trim().toLowerCase() !== f.name.trim().toLowerCase();
 
-  // Confetti, random once per reveal. The first fall of every piece starts in
-  // the second after the slam, so it reads as a burst; then they loop.
-  const COLOURS = ["var(--gold)", "var(--gold)", "var(--paper)", "var(--red)", "#3fa0ff", "#ffe27a"];
+  // Gold motes, random once per reveal. The first fall of every piece starts
+  // in the second after the slam, so it reads as a burst; then they loop.
+  const COLOURS = ["#eab13a", "#ffd257", "#fff1c4", "#c98a1c"];
   // svelte-ignore state_referenced_locally
-  const confetti = Array.from({ length: 46 }, () => ({
+  const motes = Array.from({ length: 40 }, () => ({
     left: (Math.random() * 100).toFixed(1),
-    w: Math.round(10 + Math.random() * 12),
-    h: Math.round(6 + Math.random() * 8),
+    w: Math.round(8 + Math.random() * 10),
+    h: Math.round(5 + Math.random() * 7),
     colour: COLOURS[Math.floor(Math.random() * COLOURS.length)],
-    dur: Math.round(3200 + Math.random() * 3000),
+    dur: Math.round(3600 + Math.random() * 3200),
     delay: Math.round(450 + Math.random() * 1200),
     dx: Math.round((Math.random() - 0.5) * 240),
     rot: Math.round((Math.random() < 0.5 ? -1 : 1) * (360 + Math.random() * 720)),
   }));
+
+  let w = $state(1920);
+  const scale = $derived(w / 1920);
 </script>
 
-<div class="champ">
-  <div class="watermark" lang="ja" aria-hidden="true">チャンピオン</div>
-  <div class="rays-wrap" aria-hidden="true"><div class="rays"></div></div>
+<div class="champ" bind:clientWidth={w}>
+  <div class="canvas" style:transform="scale({scale})">
+    <div class="burst-wrap" aria-hidden="true"><div class="burst"></div></div>
+    <div class="crack" aria-hidden="true"></div>
 
-  <div class="layout">
-    <!-- The fighter faces right, towards the name. -->
-    <div class="portrait">
-      <div class="frame">
-        <div class="pic">
-          {#if champion.victory}
-            <img src={champion.victory} alt="" />
-          {:else if champion.img}
-            {@const art = artFor(champion, !champion.mirror)}
-            <img src={art.src} alt="" class:flip={art.flip} />
-          {:else}
-            <div class="sil"><FighterSilhouette flip /></div>
-          {/if}
-        </div>
-      </div>
-      <div class="trophy"><div class="bob"><Trophy size="13rem" label="Trophy" /></div></div>
+    <!-- The picture, in its gold frame. -->
+    <div class="frame">
+      {#if champion.victory}
+        <img src={champion.victory} alt="" />
+      {:else if champion.img}
+        {@const art = artFor(champion, !champion.mirror)}
+        <img class="cut" src={art.src} alt="" class:flip={art.flip} />
+      {:else}
+        <div class="sil"><FighterSilhouette flip /></div>
+      {/if}
     </div>
 
     <div class="info">
-      <div class="kicker"><span>{kicker}</span></div>
-      {#if champion.kana}<div class="kana" lang="ja">{champion.kana}</div>{/if}
-      <div class="name-slab {nameSize(champion.name)}">
-        <span>{champion.name}</span>
-        <i class="shine" aria-hidden="true"></i>
-      </div>
-      {#if showPlayer(champion)}<div class="player">{champion.player}</div>{/if}
+      {#if run}<span class="plate gold">{ARENA_NAME.replace(/^the /, "The ")} is broken</span>{/if}
+      <span class="tf-carved ttl" class:long={kicker.length > 16} data-t={kicker}>{kicker}</span>
+      <span class="tf-carved stone nm {nameSize(champion.name)}" data-t={champion.name}>{champion.name}</span>
+      {#if showPlayer(champion)}<p class="player">{champion.player}</p>{/if}
 
       {#if tiles.length}
-        <div class="stats">
+        <div class="tiles">
           {#each tiles as t, i (t.label)}
             <div class="tile" class:word={t.word} style:--i={i}>
               <b>{t.value}</b>
@@ -119,119 +120,69 @@
 
       {#if runnerUp}
         <div class="runner">
-          <span class="runner-tag"><span class="runner-kana" lang="ja">ランナーアップ</span>Runner-up</span>
-          <span class="runner-name">
-            {runnerUp.name}
-            {#if showPlayer(runnerUp)}<small>{runnerUp.player}</small>{/if}
-          </span>
-          {#if finalScore}
-            <span class="runner-score"><small>Grand final</small><b>{finalScore}</b></span>
-          {/if}
+          <span class="plate">Fell at the last</span>
+          <b>{runnerUp.name}</b>
+          {#if showPlayer(runnerUp)}<span>{runnerUp.player}</span>{/if}
+          {#if finalScore}<span class="sc"><small>{STAGES.grandFinal}</small>{finalScore}</span>{/if}
         </div>
       {/if}
     </div>
-  </div>
 
-  <div class="confetti" aria-hidden="true">
-    {#each confetti as c}
-      <i
-        style:left="{c.left}%"
-        style:width="{c.w}px"
-        style:height="{c.h}px"
-        style:background={c.colour}
-        style:--dur="{c.dur}ms"
-        style:--delay="{c.delay}ms"
-        style:--dx="{c.dx}px"
-        style:--rot="{c.rot}deg"
-      ></i>
-    {/each}
-  </div>
-  {#if awards.length}
-    <!-- The awards, scrolling along the bottom once the reveal has settled. -->
-    <div class="ticker" style:--loop="{tickerSeconds}s">
-      <span class="ticker-tag"><span lang="ja">アワード</span>Awards</span>
-      <div class="ticker-window">
-        <div class="ticker-run">
-          {#each [0, 1] as copy (copy)}
-            <div class="ticker-list" aria-hidden={copy === 1 ? "true" : undefined}>
-              {#each awards as a (a.key)}
-                <span class="tick">
-                  <b>{a.title}</b>
-                  <span class="tick-name">{a.name}</span>
-                  <span class="tick-detail">{a.detail}</span>
-                </span>
-              {/each}
-            </div>
-          {/each}
+    <div class="motes" aria-hidden="true">
+      {#each motes as c}
+        <i
+          style:left="{c.left}%"
+          style:width="{c.w}px"
+          style:height="{c.h}px"
+          style:background={c.colour}
+          style:--dur="{c.dur}ms"
+          style:--delay="{c.delay}ms"
+          style:--dx="{c.dx}px"
+          style:--rot="{c.rot}deg"
+        ></i>
+      {/each}
+    </div>
+
+    {#if awards.length}
+      <!-- The Deeds, scrolling along the bottom once the reveal has settled. -->
+      <div class="ticker" style:--loop="{tickerSeconds}s">
+        <span class="ticker-tag">{SCREENS.awards}</span>
+        <div class="ticker-window">
+          <div class="ticker-run">
+            {#each [0, 1] as copy (copy)}
+              <div class="ticker-list" aria-hidden={copy === 1 ? "true" : undefined}>
+                {#each awards as a (a.key)}
+                  <span class="tick"><b>{a.title}</b> {a.name} · {a.detail}</span>
+                {/each}
+              </div>
+            {/each}
+          </div>
         </div>
       </div>
-    </div>
-  {/if}
-  <div class="flash" aria-hidden="true"></div>
+    {/if}
+    <div class="flash" aria-hidden="true"></div>
+  </div>
 </div>
 
 <style>
-  /* Timeline (ms after the scene comes up):
-       0  rays and watermark fade in · 100 frame slides in
-     450  name slab slams, flash, confetti starts
-     550+ kicker, kana, player name · 950+ stat tiles · 1450 runner-up
-     900  trophy drops onto the frame's corner, then bobs */
   .champ {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* ── Background ─────────────────────────────────────────── */
-  .watermark {
     position: absolute;
-    left: 50%;
-    bottom: -40px;
-    translate: -50% 0;
-    font-family: var(--font-display);
-    font-size: 21rem;
-    line-height: 1;
-    white-space: nowrap;
-    color: var(--gold);
-    opacity: 0.07;
-    pointer-events: none;
-    animation: fade-in 600ms ease-out both;
+    inset: 0;
+    overflow: hidden;
+    background: radial-gradient(ellipse 70% 70% at 30% 50%, #3a2d14, #08080b 75%);
   }
-  /* Gold sunburst behind the portrait. The wrapper places and fades it; the
-     inner square turns (one composited layer, painted once). */
-  .rays-wrap {
+  .canvas {
+    --gold: #eab13a;
+    --edge: #1c0c04;
+    --quiet: #b9ab8c;
     position: absolute;
-    left: 27%;
-    top: 50%;
-    width: 0;
-    height: 0;
-    animation: rays-in 800ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
-  }
-  .rays {
-    position: absolute;
-    left: -1300px;
-    top: -1300px;
-    width: 2600px;
-    height: 2600px;
-    /* Strong near the middle, fading out: faint gold over the blue reads grey. */
-    background: repeating-conic-gradient(rgb(255 199 0 / 0.6) 0deg 7deg, transparent 7deg 18deg);
-    mask-image: radial-gradient(circle, #000 0 22%, rgb(0 0 0 / 0.35) 34%, transparent 50%);
-    will-change: transform;
-    animation: spin 90s linear infinite;
-  }
-  @keyframes rays-in {
-    from {
-      opacity: 0;
-      transform: scale(0.5);
-    }
-  }
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 972px;
+    transform-origin: 0 0;
+    font-family: var(--tf-font-text);
+    color: #f3e6c4;
   }
   @keyframes fade-in {
     from {
@@ -239,320 +190,265 @@
     }
   }
 
-  .layout {
-    position: relative;
-    display: grid;
-    grid-template-columns: 820px minmax(0, 940px);
-    align-items: center;
-    gap: 64px;
+  /* ── Behind the picture: a turning gold burst, and the crack in the Ring ── */
+  .burst-wrap {
+    position: absolute;
+    left: -500px;
+    top: -480px;
+    width: 1920px;
+    height: 1920px;
+    opacity: 0.5;
+    mix-blend-mode: screen;
+    mask: radial-gradient(circle, #000 0, transparent 62%);
+    animation: fade-in 600ms linear 300ms both;
+  }
+  .burst {
+    position: absolute;
+    inset: 0;
+    background: repeating-conic-gradient(rgba(255, 200, 90, 0.85) 0 4deg, transparent 4deg 12deg);
+    animation: turn 70s linear infinite;
+  }
+  @keyframes turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .crack {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(104deg, transparent 49.6%, #fff6d0 49.8%, #ffd257 50%, transparent 50.5%);
+    mask: linear-gradient(180deg, #000, transparent 60%);
+    filter: drop-shadow(0 0 18px rgba(255, 210, 110, 0.9));
+    transform-origin: 50% 0;
+    animation: crack 700ms cubic-bezier(0.2, 0.9, 0.3, 1) 700ms both;
+  }
+  @keyframes crack {
+    from {
+      opacity: 0;
+      transform: scaleY(0);
+    }
   }
 
-  /* ── Portrait ───────────────────────────────────────────── */
-  .portrait {
-    position: relative;
-  }
+  /* ── The picture ── */
   .frame {
-    transform: skewX(-6deg);
-    border: 8px solid var(--gold);
-    outline: 5px solid var(--ink);
-    box-shadow: 18px 18px 0 var(--ink);
-    background: var(--field-deep);
-    animation: frame-in 560ms cubic-bezier(0.2, 0.9, 0.25, 1.05) 100ms both;
+    position: absolute;
+    left: 70px;
+    top: 50px;
+    width: 780px;
+    height: 780px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 35%, #3a3f55, #101218 78%);
+    box-shadow:
+      0 0 0 6px var(--gold),
+      0 0 0 12px var(--edge),
+      0 18px 0 #000,
+      0 0 90px rgba(255, 170, 50, 0.5);
+    animation: frame-in 480ms cubic-bezier(0.2, 0.9, 0.25, 1.1) both;
   }
   @keyframes frame-in {
-    0% {
-      opacity: 0;
-      transform: translateX(-700px) skewX(-18deg);
-    }
-    70% {
-      opacity: 1;
-      transform: translateX(24px) skewX(-3deg);
+    from {
+      transform: translateX(-1100px) rotate(-8deg);
     }
   }
-  .pic {
-    aspect-ratio: 3 / 2;
-    overflow: hidden;
-  }
-  .pic img {
-    display: block;
+  .frame img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* un-skew the picture inside the slanted frame (scaled up to cover the corners) */
-    transform: skewX(6deg) scale(1.12);
   }
-  .pic img.flip {
-    transform: skewX(6deg) scale(-1.12, 1.12);
+  /* A cut-out (no victory pose): the whole figure, not cropped to fill. */
+  .frame img.cut {
+    object-fit: contain;
   }
-  /* No picture: the silhouette on a gold glow. */
+  .frame img.flip {
+    transform: scaleX(-1);
+  }
   .sil {
-    --lite: var(--gold);
-    height: 100%;
-    display: grid;
-    place-items: center;
-    background: radial-gradient(circle at 50% 55%, rgb(255 199 0 / 0.45), transparent 62%);
-  }
-  .sil > :global(svg) {
-    width: 78%;
-  }
-  .trophy {
     position: absolute;
-    right: -70px;
-    bottom: -90px;
-    animation: trophy-in 520ms cubic-bezier(0.2, 1.3, 0.4, 1) 900ms both;
-  }
-  .bob {
-    animation: bob 2400ms ease-in-out 1500ms infinite alternate;
-  }
-  @keyframes trophy-in {
-    from {
-      opacity: 0;
-      transform: translateY(-500px) rotate(-25deg) scale(0.6);
-    }
-  }
-  @keyframes bob {
-    to {
-      transform: translateY(-14px) rotate(3deg);
-    }
+    inset: 12% 14%;
+    --lite: #e9b75a;
   }
 
-  /* ── Name and kicker ────────────────────────────────────── */
+  /* ── The words ── */
   .info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-  }
-  .kicker {
-    transform: skewX(-12deg);
-    background: var(--ink);
-    border: 3px solid var(--gold);
-    padding: 6px 26px 8px;
-    animation: from-right 380ms cubic-bezier(0.2, 0.9, 0.3, 1.1) 550ms both;
-  }
-  .kicker span {
-    display: block;
-    transform: skewX(12deg);
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 2.3rem;
-    line-height: 1;
-    color: var(--gold);
-  }
-  .kana {
-    font-family: var(--font-display);
-    font-size: 3rem;
-    line-height: 1;
-    letter-spacing: 0.06em;
-    color: var(--gold);
-    animation: from-right 380ms cubic-bezier(0.2, 0.9, 0.3, 1.1) 650ms both;
-  }
-  @keyframes from-right {
-    from {
-      opacity: 0;
-      transform: translateX(260px) skewX(-12deg);
-    }
-  }
-
-  /* The loudest thing on the TV: the big gold slab, slammed in oversized. */
-  .name-slab {
-    position: relative;
-    max-width: 100%;
-    overflow: hidden; /* keeps the shine inside the slab; the hard shadow still shows */
-    transform: skewX(-10deg);
-    background: var(--gold);
-    color: var(--ink);
-    border: 6px solid var(--ink);
-    box-shadow: 16px 16px 0 var(--ink);
-    padding: 6px 56px 14px;
-    animation: slam 300ms cubic-bezier(0.55, 0, 1, 0.6) 450ms both;
-  }
-  .name-slab > span {
-    display: block;
-    transform: skewX(10deg);
-    font-family: var(--font-display);
-    font-stretch: 62%;
-    text-transform: uppercase;
-    font-size: 10rem;
-    line-height: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-inline: 0.1em; /* the italic last letter leans past its box */
-  }
-  .name-slab.long > span {
-    font-size: 8rem;
-  }
-  .name-slab.longer > span {
-    font-size: 6.4rem;
-  }
-  @keyframes slam {
-    0% {
-      opacity: 0;
-      transform: translateY(-40px) skewX(-10deg) scale(2.4);
-    }
-    60% {
-      opacity: 1;
-    }
-  }
-  /* A white glint sweeping across the slab every few seconds. */
-  .shine {
     position: absolute;
-    inset: 0;
-    background: linear-gradient(105deg, transparent 38%, rgb(255 255 255 / 0.75) 48%, rgb(255 255 255 / 0.75) 52%, transparent 62%);
-    transform: translateX(-100%);
-    animation: shine 3600ms ease-in-out 1500ms infinite;
+    left: 930px;
+    right: 60px;
+    top: 50px;
   }
-  @keyframes shine {
-    0% {
-      transform: translateX(-100%);
-    }
-    35%,
-    100% {
-      transform: translateX(100%);
-    }
+  .plate {
+    display: inline-block;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    color: #ffe6ad;
+    padding: 8px 22px 6px;
+    background: linear-gradient(180deg, #4a4d58, #1d1f26);
+    border: 4px solid var(--gold);
+    border-radius: 6px;
+    box-shadow:
+      0 0 0 3px var(--edge),
+      inset 0 2px 0 rgba(255, 255, 255, 0.25),
+      0 6px 0 #000;
+  }
+  .plate.gold {
+    background: linear-gradient(180deg, #ffe08a, #c98a1c);
+    color: #2a1606;
+    border-color: #fff1c4;
+    animation: rise 320ms ease-out 500ms both;
+  }
+  .ttl {
+    display: block;
+    width: max-content;
+    margin-top: 22px;
+    font-size: 64px;
+    line-height: 1.05;
+    --stroke: 9px;
+    --drop: 6px;
+    animation: slam 320ms cubic-bezier(0.2, 1.5, 0.4, 1) 650ms both;
+  }
+  .ttl.long {
+    font-size: 54px;
+  }
+  .nm {
+    display: block;
+    width: max-content;
+    margin-top: 6px;
+    font-size: 84px;
+    --stroke: 11px;
+    --drop: 7px;
+    animation: slam 320ms cubic-bezier(0.2, 1.5, 0.4, 1) 850ms both;
+  }
+  .nm.long {
+    font-size: 68px;
+    --stroke: 10px;
+  }
+  .nm.longer {
+    font-size: 54px;
+    --stroke: 8px;
   }
   .player {
-    font-family: var(--font-text);
-    font-weight: 700;
-    font-size: 2.4rem;
-    line-height: 1;
-    color: var(--paper);
-    margin-left: 28px;
-    animation: from-right 380ms cubic-bezier(0.2, 0.9, 0.3, 1.1) 750ms both;
+    margin-top: 4px;
+    font-size: 40px;
+    font-style: italic;
+    color: #e9cf8e;
+    animation: rise 320ms ease-out 1000ms both;
+  }
+  @keyframes slam {
+    from {
+      opacity: 0;
+      transform: scale(1.8);
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(26px);
+    }
   }
 
-  /* ── Stats ──────────────────────────────────────────────── */
-  .stats {
-    display: flex;
-    gap: 18px;
-    margin-top: 14px;
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 34px;
   }
   .tile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    min-width: 170px;
-    padding: 10px 22px 12px;
-    transform: skewX(-10deg);
-    background: var(--paper);
-    color: var(--ink);
-    border: 4px solid var(--ink);
-    border-top: 10px solid var(--gold);
-    box-shadow: 8px 8px 0 var(--ink);
-    animation: pop 340ms cubic-bezier(0.2, 1.3, 0.4, 1) calc(950ms + var(--i) * 110ms) both;
-  }
-  .tile > * {
-    transform: skewX(10deg);
+    padding: 16px 8px 12px;
+    text-align: center;
+    background: linear-gradient(180deg, #3d4049, #1b1d23);
+    border-radius: 6px;
+    box-shadow:
+      0 0 0 3px var(--gold),
+      0 0 0 6px var(--edge),
+      0 8px 0 #000;
+    animation: pop 360ms cubic-bezier(0.2, 1.5, 0.4, 1) calc(1200ms + var(--i) * 110ms) both;
   }
   .tile b {
-    font-family: var(--font-display);
-    font-size: 4.6rem;
-    line-height: 0.95;
-    font-variant-numeric: tabular-nums;
+    display: block;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 56px;
+    line-height: 1;
+    color: #ffd257;
+    text-shadow: 0 4px 0 var(--edge);
+    white-space: nowrap;
   }
+  /* A word, not a number (the favourite finish): smaller, to fit the tile. */
   .tile.word b {
-    font-stretch: 62%;
+    font-size: 25px;
+    line-height: 56px;
     text-transform: uppercase;
-    font-size: 3.6rem;
-    line-height: 1.2; /* same height as the numbers */
   }
   .tile span {
-    font-family: var(--font-text);
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: var(--ink-soft);
-    white-space: nowrap;
+    font-size: 22px;
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+    color: var(--quiet);
   }
   @keyframes pop {
     from {
       opacity: 0;
-      transform: translateY(60px) skewX(-10deg) scale(0.7);
+      transform: scale(0.4);
     }
   }
 
-  /* ── Runner-up ──────────────────────────────────────────── */
-  /* A band with a cut end, like the TV's On now band. */
   .runner {
     display: flex;
-    align-items: stretch;
-    margin-top: 18px;
-    padding-right: 20px;
-    background: var(--ink);
-    color: var(--paper);
-    clip-path: polygon(0 0, 100% 0, calc(100% - 26px) 100%, 0 100%);
-    animation: runner-in 420ms cubic-bezier(0.2, 0.9, 0.3, 1.1) 1450ms both;
-  }
-  .runner > * {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .runner-tag {
-    background: var(--paper);
-    color: var(--ink);
-    padding: 8px 22px;
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    font-size: 1.7rem;
-    line-height: 1;
-  }
-  .runner-kana {
-    font-size: 1rem;
-    color: var(--ink-soft);
-    margin-bottom: 4px;
-  }
-  .runner-name {
-    padding: 8px 28px;
-    font-family: var(--font-display);
-    font-stretch: 62%;
-    text-transform: uppercase;
-    font-size: 3rem;
-    line-height: 1;
-    white-space: nowrap;
-  }
-  .runner-name small {
-    font-family: var(--font-text);
-    font-stretch: 100%;
-    font-weight: 600;
-    text-transform: none;
-    font-size: 1.2rem;
-    color: var(--on-field-soft);
-    margin-top: 4px;
-  }
-  .runner-score {
     align-items: center;
-    padding: 6px 26px;
-    border-left: 3px solid var(--field-line);
+    gap: 22px;
+    margin-top: 40px;
+    font-size: 32px;
+    color: #d9c79b;
+    white-space: nowrap;
+    animation: rise 360ms ease-out 1800ms both;
   }
-  .runner-score small {
-    font-family: var(--font-text);
-    font-weight: 600;
-    font-size: 1.05rem;
-    color: var(--on-field-soft);
+  .runner b {
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 28px;
+    text-transform: uppercase;
+    color: #f6ecd2;
   }
-  .runner-score b {
-    font-family: var(--font-display);
-    font-size: 2.8rem;
-    line-height: 1;
-    color: var(--gold);
+  .runner .plate {
+    font-size: 19px;
+    padding: 7px 14px 5px;
   }
-  @keyframes runner-in {
-    from {
-      opacity: 0;
-      transform: translateY(80px);
-    }
+  .runner > span:not(.plate):not(.sc) {
+    font-size: 28px;
+  }
+  .runner .sc {
+    margin-left: auto;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 50px;
+    color: #ffd257;
+    text-shadow: 0 4px 0 var(--edge);
+  }
+  .runner .sc small {
+    font-family: var(--tf-font-text);
+    font-weight: 400;
+    font-size: 24px;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+    color: var(--quiet);
+    text-shadow: none;
   }
 
-  /* ── Confetti and flash ─────────────────────────────────── */
-  .confetti {
+  /* ── Gold motes ── */
+  .motes {
     position: absolute;
-    inset: -26px -46px; /* out to the stage's edges */
+    inset: 0;
     overflow: hidden;
     pointer-events: none;
   }
-  .confetti i {
+  .motes i {
     position: absolute;
     top: -30px;
     opacity: 0;
@@ -561,109 +457,84 @@
   @keyframes fall {
     0% {
       opacity: 1;
-      transform: translate(0, 0) rotate(0deg);
-    }
-    90% {
-      opacity: 1;
+      transform: translate(0, 0) rotate(0);
     }
     100% {
-      opacity: 0;
-      transform: translate(var(--dx), 1100px) rotate(var(--rot));
+      opacity: 0.9;
+      transform: translate(var(--dx), 1040px) rotate(var(--rot));
     }
   }
+
   .flash {
     position: absolute;
-    inset: -26px -46px;
-    background: #fff;
+    inset: 0;
+    background: #fff3c9;
     opacity: 0;
     pointer-events: none;
-    animation: flash 360ms ease-out 450ms;
+    animation: flash 360ms ease-out 480ms both;
   }
   @keyframes flash {
-    from {
+    0% {
       opacity: 0.85;
     }
-    to {
+    100% {
       opacity: 0;
     }
   }
 
-  /* ── Awards ticker ─────────────────────────────────────── */
-  /* Fades in 10 s after the scene comes up, then scrolls on a loop. */
+  /* ── The Deeds, along the bottom ── */
   .ticker {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 3;
+    height: 81px;
     display: flex;
-    align-items: stretch;
-    height: 74px;
-    background: var(--ink);
+    align-items: center;
+    font-size: 31px;
+    color: #d9c79b;
+    background: linear-gradient(0deg, #08080b, #111116);
     border-top: 5px solid var(--gold);
-    animation: fade-in 800ms ease-out 10s both;
+    animation: fade-in 500ms linear 2400ms both;
   }
   .ticker-tag {
+    flex: none;
+    align-self: stretch;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 0 34px 0 22px;
-    background: var(--gold);
-    color: var(--ink);
-    font-family: var(--font-display);
-    font-size: 2rem;
-    line-height: 1;
+    align-items: center;
+    padding: 0 34px;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 24px;
     text-transform: uppercase;
-    clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%);
-  }
-  .ticker-tag span {
-    font-size: 0.5em;
     letter-spacing: 0.1em;
+    color: #2a1606;
+    background: linear-gradient(180deg, #ffe08a, #c98a1c);
   }
   .ticker-window {
     flex: 1;
     overflow: hidden;
-    display: flex;
-    align-items: center;
+    mask: linear-gradient(90deg, transparent 0, #000 40px, #000 calc(100% - 60px), transparent 100%);
   }
   .ticker-run {
     display: flex;
     width: max-content;
-    animation: ticker var(--loop) linear 10s infinite;
+    animation: ticker var(--loop) linear infinite;
   }
   .ticker-list {
     display: flex;
+    white-space: nowrap;
   }
   .tick {
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    padding: 0 40px;
-    white-space: nowrap;
-    color: var(--paper);
-    font-size: 1.7rem;
-  }
-  /* A gold diamond between awards. */
-  .tick::after {
-    content: "◆";
-    color: var(--gold);
-    font-size: 0.7em;
-    margin-left: 24px;
+    padding: 0 44px;
   }
   .tick b {
-    font-family: var(--font-display);
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 26px;
     text-transform: uppercase;
-    color: var(--gold);
-    padding-right: 0.15em; /* italic overhang */
-  }
-  .tick-name {
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    padding-right: 0.15em; /* italic overhang */
-  }
-  .tick-detail {
-    font-weight: 600;
-    color: var(--on-field-soft);
+    color: #ffd257;
+    margin-right: 10px;
   }
   @keyframes ticker {
     to {
@@ -672,11 +543,10 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .champ * {
-      animation: none !important;
-    }
-    .confetti {
-      display: none;
+    .burst,
+    .motes i,
+    .ticker-run {
+      animation: none;
     }
   }
 </style>

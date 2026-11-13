@@ -19,7 +19,7 @@
     p1Name: string;
     p2Name: string;
     target: number;
-    context: string; // "Group 3, match 2 of 6" / "Mid bracket round 2"
+    context: string; // "Circle III, match 2 of 6" / "Iron Path round 2"
     tier: string; // colours the card tops like the TV: group | wb | mb | lb | gf
     stadiaOff: string[]; // stadia out of the draw (event-wide)
   } = $props();
@@ -160,7 +160,7 @@
 
   {#if !started && rounds.length === 0}
     <button type="button" class="start" onclick={() => setStarted(true)}>
-      Start match <span>Draws the stadium on the TV</span>
+      Start match <span>Casts the runes for the arena on the TV</span>
     </button>
   {/if}
 
@@ -254,7 +254,7 @@
     <!-- Event-wide: a stadium that's out (flat motor, say) isn't drawn until
          it's put back. -->
     <div class="st-draw">
-      <span class="st-draw-q">Stadia in the draw</span>
+      <span class="st-draw-q">Arenas in the draw</span>
       {#each STADIA as s (s.key)}
         {@const on = !stadiaOff.includes(s.key)}
         <button
@@ -588,16 +588,17 @@
     font-size: 2rem;
     white-space: nowrap;
   }
+  /* On the dark field above the slabs, so the field's colours. */
   .sides {
     display: flex;
     flex-wrap: wrap;
     gap: 6px 24px;
     margin: -8px 0 18px;
     font-size: 1.05rem;
-    color: var(--ink-soft);
+    color: var(--on-field-soft);
   }
   .sides b {
-    color: var(--ink);
+    color: var(--paper);
   }
   .st-wait {
     font-family: var(--font-text);

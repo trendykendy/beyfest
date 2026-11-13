@@ -3,6 +3,7 @@
   import { artFor } from "$lib/fighters";
   import FighterSilhouette from "./FighterSilhouette.svelte";
   import VsCrackArcs from "./VsCrackArcs.svelte";
+  import RuneRing from "./RuneRing.svelte";
 
   // The fighter intro on Start match, in the Tetrafatalis look (locked style
   // frame: fighter-art/style-frames/vs-slam on tetrafatalis/art). A ruby half
@@ -74,10 +75,6 @@
   // The same crack on the whole canvas, for the arcs.
   const crackOnCanvas = CRACK.map(([x, y]) => [x, y + BAND_TOP] as [number, number]);
 
-  // Runes round the medallion and the burst: the Elder Futhark, twice, each
-  // set at an equal step round the circle so the ring is always full.
-  const RUNES = [..."ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ".repeat(2)];
-
   let w = $state(1920);
   const scale = $derived(w / 1920);
 
@@ -133,17 +130,6 @@
   </div>
 {/snippet}
 
-{#snippet ring(r: number, size: number, circles: number[])}
-  <g fill="none" stroke="currentColor">
-    {#each circles as c, i}<circle cx="100" cy="100" r={c} stroke-width={i ? 1 : 1.3} />{/each}
-  </g>
-  <g class="runes" font-size={size} fill="currentColor" text-anchor="middle" dominant-baseline="central">
-    {#each RUNES as rune, i}
-      <text x="100" y={100 - r} transform="rotate({(i * 360) / RUNES.length} 100 100)">{rune}</text>
-    {/each}
-  </g>
-{/snippet}
-
 <div class="vs" class:hold bind:clientWidth={w} style:--k={slow} style:--out="{OUT}ms">
   <div class="canvas" style:transform="scale({scale})">
     <div class="backdrop"></div>
@@ -186,12 +172,12 @@
             <circle {cx} {cy} r="20" stroke-width="1.2" />
           {/each}
         </g>
-        {@render ring(87, 13, [97, 77])}
+        <RuneRing r={87} size={13} circles={[97, 77]} />
       </svg>
 
       <div class="medallion">
         <svg class="band" viewBox="0 0 200 200" aria-hidden="true">
-          {@render ring(89, 12, [98, 80])}
+          <RuneRing r={89} size={12} circles={[98, 80]} />
         </svg>
         <span>VS</span>
       </div>
@@ -588,9 +574,6 @@
       transform: rotate(360deg);
     }
   }
-  .runes {
-    font-family: var(--tf-font-runic);
-  }
   /* The dark disc, rimmed in gold. */
   .medallion::before {
     content: "";
@@ -606,30 +589,38 @@
   }
   .medallion span {
     position: relative;
-    font-family: var(--tf-font-display);
-    font-size: 161px;
+    /* Carved capitals, as on the Arena. */
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 138px;
     line-height: 1;
-    margin-top: 12px;
-    color: #fff1cc;
+    margin-top: 6px;
+    color: #ffe9a8;
     text-shadow:
       0 0 15px #ffb347,
-      0 5px 0 #3a1d05;
+      0 7px 0 #1c0c04;
   }
 
   /* ── Names ──────────────────────────────────────────────── */
   .plate {
     position: absolute;
     bottom: 46px;
-    font-family: var(--tf-font-display);
-    font-size: 84px;
-    letter-spacing: 0.05em;
+    /* Carved capitals with a dark edge, as on the Arena. */
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 74px;
+    letter-spacing: 0.02em;
     line-height: 1;
     white-space: nowrap;
     color: #ffe6ad;
+    text-shadow:
+      0 6px 0 #1c0c04,
+      0 0 24px rgb(0 0 0 / 0.9);
     animation: rise calc(350ms * var(--k)) ease-out calc(860ms * var(--k)) both;
   }
   .plate.long {
-    font-size: 66px;
+    font-size: 56px;
   }
   .plate.l {
     left: 77px;
@@ -642,6 +633,9 @@
   .plate small {
     display: block;
     font-family: var(--tf-font-text);
+    font-weight: 400;
+    text-transform: none;
+    text-shadow: none;
     font-size: 33px;
     letter-spacing: 0.2em;
     font-variant: small-caps;

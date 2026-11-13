@@ -64,7 +64,7 @@
     --tier: var(--neutral);
     min-height: 48px;
     border-left: 6px solid var(--tier);
-    border-top: 2px solid #e3e6f3;
+    border-top: 2px solid var(--field-line);
   }
   .tier-wb,
   .tier-gf {
@@ -82,12 +82,14 @@
   }
   .rank {
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.1rem;
     color: var(--ink-soft);
     text-align: center;
   }
   .name {
     font-family: var(--font-display);
+    font-weight: 900;
     font-stretch: 62%;
     font-size: 1.35rem;
     line-height: 1.1;
@@ -103,6 +105,7 @@
   }
   .wl {
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.15rem;
     text-align: center;
     font-variant-numeric: tabular-nums;
@@ -134,7 +137,7 @@
     color: var(--gold);
   }
   .tier-out .dest {
-    background: #dfe3f2;
+    background: var(--field-line);
     color: var(--ink-soft);
   }
   /* Only a projection until the table is final: outline, no fill. */

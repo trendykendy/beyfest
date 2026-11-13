@@ -22,6 +22,7 @@
 <script lang="ts">
   import { faceCrop, type Face } from "$lib/fighters";
   import type { MatchPointState } from "$lib/matchPoint";
+  import { SCREENS } from "$lib/terms";
   import FighterSilhouette from "./FighterSilhouette.svelte";
 
   // Ultimate Finish: the overlay for match point. It sits over the Match
@@ -43,6 +44,7 @@
     event = null, // the moment to play
     eventId = 0, // bump to play it again
     announced = true, // false: dims, but no banner until the moment has played
+    banner = true, // false: no held banner at all (the Arena marks match point itself)
     p1,
     p2,
     score,
@@ -54,6 +56,7 @@
     event?: MatchPointEvent | null;
     eventId?: number;
     announced?: boolean;
+    banner?: boolean;
     p1: Fighter;
     p2: Fighter;
     score: [number, number];
@@ -95,10 +98,11 @@
   const side = $derived(lead === "p1" ? "red" : lead === "p2" ? "blue" : "both");
   const leadName = $derived(lead === "p2" ? p2.name : lead === "p1" ? p1.name : "");
 
-  const WORDS: Record<MatchPointEvent, { title: string; kana: string }> = {
-    slam: { title: "Match point", kana: "マッチポイント" },
-    suddenDeath: { title: "Sudden death", kana: "サドンデス" },
-    saved: { title: "Saved!", kana: "セーブ" },
+  // The title, and the line above it (no katakana: that's the logo's alone).
+  const WORDS: Record<MatchPointEvent, { title: string; kick: string }> = {
+    slam: { title: SCREENS.matchPoint, kick: "One blow from victory" },
+    suddenDeath: { title: "Sudden death", kick: "Both stand at " + SCREENS.matchPoint },
+    saved: { title: "Saved!", kick: "The door holds" },
   };
   const words = $derived(event ? WORDS[event] : WORDS.slam);
   const tagline = $derived(
@@ -106,7 +110,7 @@
       ? `${leadName} survives`
       : event === "suddenDeath"
         ? "Next finish wins"
-        : `${leadName}: one finish from the win`,
+        : `${leadName} stands at the threshold`,
   );
 
   // The banner's text while tension holds; in variant A it also carries the
@@ -144,7 +148,7 @@
   <div class="canvas" style:transform="scale({scale})">
     {#if tension}
       <div class="tension who-{mp}">
-        {#if announced || playing}
+        {#if banner && (announced || playing)}
           {#key bannerMoment ? eventId : "held"}
             <div class="banner side-{bannerSide}" class:pop={bannerMoment}>
               <span class="b-title">{bannerTitle}</span>
@@ -181,13 +185,13 @@
           {/if}
 
           <div class="m-flash"></div>
+          <p class="kick">{words.kick}</p>
           <div class="band">
-            <span class="kana">{words.kana}</span>
-            <span class="title">{words.title}</span>
+            <span class="title tf-carved blood" data-t={words.title}>{words.title}</span>
           </div>
           <div class="sub">
             <span class="tag">{tagline}</span>
-            <span class="tally">{score[0]}<i>–</i>{score[1]}</span>
+            <span class="tally tf-carved" data-t="{score[0]}–{score[1]}">{score[0]}–{score[1]}</span>
           </div>
         </div>
       {/key}
@@ -337,7 +341,7 @@
   .m-dark {
     position: absolute;
     inset: -40px;
-    background: rgb(4 4 14 / 0.97);
+    background: radial-gradient(ellipse 70% 60% at 50% 50%, #3a0a0e, #0a0304 75%);
     animation: fade-in calc(160ms * var(--k)) linear both;
   }
   .v-c .m-dark {
@@ -350,7 +354,8 @@
     width: 2600px;
     height: 2600px;
     margin: -1300px 0 0 -1300px;
-    background: repeating-conic-gradient(rgb(255 199 0 / 0.14) 0deg 7deg, transparent 7deg 18deg);
+    background: repeating-conic-gradient(rgb(255 40 40 / 0.22) 0deg 3deg, transparent 3deg 12deg);
+    mask: radial-gradient(circle, transparent 12%, #000 40%, transparent 60%);
     animation:
       turn calc(24s * var(--k)) linear infinite,
       fade-in calc(260ms * var(--k)) linear calc(var(--land) * var(--k)) both;
@@ -386,27 +391,26 @@
     display: grid;
     place-items: center;
     overflow: hidden;
-    background: linear-gradient(105deg, var(--c1) 0%, var(--c2) 35%, var(--c3) 70%, var(--c4) 100%);
-    border-top: 10px solid var(--gold);
-    border-bottom: 10px solid var(--gold);
-    box-shadow: 0 0 0 8px var(--ink);
-    transform: rotate(-3deg);
+    /* A band of dark stone between gold rules, lit crimson from behind. */
+    background: linear-gradient(180deg, #0c0d10, #17181d 50%, #0c0d10);
+    border-top: 8px solid #eab13a;
+    border-bottom: 8px solid #eab13a;
+    box-shadow:
+      0 0 0 6px #1c0c04,
+      0 0 90px rgba(255, 30, 40, 0.6);
     animation: band-in calc(var(--land) * 0.9 * var(--k)) cubic-bezier(0.2, 0.9, 0.25, 1.05) both;
   }
   .side-blue .band {
     animation-name: band-in-r;
   }
-  .side-both .band {
-    background: linear-gradient(90deg, #b5121b 0%, #5a0309 38%, #020a4a 62%, #0b2fb8 100%);
-  }
   @keyframes band-in {
     from {
-      transform: translateX(-2200px) rotate(-3deg) skewX(-14deg);
+      transform: translateX(-2200px) skewX(-14deg);
     }
   }
   @keyframes band-in-r {
     from {
-      transform: translateX(2200px) rotate(-3deg) skewX(-14deg);
+      transform: translateX(2200px) skewX(-14deg);
     }
   }
   /* In C the art has the screen first: the band arrives just before the title. */
@@ -414,32 +418,31 @@
     animation-delay: calc((var(--land) - 240ms) * var(--k));
     animation-duration: calc(240ms * var(--k));
   }
-  .kana {
-    grid-area: 1 / 1;
-    align-self: start;
-    margin-top: 12px;
-    font-family: var(--font-display);
-    font-size: 58px;
-    letter-spacing: 0.32em;
-    color: rgb(255 255 255 / 0.72);
+  .kick {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 232px;
+    text-align: center;
+    font-family: var(--tf-font-text);
+    font-size: 40px;
+    font-variant: small-caps;
+    letter-spacing: 0.3em;
+    color: #ffb0a6;
+    animation: rise calc(320ms * var(--k)) ease-out calc((var(--land) + 120ms) * var(--k)) both;
   }
+  /* Carved crimson (theme.css .tf-carved.blood). */
   .title {
     grid-area: 1 / 1;
-    margin-top: 40px;
-    font-family: var(--font-display);
-    font-size: 262px;
+    font-size: 190px;
     line-height: 1;
-    white-space: nowrap;
-    text-transform: uppercase;
-    color: var(--paper);
-    text-shadow:
-      8px 8px 0 var(--ink),
-      -2px -2px 0 var(--ink);
+    letter-spacing: 0.02em;
+    --stroke: 22px;
+    --drop: 12px;
     animation: title-in calc(300ms * var(--k)) cubic-bezier(0.2, 0.9, 0.25, 1.15) calc(var(--land) * var(--k)) both;
   }
   .ev-suddenDeath .title {
-    font-size: 244px;
-    color: var(--gold);
+    font-size: 170px;
   }
   @keyframes title-in {
     from {
@@ -457,8 +460,6 @@
     justify-content: center;
     align-items: center;
     gap: 48px;
-    font-family: var(--font-display);
-    text-transform: uppercase;
     line-height: 1;
     animation: rise calc(320ms * var(--k)) ease-out calc((var(--land) + 240ms) * var(--k)) both;
   }
@@ -469,26 +470,19 @@
     }
   }
   .tag {
-    padding: 12px 40px 16px;
-    font-size: 66px;
-    font-weight: 700;
-    font-stretch: 62%;
+    font-family: var(--tf-font-text);
+    font-size: 48px;
+    /* theme.css has a global .tag (condensed capitals): undo it here. */
+    font-stretch: 100%;
+    text-transform: none;
+    letter-spacing: 0;
     white-space: nowrap;
-    background: var(--paper);
-    color: var(--ink);
-    border: 4px solid var(--ink);
-    box-shadow: 10px 10px 0 var(--ink);
-    transform: skewX(-10deg);
+    color: #ffe1d6;
   }
   .tally {
-    font-size: 124px;
-    color: var(--gold);
-    text-shadow: 6px 6px 0 var(--ink);
-    font-variant-numeric: tabular-nums;
-  }
-  .tally i {
-    font-style: normal;
-    margin: 0 10px;
+    font-size: 100px;
+    --stroke: 12px;
+    --drop: 7px;
   }
 
   /* ── Variant C: the fighters push in, face to face ── */

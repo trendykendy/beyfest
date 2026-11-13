@@ -146,7 +146,7 @@
   }
   .ask {
     border-color: var(--red);
-    box-shadow: 5px 5px 0 var(--red);
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
   }
   .row {
     display: flex;
@@ -207,6 +207,7 @@
     min-height: 48px;
     padding: 0 14px;
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.15rem;
     text-transform: uppercase;
     border: 2px solid var(--ink);
@@ -215,7 +216,7 @@
   .go {
     background: var(--gold);
     color: var(--ink);
-    box-shadow: 3px 3px 0 var(--ink);
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
   }
   /* Demon crimson only for danger moments (planning doc, art direction). */
   .go.demon {

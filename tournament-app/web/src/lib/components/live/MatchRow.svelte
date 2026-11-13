@@ -57,7 +57,7 @@
     min-height: 48px;
     padding: 6px 12px 6px 8px;
     border-left: 6px solid var(--tier);
-    border-top: 2px solid #e3e6f3;
+    border-top: 2px solid var(--field-line);
   }
   .row:first-child {
     border-top: 0;
@@ -88,6 +88,7 @@
   }
   .p {
     font-family: var(--font-display);
+    font-weight: 900;
     font-stretch: 62%;
     font-size: 1.2rem;
     line-height: 1.15;
@@ -104,7 +105,7 @@
     font-weight: 900;
   }
   .p.lose {
-    color: #8a90ad;
+    color: var(--ink-soft);
   }
   /* A slot nobody is in yet: plain words, not a name, wrapping if long. */
   .p.tbd {
@@ -124,6 +125,7 @@
     min-width: 52px;
     text-align: center;
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.15rem;
     line-height: 1;
     font-variant-numeric: tabular-nums;

@@ -4,7 +4,7 @@
   import { pickStructure } from "@beyfest/engine";
   import { liveUpdates } from "$lib/pbBrowser";
   import { EVENT } from "$lib/config";
-  import { EVENT_NAME, EVENT_SUBTITLE } from "$lib/terms";
+  import { ARENA_NAME, EVENT_NAME, PHONE, STAGES } from "$lib/terms";
   import { loadFollow, resolveFollow, saveFollow, type Follow } from "$lib/follow";
   import { loadMe, saveMe, type Me } from "$lib/people";
   import { nameMap, type PBPlayer } from "$lib/view";
@@ -31,17 +31,24 @@
   // Kept in the address (#groups), so a reload or a shared link lands on the
   // same tab. Bracket only appears once the knockout exists.
   type Tab = "now" | "groups" | "bracket" | "bets" | "follow";
-  const TABS: { key: Tab; label: string }[] = [
-    { key: "now", label: "Now" },
-    { key: "groups", label: "Groups" },
-    { key: "bracket", label: "Bracket" },
-    { key: "bets", label: "Bets" },
-    { key: "follow", label: "Follow" },
+  // label: on the tab bar (short, so five fit a small phone); title and sub:
+  // in the top bar while the tab is open.
+  const TABS: { key: Tab; label: string; title: string; sub: string }[] = [
+    { key: "now", label: "Herald", title: PHONE.now, sub: `live from ${ARENA_NAME}` },
+    { key: "groups", label: "Circles", title: PHONE.groups, sub: STAGES.groups },
+    { key: "bracket", label: "Paths", title: PHONE.bracket, sub: "swipe for later rounds" },
+    { key: "bets", label: PHONE.bets, title: PHONE.bets, sub: "gold won and lost" },
+    { key: "follow", label: PHONE.follow, title: `Your ${PHONE.follow}`, sub: "whose matches to watch for" },
   ];
   const tabs = $derived(TABS.filter((t) => t.key !== "bracket" || hasKnockout));
   let tab = $state<Tab>("now");
   // A saved #bracket from before the knockout existed falls back to Now.
   const shownTab = $derived(tabs.some((t) => t.key === tab) ? tab : "now");
+  // What the top bar says: the open tab, or The Gathering before the draw.
+  const heading = $derived.by(() => {
+    const t = TABS.find((x) => x.key === shownTab)!;
+    return data.tournament ? { title: t.title, sub: t.sub } : { title: "The Gathering", sub: "answer the summons" };
+  });
 
   async function pick(t: Tab) {
     if (t === tab) return;
@@ -123,19 +130,22 @@
 <div class="live">
   <header class="top">
     <div class="top-in">
-      <img class="brand" src="/logo-beyfest.webp" alt="Beyfest" />
-      <span class="brand-sub"><span>{EVENT_SUBTITLE} Live</span><span class="kana">ライブ</span></span>
-      {#if !online}<span class="offline" role="status">Reconnecting</span>{/if}
+      <img class="brand" src="/logo-tetrafatalis.webp" alt={EVENT_NAME} />
+      {#if !online}
+        <span class="offline" role="status">Reconnecting</span>
+      {:else}
+        <span class="brand-sub"><b>{heading.title}</b><span>{heading.sub}</span></span>
+      {/if}
     </div>
   </header>
 
   <main class="body" class:with-tabs={!!data.tournament}>
     {#if !data.tournament}
       <section class="lv-slab waiting">
-        <header class="lv-slab-head"><h2>Groups not drawn yet</h2></header>
+        <header class="lv-slab-head"><h2>The Circles are not drawn yet</h2></header>
         <p>
-          Live scores, tables and the bracket appear here as soon as the groups are drawn. Keep this page open: it
-          updates by itself.
+          Live scores, the Circles and the Paths appear here as soon as the Circles are drawn. Keep this page open:
+          it updates by itself.
         </p>
         <p class="when">{EVENT.date} · {EVENT.place}</p>
       </section>
@@ -211,21 +221,21 @@
           <button class="tb" class:on={shownTab === t.key} aria-current={shownTab === t.key ? "page" : undefined} onclick={() => pick(t.key)}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               {#if t.key === "now"}
-                <!-- A play mark: what's on -->
-                <path d="M7 4.5v15l12-7.5z" />
+                <!-- A herald's horn -->
+                <path d="M3 10.2v3.6l3 .5V9.7zM7.4 9.4v5.2l11.2 4.2V5.2zM20 7.5v9l1.6.6V6.9z" />
               {:else if t.key === "groups"}
-                <!-- A table -->
-                <path d="M3 5h18v3H3zM3 10.5h18v3H3zM3 16h18v3H3z" />
+                <!-- Rings: the Circles -->
+                <path class="line" d="M8.5 12a4.5 4.5 0 1 0 0-.01zM15.5 12a4.5 4.5 0 1 0 0-.01z" transform="translate(-4.5 0)" />
               {:else if t.key === "bracket"}
-                <!-- Bracket lines -->
-                <path class="line" d="M2 5.5h7v13H2M9 12h6M15 7v10M15 7h7M15 17h7" />
+                <!-- Paths that join -->
+                <path class="line" d="M3 5.5h6l4 6.5h8M3 18.5h6l4-6.5" />
               {:else if t.key === "bets"}
                 <!-- A coin -->
                 <circle cx="12" cy="12" r="9.5" />
                 <path class="cut" d="M12 6v12M15 8.5c-.8-.9-1.8-1.3-3-1.3-1.7 0-3 .9-3 2.3 0 3.2 6 1.6 6 4.9 0 1.4-1.3 2.4-3 2.4-1.3 0-2.4-.5-3.2-1.4" />
               {:else}
-                <!-- A star -->
-                <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 17.3l-5.9 3.2 1.3-6.6-4.9-4.5 6.6-.8z" />
+                <!-- A banner on its pole -->
+                <path d="M5 2.5h1.8v19H5zM8 4h11l-2.6 4L19 12H8z" />
               {/if}
             </svg>
             <span>{t.label}</span>
@@ -238,23 +248,57 @@
 
 <style>
   /* Phone first: designed at 360–430px wide, kept to a phone-width column
-     (480px) on anything bigger. */
+     (480px) on anything bigger.
+
+     The parchment look. The tab components were written against the old
+     look's colour and font names (--field, --paper, --ink, --font-display…),
+     so those names are given parchment values here and every component
+     under .live follows. Dark stone bars top and bottom and carved Cinzel
+     capitals tie it to the TV. */
   .live {
     --col: 480px;
     --gutter: 16px;
-    --tabs-h: 60px;
+    --tabs-h: 62px;
+
+    --field: #efe2c4; /* the page */
+    --field-deep: #e2d0a6; /* a shade down, for quiet controls */
+    --field-line: #c9b48a; /* rules and quiet borders */
+    --paper: #fffaf0; /* cards */
+    --ink: #33230f; /* text, and the dark of tags and edges */
+    --ink-soft: #7a6447; /* secondary text on a card */
+    --on-field-soft: #7a6447; /* secondary text on the page */
+    --gold: #eab13a;
+    --red: #b4551a; /* in battle: torch orange, not alarm red */
+    --green: #4d7a3a;
+    --outline: 2px;
+    --font-display: var(--tf-font-carved);
+    --font-text: var(--tf-font-text);
+    /* The Paths, dark enough to read on parchment. */
+    --wb: #a8780f;
+    --mb: #5d6a78;
+    --lb: #9a4f35;
+
     min-height: 100dvh;
-    background: var(--field);
-    color: var(--paper);
+    background: var(--field) radial-gradient(ellipse 120% 60% at 50% 0, #f8efd6, #e6d5ad 85%) fixed;
+    color: var(--ink);
+    font-family: var(--tf-font-text);
+    font-size: 17px;
+  }
+  /* Headings were black italic capitals; Cinzel needs its own weight. */
+  .live :global(h2),
+  .live :global(h3) {
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    letter-spacing: 0.02em;
   }
 
-  /* ── Header ─────────────────────────────────────────────────────── */
+  /* ── Header: dark stone, the logo, and which tab this is ─────────── */
   .top {
     position: sticky;
     top: 0;
     z-index: 20;
-    background: var(--field-deep);
-    border-bottom: var(--outline) solid var(--ink);
+    background: linear-gradient(180deg, #17181d, #0a0a0d);
+    border-bottom: 4px solid var(--gold);
     padding-top: env(safe-area-inset-top);
   }
   .top-in {
@@ -263,43 +307,51 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    height: 52px;
+    height: 60px;
     padding: 0 var(--gutter);
     padding-left: max(var(--gutter), env(safe-area-inset-left));
     padding-right: max(var(--gutter), env(safe-area-inset-right));
   }
-  /* The chrome BEYFEST logo (the BEYFEST part of static/logo.webp). */
   .brand {
     display: block;
-    height: 42px;
+    height: 48px;
     width: auto;
   }
   .brand-sub {
+    margin-left: auto;
     display: flex;
     flex-direction: column;
-    line-height: 1.05;
-    font-stretch: 75%;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-size: 0.75rem;
+    text-align: right;
+    line-height: 1.2;
+    min-width: 0;
   }
-  .kana {
-    font-family: var(--font-display);
-    letter-spacing: 0.05em;
-    color: var(--on-field-soft);
+  .brand-sub b {
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ffe6ad;
+    white-space: nowrap;
+  }
+  .brand-sub span {
+    font-size: 0.8rem;
+    color: #b9ab8c;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .offline {
     margin-left: auto;
-    font-stretch: 75%;
-    font-weight: 800;
-    font-size: 0.75rem;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    background: var(--red);
-    color: var(--paper);
+    letter-spacing: 0.08em;
+    background: linear-gradient(180deg, #c8651c, #7a3408);
+    color: #fff;
     padding: 4px 10px;
-    border: 2px solid var(--ink);
+    border-radius: 3px;
   }
 
   /* ── Body ───────────────────────────────────────────────────────── */
@@ -332,15 +384,15 @@
     color: var(--ink-soft);
   }
 
-  /* ── Tab bar ────────────────────────────────────────────────────── */
+  /* ── Tab bar: dark stone, the open tab in gold ───────────────────── */
   .tabs {
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: 20;
-    background: var(--ink);
-    border-top: var(--outline) solid var(--gold);
+    background: linear-gradient(180deg, #17181d, #0a0a0d);
+    border-top: 4px solid var(--gold);
     padding-bottom: env(safe-area-inset-bottom);
   }
   .tabs-in {
@@ -350,20 +402,21 @@
   }
   .tb {
     flex: 1;
+    min-width: 0;
     min-height: var(--tabs-h);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 3px;
     background: none;
     border: 0;
-    color: var(--on-field-soft);
-    font-stretch: 75%;
-    font-weight: 800;
-    font-size: 0.8rem;
+    color: #8d8577;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 0.66rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.06em;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
@@ -374,71 +427,82 @@
   }
   .tb svg .cut {
     fill: none;
-    stroke: var(--ink);
+    stroke: #0a0a0d;
     stroke-width: 2;
     stroke-linecap: round;
   }
   .tb.on svg .cut {
-    stroke: var(--gold);
+    stroke: #e0a52c;
   }
   .tb svg .line {
     fill: none;
     stroke: currentColor;
-    stroke-width: 2.6;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   .tb.on {
-    color: var(--ink);
-    background: var(--gold);
+    color: #2a1606;
+    background: linear-gradient(180deg, #ffe08a, #c98a1c);
   }
 
   /* ── Shared by the tab components (lv- prefixed, so global is safe) ── */
-  /* Section heading: a skewed ink tag on the field. */
+  /* Section heading: carved capitals with a rule running off to the right. */
   :global(.lv-h) {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    font-size: 1.25rem;
-    color: var(--paper);
-    background: var(--ink);
-    padding: 6px 22px 7px 10px;
+    gap: 10px;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    color: #5a3a0c;
     margin-bottom: 10px;
-    clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
   }
-  /* A white slab: ink outline, hard offset shadow (no blur: cheap to draw). */
+  :global(.lv-h)::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, var(--field-line), transparent);
+  }
+  /* A card: pale vellum with a ruled edge. */
   :global(.lv-slab) {
-    background: var(--paper);
+    background: rgba(255, 252, 240, 0.66);
     color: var(--ink);
-    border: var(--outline) solid var(--ink);
-    box-shadow: 5px 5px 0 var(--ink);
+    border: 2px solid var(--field-line);
+    border-radius: 6px;
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
+    overflow: hidden;
   }
   :global(.lv-slab-head) {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 10px;
-    background: var(--ink);
-    color: var(--paper);
-    padding: 8px 12px 9px;
+    background: linear-gradient(180deg, #2f3139, #15161b);
+    color: #ffe6ad;
+    border-bottom: 3px solid var(--gold);
+    padding: 8px 12px 7px;
   }
   :global(.lv-slab-head h2) {
-    font-size: 1.5rem;
+    font-size: 1.15rem;
+    text-transform: uppercase;
   }
   :global(.lv-slab-head span) {
     font-size: 0.85rem;
-    font-weight: 600;
     white-space: nowrap;
+    color: #b9ab8c;
   }
   :global(.lv-note) {
     color: var(--on-field-soft);
-    font-size: 0.95rem;
+    font-size: 1rem;
     line-height: 1.4;
     margin-bottom: 12px;
   }
-  /* Chips to switch group / tier: they wrap rather than scroll sideways. */
-  /* Up to four share one row, equal widths; they'd wrap rather than scroll. */
+  /* Chips to switch Circle / Path: a joined row, the chosen one in gold.
+     Up to four share one row, equal widths; they'd wrap rather than scroll. */
   :global(.lv-chips) {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
   :global(.lv-chip) {
     flex: 1 1 0;
@@ -450,27 +514,27 @@
     min-height: 44px;
     padding: 0 6px;
     white-space: nowrap;
-    font-family: var(--font-display);
-    font-size: 1rem;
+    font-family: var(--tf-font-carved);
+    font-weight: 900;
+    font-size: 0.85rem;
     text-transform: uppercase;
-    color: var(--paper);
-    background: var(--field-deep);
-    border: 2px solid var(--field-line);
-    transform: skewX(-8deg);
+    letter-spacing: 0.04em;
+    color: #b9ab8c;
+    background: #1d1f26;
+    border: 2px solid #1c0c04;
+    border-radius: 6px;
     cursor: pointer;
   }
   :global(.lv-chip.on) {
-    color: var(--ink);
-    background: var(--paper);
-    border-color: var(--ink);
-    box-shadow: 3px 3px 0 var(--gold);
+    color: #2a1606;
+    background: linear-gradient(180deg, #ffe08a, #c98a1c);
   }
   :global(.lv-dot) {
     width: 9px;
     height: 9px;
     border-radius: 50%;
-    background: var(--red);
-    box-shadow: 0 0 0 2px var(--ink);
+    background: #ff9d2e;
+    box-shadow: 0 0 0 2px #1c0c04;
   }
   :global(.lv-star) {
     color: var(--gold);

@@ -99,7 +99,7 @@
   {:else}
     {#if drawn}
       <p class="lv-note">
-        Sign in to wager: everyone starts with {gold(START_BALANCE)}. Back a blader to
+        Sign in to wager: everyone starts with {gold(START_BALANCE)}. Back one of the Bladesworn to
         win a match: the favourite pays less, the underdog pays more.
       </p>
     {/if}
@@ -131,12 +131,13 @@
   .go {
     min-height: 56px;
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 1.3rem;
     text-transform: uppercase;
     background: var(--gold);
     color: var(--ink);
     border: 2px solid var(--ink);
-    box-shadow: 3px 3px 0 var(--ink);
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
     cursor: pointer;
   }
   .big:disabled,
@@ -158,7 +159,7 @@
     background: var(--paper);
     color: var(--ink);
     border: 2px solid var(--ink);
-    box-shadow: 3px 3px 0 var(--ink);
+    box-shadow: 0 2px 0 rgba(90, 58, 12, 0.25);
     font: inherit;
     cursor: pointer;
     min-width: 0;
@@ -182,11 +183,13 @@
   }
   .none {
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 2rem;
     color: var(--on-field-soft);
   }
   .fighter {
     font-family: var(--font-display);
+    font-weight: 900;
     font-size: 0.95rem;
     line-height: 1.1;
     padding: 4px 4px 0;
