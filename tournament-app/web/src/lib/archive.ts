@@ -7,7 +7,7 @@ import {
   groupStandings,
   knockoutTiers,
   nameMap,
-  roundName,
+  plainRoundName,
   type PBGroup,
   type PBMatch,
   type PBPlayer,
@@ -117,7 +117,7 @@ export function exportHtml(d: ArchiveData): string {
   // ── Knockout ──
   for (const t of knockoutTiers(d.matches)) {
     parts.push(`<section><h3>${TIER_TITLE[t.tier]}</h3>${t.rounds
-      .map((r) => `<h4>${esc(roundName(r.label))}</h4><ul class=results>${r.matches.map(result).join("")}</ul>`)
+      .map((r) => `<h4>${esc(plainRoundName(r.label))}</h4><ul class=results>${r.matches.map(result).join("")}</ul>`)
       .join("")}</section>`);
   }
 

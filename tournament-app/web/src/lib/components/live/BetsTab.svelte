@@ -572,8 +572,11 @@
     margin-bottom: 6px;
   }
   /* Up to three options share a row (two once a Whitewash can't happen). */
+  /* One option a row (name left, odds right): three across left too little
+     room for "Annihilation" in carved capitals on a small phone. */
   .prop-opts {
     display: flex;
+    flex-direction: column;
     gap: 6px;
   }
   .prop-opts .side {
@@ -581,6 +584,13 @@
   }
   .side.small {
     min-height: 56px;
+  }
+  .side.small {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    min-height: 46px;
+    padding: 8px 14px;
   }
   .side.small .nm {
     font-size: 1rem;

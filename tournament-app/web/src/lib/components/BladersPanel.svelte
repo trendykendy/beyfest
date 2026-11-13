@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import type { PBPlayer } from "$lib/view";
+  import { BLADER, circleName } from "$lib/terms";
 
   let {
     players,
@@ -25,7 +26,7 @@
 <!-- Everyone in the tournament: fix a name, or record that someone has left.
      Leaving walks over every match of theirs as it becomes playable. -->
 <section class="bladers">
-  <h2 class="kicker">Bladers</h2>
+  <h2 class="kicker">{BLADER.many}</h2>
   <ul class="list">
     {#each list as p (p.id)}
       <li class="row" class:out={p.withdrawn}>
@@ -42,7 +43,7 @@
             {#if error && errorFor === p.id}<span class="err">{error}</span>{/if}
           </form>
         {:else}
-          <span class="grp">{p.groupIndex != null ? `Group ${p.groupIndex + 1}` : ""}</span>
+          <span class="grp">{p.groupIndex != null ? circleName(p.groupIndex) : ""}</span>
           <span class="nm">{p.name}</span>
           {#if p.withdrawn}
             <span class="tag">Withdrawn</span>

@@ -69,6 +69,31 @@ export function tierOf(stage: Stage): "wb" | "mb" | "lb" | "gf" | "group" {
   return "group";
 }
 
+// The round name in plain words, as the 2026 screens had it: "Phase 4 — MB R2"
+// → "Mid bracket round 2". For the results download, which is made for past
+// events too, so an archived Triple Threat still reads as it did on the day.
+export function plainRoundName(roundLabel: string): string {
+  let s = roundLabel.replace(/^Phase w+ — /, "");
+  if (s === "WB SF Losers Playoff") return "Winners 3rd-place play-off";
+  s = s
+    .replace(/^(Upper|Lower) Bracket — /, "$1 bracket ")
+    .replace(/Quarterfinals/, "quarter-finals")
+    .replace(/Semifinals/, "semi-finals")
+    .replace(/Semifinal/, "semi-final")
+    .replace(/WB/, "Winners")
+    .replace(/MB/, "Mid bracket")
+    .replace(/LB/, "Losers")
+    .replace(/Mini-RR/, "mini round-robin")
+    .replace(/R(d)/, "round $1")
+    .replace(/Round/, "round")
+    .replace(/Semis/, "semi-finals")
+    .replace(/(Semi|SF)/, "semi-final")
+    .replace(/Quarters/, "quarter-finals")
+    .replace(/Final/, "final")
+    .replace(/Match/, "match");
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 // A group's stored name or label in the screens' words: "Group 2" → "Circle II".
 // Anything else comes back unchanged.
 export function circleLabel(groupName: string): string {
@@ -120,13 +145,13 @@ export function matchContext(m: PBMatch, matches: PBMatch[]): string {
   return `${circleLabel(m.roundLabel)}, match ${n} of ${list.length}`;
 }
 
-// Group sizes in words: [4, 4, 4] → "3 groups of 4", [5, 4, 4] → "1 group of 5 and 2 of 4".
+// Circle sizes in words: [4, 4, 4] → "3 Circles of 4", [5, 4, 4] → "1 Circle of 5 and 2 of 4".
 export function groupsInWords(sizes: number[]): string {
   const counts = new Map<number, number>();
   for (const n of sizes) counts.set(n, (counts.get(n) ?? 0) + 1);
   const parts = [...counts].sort((a, b) => b[0] - a[0]);
   return parts
-    .map(([size, count], i) => (i === 0 ? `${count} group${count === 1 ? "" : "s"} of ${size}` : `${count} of ${size}`))
+    .map(([size, count], i) => (i === 0 ? `${count} Circle${count === 1 ? "" : "s"} of ${size}` : `${count} of ${size}`))
     .join(" and ");
 }
 

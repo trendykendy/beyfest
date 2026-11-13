@@ -1,12 +1,12 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { dev } from "$app/environment";
-  import { EVENT_NAME, SCREENS, TITLES } from "$lib/terms";
+  import { BLADER, EVENT_NAME, SCREENS, STAGES, TITLES, circleName } from "$lib/terms";
   import { invalidateAll } from "$app/navigation";
   import { onMount, untrack } from "svelte";
   import { liveUpdates } from "$lib/pbBrowser";
   import { STRUCTURES, pickStructure, pointsToWin, miniRRAdvancers } from "@beyfest/engine";
-  import { nameMap, slotLabel, hasStage, availableScenes, SCENE_TITLE, MUSIC_LEVELS, isLive, matchContext, tierOf, groupsInWords } from "$lib/view";
+  import { circleLabel, nameMap, slotLabel, hasStage, availableScenes, SCENE_TITLE, MUSIC_LEVELS, isLive, matchContext, tierOf, groupsInWords } from "$lib/view";
   import type { PBMatch } from "$lib/view";
   import GroupCard from "$lib/components/GroupCard.svelte";
   import BroadcastBracket from "$lib/components/tv/BroadcastBracket.svelte";
@@ -95,9 +95,9 @@
 
   const target = (m: PBMatch) => pointsToWin(m.stage, m.roundLabel);
   const STAGE_NAME: Record<string, string> = {
-    group_stage: "Group stage",
-    knockout: "Knockout",
-    complete: "Complete",
+    group_stage: STAGES.groups,
+    knockout: STAGES.paths,
+    complete: "Settled",
   };
 
   // The TV flow (see tvHold in lib/view.ts): what the organiser's buttons
@@ -125,7 +125,7 @@
     {#if data.tournament}
       <span class="stage stage-{data.tournament.status}">{STAGE_NAME[data.tournament.status] ?? data.tournament.status}</span>
       <span class="head-name">{data.tournament.name}</span>
-      <span class="head-count">{data.tournament.playerCount} bladers</span>
+      <span class="head-count">{data.tournament.playerCount} {BLADER.many}</span>
     {:else}
       <span class="head-name">No tournament yet</span>
     {/if}
@@ -183,14 +183,14 @@
               <span class="warn">{enteredCount - 15} too many (15 at most).</span>
             {:else if previewStructure}
               <span class="ok">
-                {enteredCount} bladers: {groupsInWords(previewStructure.groups)}, and everyone plays the others in their group
+                {enteredCount} {BLADER.many}: {groupsInWords(previewStructure.groups)}, and everyone fights the others in their Circle
                 {previewStructure.roundRobin === "double" ? "twice" : "once"}.
               </span>
             {/if}
           </p>
 
           <button class="big-action" type="submit" disabled={creating || enteredCount < 8 || enteredCount > 15}>
-            {creating ? "Loading fighters and drawing groups…" : "Draw groups and build bracket"}
+            {creating ? "Loading fighters and drawing the Circles…" : "Draw the Circles and build the Paths"}
           </button>
         </form>
       </div>
@@ -270,7 +270,7 @@
           </form>
           <p class="tv-now">
             {#if data.tv.mode === "auto"}
-              Rotating, and cutting to Match centre when a score changes.
+              Rotating, and cutting to The Arena when a score changes.
             {:else}
               Locked on {SCENE_TITLE[data.tv.scene]}. Press Auto to rotate again.
             {/if}
@@ -336,7 +336,7 @@
     <!-- ─────────────── Group stage ─────────────── -->
     {#if !hasKnockout}
       <section>
-        <h2 class="kicker">Groups</h2>
+        <h2 class="kicker">The Circles</h2>
         <div class="groups-grid">
           {#each data.groups as group (group.id)}
             <GroupCard {group} players={data.players} matches={data.matches} knockoutType={structure?.knockoutType ?? ""} />
@@ -350,7 +350,7 @@
               {@const done = m.matchStatus === "done"}
               {@const now = m.code === current?.code}
               <li class="fixture-row" class:done class:now>
-                <span class="fgroup">{groupNameByIndex.get(m.groupIndex ?? -1) ?? `Group ${(m.groupIndex ?? 0) + 1}`}</span>
+                <span class="fgroup">{circleLabel(groupNameByIndex.get(m.groupIndex ?? -1) ?? circleName(m.groupIndex ?? 0))}</span>
                 <span class="pn" class:won={done && m.winner === m.p1}>{names.get(m.p1) ?? "—"}</span>
                 <span class="fresult">
                   {#if done && m.walkover}
@@ -385,13 +385,13 @@
         {/if}
 
         {#if structure}
-          <h2 class="kicker">Knockout bracket</h2>
+          <h2 class="kicker">{STAGES.paths}</h2>
           <!-- The TV's bracket, scaled to fit this box. -->
           <div class="bracket-box">
             <BroadcastBracket matches={data.matches} players={data.players} {structure} {groupCount} />
           </div>
           <!-- Too small to read on a phone: the phone page has it full size, swipeable. -->
-          <a class="btn bracket-phone" href="/live#bracket">Open the bracket</a>
+          <a class="btn bracket-phone" href="/live#bracket">Open the Paths</a>
         {/if}
       </section>
     {/if}
@@ -406,7 +406,7 @@
           Download saves every result as one page that opens offline on any phone or computer. Open this page on your phone
           to save it there.
         </p>
-        <p>Archive puts this tournament away, results and battle royale included, so a new one can start. It stays in the list below.</p>
+        <p>Archive puts this tournament away, results and the Grand Mêlée included, so a new one can start. It stays in the list below.</p>
       </div>
       <div class="keep-actions">
         <a class="btn primary" href="/admin/export" download>Download results</a>

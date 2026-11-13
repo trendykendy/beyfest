@@ -66,7 +66,7 @@
 </script>
 
 <section class="royale">
-  <h2 class="kicker">Battle royale</h2>
+  <h2 class="kicker">The Grand Mêlée</h2>
 
   {#if !royale}
     <form method="POST" action="?/royaleCreate" use:enhance class="setup">
@@ -78,14 +78,14 @@
       </div>
       <label class="field">
         <span>Add names (one per line)</span>
-        <textarea name="extra" rows="2" bind:value={extra} placeholder="Walk-in blader"></textarea>
+        <textarea name="extra" rows="2" bind:value={extra} placeholder="Walk-in"></textarea>
       </label>
       <label class="field spaces">
         <span>Spaces around the arena</span>
         <input type="number" name="spaces" min={SPACES_MIN} max={SPACES_MAX} bind:value={spaces} />
       </label>
       <p class="preview" class:bad={"error" in plan}>
-        <b>{count} bladers.</b>
+        <b>{count} Bladesworn.</b>
         {"error" in plan ? plan.error : planInWords(plan)}
       </p>
       <button class="big-action" type="submit" disabled={"error" in plan}>Draw heats and start</button>
@@ -110,7 +110,7 @@
     </ol>
 
     {#if view.champion && !fixing}
-      <div class="champ"><Trophy /> <span><small>Battle royale champion</small>{view.champion}</span></div>
+      <div class="champ"><Trophy /> <span><small>Last One Standing</small>{view.champion}</span></div>
     {:else if card}
       {#key `${card.key}|${card.status}|${card.entrants.join()}`}
         <div class="card">
@@ -186,11 +186,11 @@
       action="?/royaleReset"
       use:enhance
       onsubmit={(e) => {
-        if (!confirm("Delete the battle royale and every result in it?")) e.preventDefault();
+        if (!confirm("Delete the Grand Mêlée and every result in it?")) e.preventDefault();
       }}
     >
       <input type="hidden" name="id" value={royale.id} />
-      <button class="link danger" type="submit">Reset battle royale</button>
+      <button class="link danger" type="submit">Reset the Grand Mêlée</button>
     </form>
   {/if}
 </section>

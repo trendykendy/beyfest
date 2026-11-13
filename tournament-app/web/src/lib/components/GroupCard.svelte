@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PBGroup, PBMatch, PBPlayer } from "$lib/view";
-  import { groupStandings, destinationOf, nameMap } from "$lib/view";
+  import { circleLabel, groupStandings, destinationOf, nameMap } from "$lib/view";
+  import { BLADER } from "$lib/terms";
 
   let {
     group,
@@ -27,7 +28,7 @@
      ("so far") until the group is finished, then filled in. -->
 <div class="gcard">
   <header class="ghead">
-    <h3>{group.name}</h3>
+    <h3>{circleLabel(group.name)}</h3>
     <span class="progress">{group.complete ? "Final standings" : `${played} of ${groupMatches.length} played`}</span>
   </header>
 
@@ -35,7 +36,7 @@
     <thead>
       <tr>
         <th class="r"><span class="sr">Place</span></th>
-        <th>Blader</th>
+        <th>{BLADER.one}</th>
         <th class="n">W–L</th>
         <th class="n" title="Points scored (the second tie-breaker)">Points</th>
         <th class="n" title="Points scored minus points conceded (the first tie-breaker)">Point diff.</th>
