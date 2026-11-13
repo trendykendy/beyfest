@@ -7,16 +7,17 @@ export interface Stadium {
   num: string; // I / II / III / IV
   name: string; // short name that fits the TV at display size
   code: string; // nickname
+  gem: string; // its gem's colour in Casting the Runes (decided 2026-11-09)
 }
 
 // The first three are the Triple Threat stadia. The fourth is a placeholder
 // until it's chosen: rename it here (key included is fine while the data is
 // only test data). The organiser can take it out of the draw from the scorer.
 export const STADIA: Stadium[] = [
-  { key: "xtreme", num: "I", name: "Xtreme Battle", code: "The Neutral Ground" },
-  { key: "motor", num: "II", name: "Double Xtreme", code: "The Crusher" },
-  { key: "drop", num: "III", name: "Drop Attack", code: "Death From Above" },
-  { key: "fourth", num: "IV", name: "Fourth Arena", code: "To be chosen" },
+  { key: "xtreme", num: "I", name: "Xtreme Battle", code: "The Neutral Ground", gem: "#f0c25a" },
+  { key: "motor", num: "II", name: "Double Xtreme", code: "The Crusher", gem: "#3fcf8a" },
+  { key: "drop", num: "III", name: "Drop Attack", code: "Death From Above", gem: "#ff7a3a" },
+  { key: "fourth", num: "IV", name: "Fourth Arena", code: "To be chosen", gem: "#a070ff" },
 ];
 
 const BY_KEY = new Map(STADIA.map((s) => [s.key, s]));
