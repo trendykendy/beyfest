@@ -65,7 +65,7 @@
   } from "$lib/view";
   import { stadiumOf } from "$lib/stadia";
   import BroadcastBracket from "$lib/components/tv/BroadcastBracket.svelte";
-  import StadiumDraw from "$lib/components/tv/StadiumDraw.svelte";
+  import CastingRunes, { RUNES_LOOKS, preloadRunes } from "$lib/components/tv/casting/CastingRunes.svelte";
   import ArenaScene, { type ArenaCallout, type ArenaSide, type ArenaStatus } from "$lib/components/tv/arena/ArenaScene.svelte";
   import VsIntro from "$lib/components/tv/VsIntro.svelte";
   import TvHeader from "$lib/components/tv/TvHeader.svelte";
@@ -560,13 +560,14 @@
     if (scene !== "spotlight" || spotMatch?.code !== f.code || spotMatch.liveLog.length < f.n) untrack(clearSpeech);
   });
 
-  // ── Stadium draw ────────────────────────────────────────────────────
-  // The server draws a stadium (on Start match, after each round that doesn't
+  // ── Casting the Runes (the arena draw) ──────────────────────────────
+  // The server draws an arena (on Start match, after each round that doesn't
   // win the match, and on Redraw) and stamps stadiumAt. The cut above brings
-  // Match centre up on that match; once it's showing, play the draw: Start
-  // match gets the launch (draw, then ゴーシュート / LET IT RIP), anything later
-  // the ~3s shuffle. One of three looks, at random, never the same twice running.
-  const LOOKS = ["reel", "spotlight", "spin"] as const;
+  // the Arena up on that match; once it's showing, play the draw in 3D
+  // (CastingRunes): Start match gets the launch (the throw, then LET IT RIP),
+  // anything later a shorter throw. One of three looks (die, runestones,
+  // wheel), at random, never the same twice running.
+  const LOOKS = RUNES_LOOKS;
   const AFTER_CALLOUT_MS = 1700; // a round's finish call-out lands first
   type Draw = { code: string; at: number; stadium: string; north: 0 | 1 | 2; kind: "launch" | "next"; round: number; afterRound: boolean };
   let drawSeen = new Map<string, { at: string; rounds: number }>();
@@ -768,6 +769,7 @@
   // A clip whose file isn't there yet is found out now and skipped later.
   onMount(() => [...ANNOUNCER_URLS, STINGER].forEach((u) => announcer.preload(u)));
   onMount(() => announcer.preloadTension());
+  onMount(() => void preloadRunes()); // Casting the Runes' 3D code and textures, ahead of the first draw
   // The admin page's TV panel sets these, live.
   $effect(() => {
     announcer.setEnabled(!data.tv.soundOff);
@@ -1436,7 +1438,7 @@
         />
         {#if drawShow}
           {#key drawShow.id}
-            <StadiumDraw
+            <CastingRunes
               stadium={drawShow.stadium}
               kind={drawShow.kind}
               round={drawShow.round}
